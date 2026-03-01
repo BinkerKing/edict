@@ -1744,6 +1744,7 @@ async function loadAll(){
   if(activeTab==='sessions')renderSessions(liveStatus?liveStatus.tasks:[]);
   if(activeTab==='memorials')renderMemorials();
   if(activeTab==='templates')renderTemplates();
+  if(activeTab==='morning' && !_newsPolling) loadMorning();
 }
 
 /* ══ SESSIONS / 小任务 ══ */
@@ -2160,17 +2161,50 @@ function renderMorning(d){
   </div>`;
 }
 
+let _newsPolling = null;
+let _lastBriefDate = null;
+
 async function refreshNews(){
   const btn = document.getElementById('mb-refresh-btn');
   btn.disabled = true; btn.textContent = '⟳ 采集中…';
   try{
+    // 记录采集前的数据时间戳
+    try{
+      const old = await fetchJ(API+'/morning-brief');
+      _lastBriefDate = old.generated_at || null;
+    }catch(e){ _lastBriefDate = null; }
     const r = await postJ(API+'/morning-brief/refresh', {});
-    toast(r.message||'采集已触发', 'ok', 5000);
-    setTimeout(()=>loadMorning(), 45000);
+    toast(r.message||'采集已触发，自动检测更新中…', 'ok', 5000);
+    // 轮询检测更新（每5秒检查一次，最多2分钟）
+    if(_newsPolling) clearInterval(_newsPolling);
+    let pollCount = 0;
+    _newsPolling = setInterval(async ()=>{
+      pollCount++;
+      if(pollCount > 24){ // 2分钟超时
+        clearInterval(_newsPolling);
+        _newsPolling = null;
+        btn.disabled = false; btn.textContent = '⟳ 立即采集';
+        toast('采集超时，请重试', 'err');
+        return;
+      }
+      try{
+        const fresh = await fetchJ(API+'/morning-brief');
+        if(fresh.generated_at && fresh.generated_at !== _lastBriefDate){
+          // 数据已更新
+          clearInterval(_newsPolling);
+          _newsPolling = null;
+          btn.disabled = false; btn.textContent = '⟳ 立即采集';
+          await loadMorning();
+          toast('✅ 天下要闻已更新', 'ok');
+        } else {
+          btn.textContent = `⟳ 采集中… (${pollCount * 5}s)`;
+        }
+      }catch(e){}
+    }, 5000);
   }catch(e){
     toast('触发失败', 'err');
+    btn.disabled = false; btn.textContent = '⟳ 立即采集';
   }
-  setTimeout(()=>{btn.disabled=false; btn.textContent='⟳ 立即采集';}, 5000);
 }
 
 /* ══ OFFICIALS ══ */
