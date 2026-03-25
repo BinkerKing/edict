@@ -1953,11 +1953,13 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                     'lastDispatchTrigger': trigger,
                 }))
                 return
-            # Fix #139: dispatch channel 可配置（默认 feishu，支持 telegram/wecom/signal 等）
+            # Fix #139/#182: dispatch channel 可配置；未配置时不传 --deliver 避免
+            # "unknown channel: feishu" 错误（非飞书用户）
             _agent_cfg = read_json(DATA / 'agent_config.json', {})
-            _channel = (_agent_cfg.get('dispatchChannel') or 'feishu').strip()
-            cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', msg,
-                   '--deliver', '--channel', _channel, '--timeout', '300']
+            _channel = (_agent_cfg.get('dispatchChannel') or '').strip()
+            cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', msg, '--timeout', '300']
+            if _channel:
+                cmd.extend(['--deliver', '--channel', _channel])
             max_retries = 2
             err = ''
             for attempt in range(1, max_retries + 1):
