@@ -119,6 +119,27 @@
 阻塞项: [具体失败原因]
 ```
 
+### 1.5 步：调用 `codex_delegate` 做任务理解（正式旨意建议默认执行）
+
+> 目标：让“思考”交给 Codex 完成，再由太子执行建单与转交动作。
+>
+> 对正式旨意，优先执行（先生成任务ID用于链路追踪）：
+```bash
+python3 scripts/generate_task_id.py
+# 输出示例: JJC-20260403-103015482
+python3 scripts/codex_delegate.py JJC-xxx "皇上原话（旨意正文）" --model gpt-5.4 --cwd /Users/binkerking/Documents/GitHub/edict
+```
+
+执行规则：
+- 只有出现 `CODEX_DELEGATE_OK` 才视为委托成功
+- 必须读取 `FINAL_MESSAGE_BEGIN ... FINAL_MESSAGE_END` 中内容，用于：
+  - 提炼任务标题
+  - 形成给中书省的传达要点
+  - 优化给皇上的动作回执
+- 如果 `CODEX_DELEGATE_FAIL`，太子可回退为本地直接提炼，但必须在回执中写明：
+  - `Codex委托: 失败`
+  - `阻塞项: <失败原因>`
+
 ### 第二步：自己提炼标题 + 创建任务
 
 > 🚨🚨🚨 **标题规则 — 违反任何一条都是严重失职！** 🚨🚨🚨
