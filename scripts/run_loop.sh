@@ -74,6 +74,8 @@ while true; do
   safe_run "$SCRIPT_DIR/sync_from_openclaw_runtime.py"
   safe_run "$SCRIPT_DIR/sync_agent_config.py"
   safe_run "$SCRIPT_DIR/apply_model_changes.py"
+  safe_run "$SCRIPT_DIR/dispatch_pending_agents.py"
+  safe_run "$SCRIPT_DIR/verify_taizi_transfer.py"
   safe_run "$SCRIPT_DIR/sync_officials_stats.py"
   safe_run "$SCRIPT_DIR/refresh_live_data.py"
 

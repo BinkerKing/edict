@@ -11,7 +11,7 @@ Endpoints:
   GET  /api/model-change-log   → data/model_change_log.json
   GET  /api/last-result        → data/last_model_change_result.json
 """
-import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket
+import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
@@ -609,6 +609,29 @@ _JUNK_TITLES = {
     '嗯', '哦', '知道了', '开启了么', '可以', '不行', '行', 'ok', 'yes', 'no',
     '你去开启', '测试', '试试', '看看',
 }
+_TASK_ID_STATE_FILE = DATA / 'task_id_state.json'
+
+
+def _next_jjc_task_id():
+    """生成全局唯一、单调递增任务ID（不受清理 tasks_source 影响）。
+    格式: JJC-YYYYMMDD-HHMMSSmmm
+    """
+    now_ms = int(time.time() * 1000)
+    holder = {'ms': now_ms}
+
+    def modifier(data):
+        if not isinstance(data, dict):
+            data = {}
+        last_ms = int(data.get('last_ms') or 0)
+        new_ms = max(now_ms, last_ms + 1)
+        data['last_ms'] = new_ms
+        holder['ms'] = new_ms
+        return data
+
+    atomic_json_update(_TASK_ID_STATE_FILE, modifier, {})
+    ms = holder['ms']
+    dt = datetime.datetime.fromtimestamp(ms / 1000.0)
+    return f'JJC-{dt:%Y%m%d}-{dt:%H%M%S}{ms % 1000:03d}'
 
 
 def handle_create_task(title, org='中书省', official='中书令', priority='normal', template_id='', params=None, target_dept=''):
@@ -628,15 +651,8 @@ def handle_create_task(title, org='中书省', official='中书令', priority='n
         return {'ok': False, 'error': f'标题过短（{len(title)}<{_MIN_TITLE_LEN}字），不像是旨意'}
     if title.lower() in _JUNK_TITLES:
         return {'ok': False, 'error': f'「{title}」不是有效旨意，请输入具体工作指令'}
-    # 生成 task id: JJC-YYYYMMDD-NNN
-    today = datetime.datetime.now().strftime('%Y%m%d')
-    tasks = load_tasks()
-    today_ids = [t['id'] for t in tasks if t.get('id', '').startswith(f'JJC-{today}-')]
-    seq = 1
-    if today_ids:
-        nums = [int(tid.split('-')[-1]) for tid in today_ids if tid.split('-')[-1].isdigit()]
-        seq = max(nums) + 1 if nums else 1
-    task_id = f'JJC-{today}-{seq:03d}'
+    # 生成 task id: JJC-YYYYMMDD-HHMMSSmmm（持久单调递增）
+    task_id = _next_jjc_task_id()
     # 正确流程起点：皇上 -> 太子分拣
     # target_dept 记录模板建议的最终执行部门（仅供尚书省派发参考）
     initial_org = '太子'
@@ -967,6 +983,7 @@ _ORG_AGENT_MAP = {
 }
 
 _TERMINAL_STATES = {'Done', 'Cancelled'}
+_DISPATCH_DEDUP_SECONDS = 180
 
 
 def _parse_iso(ts):
@@ -1984,15 +2001,44 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
         log.info(f'ℹ️ {task_id} 新状态 {new_state} 无对应 Agent，跳过自动派发')
         return
 
-    _update_task_scheduler(task_id, lambda t, s: (
+    queued = {'ok': False, 'reason': ''}
+    def _mark_dispatch_queued(t, s):
+        last_agent = s.get('lastDispatchAgent')
+        last_state = s.get('lastDispatchState')
+        last_status = s.get('lastDispatchStatus')
+        last_at = _parse_iso(s.get('lastDispatchAt'))
+        now_dt = datetime.datetime.now(datetime.timezone.utc)
+        dedup = False
+        if last_agent == agent_id and last_state == new_state and last_status in ('queued', 'success'):
+            if last_at:
+                elapsed = max(0, int((now_dt - last_at).total_seconds()))
+                dedup = elapsed < _DISPATCH_DEDUP_SECONDS
+            else:
+                dedup = True
+        if dedup:
+            queued['reason'] = f'dedup(last={last_status}, trigger={s.get("lastDispatchTrigger", "")})'
+            return
+
         s.update({
             'lastDispatchAt': now_iso(),
             'lastDispatchStatus': 'queued',
             'lastDispatchAgent': agent_id,
+            'lastDispatchState': new_state,
             'lastDispatchTrigger': trigger,
-        }),
-        _scheduler_add_flow(t, f'已入队派发：{new_state} → {agent_id}（{trigger}）', to=_STATE_LABELS.get(new_state, new_state))
-    ))
+        })
+        _scheduler_add_flow(
+            t,
+            f'已入队派发：{new_state} → {agent_id}（{trigger}）',
+            to=_STATE_LABELS.get(new_state, new_state),
+        )
+        queued['ok'] = True
+
+    if not _update_task_scheduler(task_id, _mark_dispatch_queued):
+        log.warning(f'⚠️ {task_id} 任务不存在，跳过自动派发')
+        return
+    if not queued['ok']:
+        log.info(f'⏭️ {task_id} 跳过重复派发 {new_state}->{agent_id}: {queued["reason"]}')
+        return
 
     title = task.get('title', '(无标题)')
     target_dept = task.get('targetDept', '')
@@ -2066,6 +2112,7 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                             'lastDispatchAt': now_iso(),
                             'lastDispatchStatus': 'success',
                             'lastDispatchAgent': agent_id,
+                            'lastDispatchState': new_state,
                             'lastDispatchTrigger': trigger,
                             'lastDispatchError': '',
                         }),
@@ -2083,6 +2130,7 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'failed',
                     'lastDispatchAgent': agent_id,
+                    'lastDispatchState': new_state,
                     'lastDispatchTrigger': trigger,
                     'lastDispatchError': err,
                 }),
@@ -2095,6 +2143,7 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'timeout',
                     'lastDispatchAgent': agent_id,
+                    'lastDispatchState': new_state,
                     'lastDispatchTrigger': trigger,
                     'lastDispatchError': 'timeout',
                 }),
@@ -2107,6 +2156,7 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'error',
                     'lastDispatchAgent': agent_id,
+                    'lastDispatchState': new_state,
                     'lastDispatchTrigger': trigger,
                     'lastDispatchError': str(e)[:200],
                 }),

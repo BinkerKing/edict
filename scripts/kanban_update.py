@@ -10,8 +10,10 @@
 两种模式互相独立，数据不会自动同步。
 
 用法:
+  # 先生成唯一任务ID（推荐）
+  python3 scripts/generate_task_id.py
   # 新建任务（收旨时）
-  python3 kanban_update.py create JJC-20260223-012 "任务标题" Zhongshu 中书省 中书令
+  python3 kanban_update.py create JJC-20260223-102530123 "任务标题" Zhongshu 中书省 中书令
 
   # 更新状态
   python3 kanban_update.py state JJC-20260223-012 Menxia "规划方案已提交门下省"
@@ -70,6 +72,42 @@ _AGENT_LABELS = {
     'libu': '礼部', 'hubu': '户部', 'bingbu': '兵部', 'xingbu': '刑部',
     'gongbu': '工部', 'libu_hr': '吏部', 'zaochao': '钦天监',
 }
+
+_TERMINAL_STATES = {'Done', 'Cancelled'}
+
+
+def _agent_session_contains_task(agent_id: str, task_id: str) -> bool:
+    root = pathlib.Path.home() / '.openclaw' / 'agents' / agent_id / 'sessions'
+    if not root.exists():
+        return False
+    for p in root.glob('*.jsonl'):
+        try:
+            if task_id in p.read_text(encoding='utf-8', errors='ignore'):
+                return True
+        except Exception:
+            continue
+    return False
+
+
+def _nudge_agent(agent_id: str, task_id: str, title: str, state: str, now_text: str) -> None:
+    """仅做纠偏督促：唤醒对应 agent 接单继续执行，不代替其完成任务。"""
+    msg = (
+        f"📋 调度纠偏通知\n"
+        f"任务ID: {task_id}\n"
+        f"标题: {title}\n"
+        f"当前状态: {state}\n"
+        f"当前动态: {now_text}\n"
+        f"请立即接单并按职责推进，禁止口头承诺。"
+    )
+    try:
+        subprocess.Popen(
+            ["openclaw", "agent", "--agent", agent_id, "-m", msg, "--timeout", "240"],
+            cwd=str(_BASE),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass
 
 MAX_PROGRESS_LOG = 100  # 单任务最大进展日志条数
 
@@ -188,15 +226,14 @@ def cmd_create(task_id, title, state, org, official, remark=None):
         return
     actual_org = STATE_ORG_MAP.get(state, org)
     clean_remark = _sanitize_remark(remark) if remark else f"下旨：{title}"
+    created = [False]
     def modifier(tasks):
         existing = next((t for t in tasks if t.get('id') == task_id), None)
         if existing:
-            if existing.get('state') in ('Done', 'Cancelled'):
-                log.warning(f'⚠️ 任务 {task_id} 已完结 (state={existing["state"]})，不可覆盖')
-                return tasks
-            if existing.get('state') not in (None, '', 'Inbox', 'Pending'):
-                log.warning(f'任务 {task_id} 已存在 (state={existing["state"]})，将被覆盖')
-        tasks = [t for t in tasks if t.get('id') != task_id]
+            # 任务ID必须全局唯一：禁止覆盖已有任务，避免跨会话串单
+            log.warning(f'⚠️ 任务 {task_id} 已存在 (state={existing.get("state","?")})，拒绝覆盖；请使用新任务ID')
+            print(f'[看板] 创建失败：任务ID已存在 {task_id}', flush=True)
+            return tasks
         tasks.insert(0, {
             "id": task_id, "title": title, "official": official,
             "org": actual_org, "state": state,
@@ -205,10 +242,12 @@ def cmd_create(task_id, title, state, org, official, remark=None):
             "flow_log": [{"at": now_iso(), "from": "皇上", "to": actual_org, "remark": clean_remark}],
             "updatedAt": now_iso()
         })
+        created[0] = True
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
-    _trigger_refresh()
-    log.info(f'✅ 创建 {task_id} | {title[:30]} | state={state}')
+    if created[0]:
+        _trigger_refresh()
+        log.info(f'✅ 创建 {task_id} | {title[:30]} | state={state}')
 
 
 # ── 状态流转合法性校验 ──
@@ -234,6 +273,7 @@ def cmd_state(task_id, new_state, now_text=None):
     """更新任务状态（原子操作，含流转合法性校验）"""
     old_state = [None]
     rejected = [False]
+    assigned_meta = {'need_nudge': False, 'title': '', 'now': ''}
     def modifier(tasks):
         t = find_task(tasks, task_id)
         if not t:
@@ -250,6 +290,10 @@ def cmd_state(task_id, new_state, now_text=None):
             t['org'] = STATE_ORG_MAP[new_state]
         if now_text:
             t['now'] = now_text
+        if new_state == 'Assigned':
+            assigned_meta['need_nudge'] = True
+            assigned_meta['title'] = t.get('title', '')
+            assigned_meta['now'] = t.get('now', '')
         t['updatedAt'] = now_iso()
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
@@ -258,6 +302,8 @@ def cmd_state(task_id, new_state, now_text=None):
         log.info(f'❌ {task_id} 状态转换被拒: {old_state[0]} → {new_state}')
     else:
         log.info(f'✅ {task_id} 状态更新: {old_state[0]} → {new_state}')
+        if assigned_meta['need_nudge']:
+            _nudge_agent('shangshu', task_id, assigned_meta['title'], new_state, assigned_meta['now'])
 
 
 def cmd_flow(task_id, from_dept, to_dept, remark):
@@ -265,10 +311,16 @@ def cmd_flow(task_id, from_dept, to_dept, remark):
     clean_remark = _sanitize_remark(remark)
     agent_id = _infer_agent_id_from_runtime()
     agent_label = _AGENT_LABELS.get(agent_id, agent_id)
+    rejected = [False]
+    reject_reason = ['']
     def modifier(tasks):
         t = find_task(tasks, task_id)
         if not t:
             log.error(f'任务 {task_id} 不存在')
+            return tasks
+        if t.get('state') in _TERMINAL_STATES:
+            rejected[0] = True
+            reject_reason[0] = f'终态任务禁止追加流转（state={t.get("state")})'
             return tasks
         t.setdefault('flow_log', []).append({
             "at": now_iso(), "from": from_dept, "to": to_dept, "remark": clean_remark,
@@ -280,17 +332,78 @@ def cmd_flow(task_id, from_dept, to_dept, remark):
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
     _trigger_refresh()
-    log.info(f'✅ {task_id} 流转记录: {from_dept} → {to_dept}')
+    if rejected[0]:
+        log.warning(f'⚠️ {task_id} flow 被拒绝: {reject_reason[0]}')
+        print(f'[看板] flow 被拒绝：{reject_reason[0]}', flush=True)
+    else:
+        log.info(f'✅ {task_id} 流转记录: {from_dept} → {to_dept}')
 
 
 def cmd_done(task_id, output_path='', summary=''):
     """标记任务完成（原子操作）"""
+    rejected = [False]
+    reject_reason = ['']
+    nudge_on_reject = {'do': False, 'title': '', 'state': '', 'now': ''}
+
     def modifier(tasks):
         t = find_task(tasks, task_id)
         if not t:
             log.error(f'任务 {task_id} 不存在')
             return tasks
+
+        actor = _infer_agent_id_from_runtime(t)
+        cur_state = t.get('state', '')
+
+        # 仅尚书省可收尾 done（允许空 actor 兼容历史手工调用）
+        if actor and actor != 'shangshu':
+            rejected[0] = True
+            reject_reason[0] = f'仅尚书省可执行 done，当前执行者={actor}'
+            nudge_on_reject['do'] = True
+            nudge_on_reject['title'] = t.get('title', '')
+            nudge_on_reject['state'] = t.get('state', '')
+            nudge_on_reject['now'] = t.get('now', '')
+            return tasks
+
+        # 必须由正常流转进入 Review，再允许 done
+        if cur_state != 'Review':
+            rejected[0] = True
+            reject_reason[0] = f'当前状态 {cur_state} 不允许 done，必须先进入 Review'
+            nudge_on_reject['do'] = True
+            nudge_on_reject['title'] = t.get('title', '')
+            nudge_on_reject['state'] = t.get('state', '')
+            nudge_on_reject['now'] = t.get('now', '')
+            return tasks
+
+        # 若有 todos，必须全部 completed 才允许 done
+        todos = t.get('todos') or []
+        if todos:
+            unfinished = [td for td in todos if td.get('status') != 'completed']
+            if unfinished:
+                rejected[0] = True
+                reject_reason[0] = f'仍有未完成子任务 {len(unfinished)} 项，禁止 done'
+                nudge_on_reject['do'] = True
+                nudge_on_reject['title'] = t.get('title', '')
+                nudge_on_reject['state'] = t.get('state', '')
+                nudge_on_reject['now'] = t.get('now', '')
+                return tasks
+
+        # 必须有尚书省真实接单会话
+        if not _agent_session_contains_task('shangshu', task_id):
+            rejected[0] = True
+            reject_reason[0] = '尚书省未检测到接单会话，禁止直接 done'
+            if cur_state == 'Assigned':
+                t['now'] = '尚书省待接单，调度继续督促中'
+                t['block'] = '尚书省未接单'
+                t['updatedAt'] = now_iso()
+            nudge_on_reject['do'] = True
+            nudge_on_reject['title'] = t.get('title', '')
+            nudge_on_reject['state'] = t.get('state', '')
+            nudge_on_reject['now'] = t.get('now', '')
+            return tasks
+
         t['state'] = 'Done'
+        t['org'] = '完成'
+        t['block'] = '无'
         t['output'] = output_path
         t['now'] = summary or '任务已完成'
         t.setdefault('flow_log', []).append({
@@ -309,6 +422,12 @@ def cmd_done(task_id, output_path='', summary=''):
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
     _trigger_refresh()
+    if rejected[0]:
+        log.warning(f'⚠️ {task_id} done 被拒绝: {reject_reason[0]}')
+        print(f'[看板] done 被拒绝：{reject_reason[0]}', flush=True)
+        if nudge_on_reject['do']:
+            _nudge_agent('shangshu', task_id, nudge_on_reject['title'], nudge_on_reject['state'], nudge_on_reject['now'])
+        return
     log.info(f'✅ {task_id} 已完成')
 
 
@@ -379,14 +498,32 @@ def cmd_progress(task_id, now_text, todos_pipe='', tokens=0, cost=0.0, elapsed=0
 
     done_cnt = [0]
     total_cnt = [0]
+    rejected = [False]
+    reject_reason = ['']
     def modifier(tasks):
         t = find_task(tasks, task_id)
         if not t:
             log.error(f'任务 {task_id} 不存在')
             return tasks
+        if t.get('state') in _TERMINAL_STATES:
+            rejected[0] = True
+            reject_reason[0] = f'终态任务禁止更新进展（state={t.get("state")})'
+            return tasks
         t['now'] = clean
         if parsed_todos is not None:
             t['todos'] = parsed_todos
+            # 工作流自动对齐：尚书省在 Doing 阶段且 todos 全部完成时，进入 Review
+            actor = _infer_agent_id_from_runtime(t)
+            if actor == 'shangshu' and t.get('state') == 'Doing':
+                if parsed_todos and all(td.get('status') == 'completed' for td in parsed_todos):
+                    t['state'] = 'Review'
+                    t['org'] = '尚书省'
+                    t.setdefault('flow_log', []).append({
+                        "at": now_iso(),
+                        "from": "六部",
+                        "to": "尚书省",
+                        "remark": "执行汇总完成，进入审查"
+                    })
         # 多 Agent 并行进展日志
         at = now_iso()
         agent_id = _infer_agent_id_from_runtime(t)
@@ -414,6 +551,10 @@ def cmd_progress(task_id, now_text, todos_pipe='', tokens=0, cost=0.0, elapsed=0
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
     _trigger_refresh()
+    if rejected[0]:
+        log.warning(f'⚠️ {task_id} progress 被拒绝: {reject_reason[0]}')
+        print(f'[看板] progress 被拒绝：{reject_reason[0]}', flush=True)
+        return
     res_info = ''
     if tokens or cost or elapsed:
         res_info = f' [res: {tokens}tok/${cost:.4f}/{elapsed}s]'
@@ -429,10 +570,16 @@ def cmd_todo(task_id, todo_id, title, status='not-started', detail=''):
     if status not in ('not-started', 'in-progress', 'completed'):
         status = 'not-started'
     result_info = [0, 0]
+    rejected = [False]
+    reject_reason = ['']
     def modifier(tasks):
         t = find_task(tasks, task_id)
         if not t:
             log.error(f'任务 {task_id} 不存在')
+            return tasks
+        if t.get('state') in _TERMINAL_STATES:
+            rejected[0] = True
+            reject_reason[0] = f'终态任务禁止更新 todo（state={t.get("state")})'
             return tasks
         if 'todos' not in t:
             t['todos'] = []
@@ -454,7 +601,11 @@ def cmd_todo(task_id, todo_id, title, status='not-started', detail=''):
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
     _trigger_refresh()
-    log.info(f'✅ {task_id} todo [{result_info[0]}/{result_info[1]}]: {todo_id} → {status}')
+    if rejected[0]:
+        log.warning(f'⚠️ {task_id} todo 被拒绝: {reject_reason[0]}')
+        print(f'[看板] todo 被拒绝：{reject_reason[0]}', flush=True)
+    else:
+        log.info(f'✅ {task_id} todo [{result_info[0]}/{result_info[1]}]: {todo_id} → {status}')
 
 _CMD_MIN_ARGS = {
     'create': 6, 'state': 3, 'flow': 5, 'done': 2, 'block': 3, 'todo': 4, 'progress': 3,
