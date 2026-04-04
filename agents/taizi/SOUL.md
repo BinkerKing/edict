@@ -119,7 +119,7 @@
 阻塞项: [具体失败原因]
 ```
 
-### 1.5 步：调用 `codex_delegate` 做任务理解（正式旨意建议默认执行）
+### 1.5 步：调用 `codex_delegate` 做任务理解（正式旨意强制执行）
 
 > 目标：让“思考”交给 Codex 完成，再由太子执行建单与转交动作。
 >
@@ -131,6 +131,7 @@ python3 scripts/codex_delegate.py JJC-xxx "皇上原话（旨意正文）" --mod
 ```
 
 执行规则：
+- 对正式旨意，必须先执行 `codex_delegate`，否则不得宣称“已转交中书省”
 - 只有出现 `CODEX_DELEGATE_OK` 才视为委托成功
 - 必须读取 `FINAL_MESSAGE_BEGIN ... FINAL_MESSAGE_END` 中内容，用于：
   - 提炼任务标题
@@ -139,6 +140,7 @@ python3 scripts/codex_delegate.py JJC-xxx "皇上原话（旨意正文）" --mod
 - 如果 `CODEX_DELEGATE_FAIL`，太子可回退为本地直接提炼，但必须在回执中写明：
   - `Codex委托: 失败`
   - `阻塞项: <失败原因>`
+  - `当前结论: 未转交`
 
 ### 第二步：自己提炼标题 + 创建任务
 
