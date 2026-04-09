@@ -97,6 +97,7 @@
     .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;backdrop-filter:blur(3px);overflow-y:auto}
     .modal-bg.open{display:flex;align-items:flex-start;justify-content:center;padding:40px 16px}
     .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:760px;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    .modal.modal-learning{max-width:80vw}
     .modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;font-size:18px;color:var(--muted)}
     .modal-close:hover{background:var(--panel2);color:var(--text)}
     .modal-id{font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:6px}
@@ -178,6 +179,9 @@
 
     .dc-footer{padding:8px 16px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;background:var(--panel2)}
     .dc-model{font-size:10px;color:var(--muted)}.dc-la{font-size:10px;color:var(--muted);margin-left:auto}
+    .dc-actions{display:flex;gap:6px;margin-left:auto}
+    .dc-mini-btn{font-size:10px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+    .dc-mini-btn:hover{color:var(--text);border-color:var(--acc)}
 
     /* ══ Model / Skills tabs ══ */
     .model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:18px}
@@ -201,6 +205,8 @@
     .cl-t{color:var(--muted);min-width:115px}.cl-a{color:var(--acc);min-width:80px}.cl-c{color:var(--muted)}.cl-c b{color:var(--text)}
 
     .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+    .sk-global{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .sk-global .sk-hdr{background:linear-gradient(135deg,#0a1228,#141c30)}
     .sk-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
     .sk-hdr{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
     .sk-emoji{font-size:18px}.sk-name{font-size:14px;font-weight:700}.sk-cnt{font-size:11px;color:var(--muted);margin-left:auto}
@@ -247,6 +253,30 @@
     .sc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .sc-id{font-size:10px;color:var(--acc);font-weight:600}
     .sc-time{font-size:10px;color:var(--muted);margin-left:auto}
+
+    /* ══ Agent 会话面板 ══ */
+    #agent-session-modal{max-width:1080px}
+    .asess-wrap{display:grid;grid-template-columns:300px 1fr;gap:10px;height:68vh;min-height:520px;max-height:78vh}
+    .asess-left{border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:8px;overflow:auto}
+    .asess-right{border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:10px;display:flex;flex-direction:column;min-height:0}
+    .asess-head{font-size:11px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .asess-logbox{flex:1;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:8px}
+    .asess-item{padding:8px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer}
+    .asess-item.active{border-color:var(--acc);background:#0a1228}
+    .asess-item:hover{border-color:#2e3d6a}
+    .asess-meta{font-size:10px;color:var(--muted);line-height:1.4}
+    .asess-log-row{padding:8px 10px;border:1px solid var(--line);margin-bottom:8px;background:var(--panel2);border-radius:8px;max-width:90%}
+    .asess-log-row.user{margin-left:auto;border-color:#3a5aa8;background:#0b1734}
+    .asess-log-row.assistant{margin-right:auto;border-color:#2f3d5f}
+    .asess-log-row.tool{margin-right:auto;border-color:#365b4e;background:#0a1c16}
+    .asess-log-row .r{font-size:10px;color:var(--muted);margin-bottom:2px}
+    .asess-log-row .t{font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+    .asess-composer{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+    .asess-input{flex:1;min-height:68px;max-height:160px;resize:vertical;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;line-height:1.5}
+    .asess-send{font-size:12px;padding:8px 14px;border-radius:8px;border:none;background:var(--acc);color:#000;cursor:pointer;font-weight:700}
+    .asess-send:disabled{opacity:.5;cursor:not-allowed}
+    .asess-empty{font-size:12px;color:var(--muted);padding:12px;text-align:center}
+    @media(max-width:980px){.asess-wrap{grid-template-columns:1fr}}
 
     /* ══ TASK ACTIONS ══ */
     .task-actions{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
@@ -383,6 +413,8 @@
     .sub-cat.active .sc-check{background:var(--ok);border-color:var(--ok);color:#000}
     .sub-cat .sc-label{font-size:12px;font-weight:600}
     .sub-cat .sc-count{font-size:10px;color:var(--muted)}
+    .sub-cat .sc-del{margin-left:auto;width:18px;height:18px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);cursor:pointer;background:transparent}
+    .sub-cat .sc-del:hover{border-color:var(--danger);color:var(--danger)}
     .sub-input{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;outline:none;min-width:0}
     .sub-input:focus{border-color:var(--acc)}
     .sub-kw-list{display:flex;flex-wrap:wrap;gap:6px}
@@ -460,7 +492,7 @@
 
     /* main layout */
     .off-layout{display:grid;grid-template-columns:260px 1fr;gap:14px}
-    @media(max-width:700px){.off-layout{grid-template-columns:1fr}.off-kpi{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.off-layout{grid-template-columns:1fr}.off-kpi{grid-template-columns:repeat(2,1fr)}.od-flow{grid-template-columns:1fr}}
 
     /* left: rank list */
     .off-ranklist{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
@@ -469,10 +501,8 @@
     .orl-item:last-child{border-bottom:none}
     .orl-item:hover{background:var(--panel2)}
     .orl-item.selected{background:#0a1228;border-left:3px solid var(--acc)}
-    .orl-medal{font-size:16px;min-width:20px;text-align:center}
     .orl-emoji{font-size:18px}
     .orl-name{flex:1}.orl-role{font-size:12px;font-weight:700}.orl-org{font-size:10px;color:var(--muted)}
-    .orl-score{font-size:11px;font-weight:700;color:var(--acc)}
     .orl-hbdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .orl-hbdot.active{background:var(--ok)}.orl-hbdot.warn{background:var(--warn)}.orl-hbdot.stalled{background:var(--danger);animation:pulse 1.2s infinite}.orl-hbdot.idle{background:#2a3a5a}
 
@@ -489,6 +519,23 @@
 
     .od-section{margin-bottom:18px}
     .od-sec-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+    .od-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .od-flow-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px}
+    .od-flow-card .k{font-size:10px;color:var(--muted);margin-bottom:4px}
+    .od-flow-card .v{font-size:12px;line-height:1.5}
+    .od-now-list{display:flex;flex-direction:column;gap:6px}
+    .od-now-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--panel2);border-radius:7px;border:1px solid var(--line);font-size:12px;cursor:pointer}
+    .od-now-item:hover{background:#141c30}
+    .od-now-id{font-size:10px;color:var(--acc);font-weight:700;min-width:120px}
+    .od-now-title{flex:1}
+    .od-session-list{display:flex;flex-direction:column;gap:6px}
+    .od-session-item{display:flex;gap:8px;align-items:center;font-size:11px;padding:6px 8px;background:var(--panel2);border:1px solid var(--line);border-radius:7px}
+    .od-session-id{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--acc)}
+    .od-session-meta{color:var(--muted)}
+    .od-soul-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2)}
+    .od-soul-head{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}
+    .od-soul-body{max-height:360px;overflow:auto;padding:12px}
+    .od-soul-body pre{margin:0;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text)}
 
     /* stats 3-grid */
     .od-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -548,14 +595,23 @@
     .mb-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,#f5c842,#ff9a4a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     .mb-sub{font-size:12px;color:var(--muted);margin-top:3px}
 
-    .mb-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
-    .mb-cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .mb-layout{display:grid;grid-template-columns:260px 1fr;gap:14px}
+    .mb-left{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .mb-left-hdr{padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+    .mb-cat-list{padding:8px}
+    .mb-cat-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;background:var(--panel2)}
+    .mb-cat-item:last-child{margin-bottom:0}
+    .mb-cat-item:hover{border-color:var(--acc)}
+    .mb-cat-item.active{border-color:var(--acc);background:#0a1228}
+    .mb-ci-icon{font-size:16px}
+    .mb-ci-name{font-size:12px;font-weight:700}
+    .mb-ci-count{font-size:10px;color:var(--muted);margin-left:auto}
+    .mb-right{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
     .mb-cat-hdr{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line)}
     .mb-cat-icon{font-size:20px}
     .mb-cat-name{font-size:14px;font-weight:800}
     .mb-cat-cnt{font-size:11px;color:var(--muted);margin-left:auto}
-
-    .mb-news-list{padding:10px}
+    .mb-news-list{padding:10px;max-height:62vh;overflow:auto}
     .mb-card{display:flex;gap:12px;padding:10px 8px;border-radius:10px;margin-bottom:6px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--line)}
     .mb-card:last-child{border-bottom:none;margin-bottom:0}
     .mb-card:hover{background:var(--panel2)}
@@ -571,6 +627,204 @@
 
     .mb-empty{text-align:center;padding:30px;color:var(--muted);font-size:13px}
     .mb-loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted);font-size:14px;gap:10px}
+    @media(max-width:980px){.mb-layout{grid-template-columns:1fr}.mb-news-list{max-height:none}}
+
+    /* ══ LEARNING SYSTEM ══ */
+    .ls-top{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+    .ls-topic{flex:1;min-width:320px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 14px;color:var(--text);font-size:13px;outline:none}
+    .ls-topic:focus{border-color:var(--acc)}
+    .ls-layout{display:grid;grid-template-columns:260px 1fr;gap:14px}
+    .ls-left,.ls-right{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .ls-lhdr,.ls-rhdr{padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;font-weight:700}
+    .ls-list{padding:8px;max-height:66vh;overflow:auto}
+    .ls-item{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);cursor:pointer;margin-bottom:7px}
+    .ls-item:last-child{margin-bottom:0}
+    .ls-item.active{border-color:var(--acc);background:#0a1228}
+    .ls-item-topic{font-size:12px;font-weight:700;line-height:1.4}
+    .ls-item-meta{margin-top:5px;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+    .ls-main{padding:12px;max-height:66vh;overflow:auto}
+    .ls-empty{padding:30px;color:var(--muted);text-align:center;font-size:13px}
+    .ls-q{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+    .ls-qh{font-size:12px;font-weight:700;margin-bottom:4px}
+    .ls-qw{font-size:11px;color:var(--muted);margin-bottom:6px}
+    .ls-ans{width:100%;min-height:54px;resize:vertical;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;outline:none}
+    .ls-ans:focus{border-color:var(--acc)}
+    .ls-sec{margin-bottom:12px}
+    .ls-st{font-size:12px;font-weight:800;margin-bottom:6px}
+    .ls-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+    .ls-card:last-child{margin-bottom:0}
+    .ls-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#0d1628;color:var(--muted);margin-right:4px}
+    .ls-link{display:block;font-size:11px;color:var(--acc);text-decoration:none;margin-top:4px}
+    .ls-link:hover{text-decoration:underline}
+    .ls-mermaid{white-space:pre-wrap;font-size:11px;line-height:1.5;background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px;color:#c7d4f5}
+    .ls-mermaid-wrap{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto}
+    .ls-mermaid-diagram{min-height:120px}
+    .ls-mermaid-tools{display:flex;justify-content:flex-end;margin-top:6px}
+    .ls-catalog{display:flex;flex-direction:column;gap:8px}
+    .ls-topic-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);cursor:pointer}
+    .ls-topic-item:hover{border-color:var(--acc)}
+    .ls-topic-no{font-size:11px;color:var(--muted);min-width:44px}
+    .ls-topic-title{font-size:11px;font-weight:700;flex:1;transition:transform .16s ease,font-size .16s ease}
+    .ls-topic-item:hover .ls-topic-title{font-size:12px;transform:translateX(1px)}
+    .ls-topic-phase{font-size:10px;color:var(--muted)}
+    .ls-topic-arrow{font-size:13px;color:var(--muted)}
+
+    .lq-wrap{display:grid;grid-template-columns:1.05fr 1fr .95fr;gap:12px}
+    .lq-left,.lq-right,.lq-notes{border:1px solid var(--line);border-radius:10px;background:var(--panel2);min-height:60vh;display:flex;flex-direction:column}
+    .lq-hdr{padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800}
+    .lq-content{padding:10px;overflow:auto;max-height:56vh}
+    .lq-chat{padding:10px;overflow:auto;max-height:48vh;display:flex;flex-direction:column;gap:8px}
+    .lq-msg{padding:8px 10px;border-radius:9px;font-size:12px;line-height:1.55}
+    .lq-msg.user{background:#11223e;border:1px solid #1d365f}
+    .lq-msg.ai{background:#171327;border:1px solid #2a2150}
+    .lq-input-wrap{border-top:1px solid var(--line);padding:10px}
+    .lq-input{width:100%;min-height:72px;resize:vertical;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;outline:none}
+    .lq-input:focus{border-color:var(--acc)}
+    .lq-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px}
+    .lq-sup{margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#0f1628;font-size:11px;white-space:pre-wrap;line-height:1.5}
+    .lq-notes-body{padding:10px;overflow:auto;flex:1;min-height:0;max-height:none}
+    .lqn-shell{display:flex;flex-direction:column;min-height:100%}
+    .lqn-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+    .lqn-btn{font-size:10px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:#0f1628;color:var(--muted);cursor:pointer}
+    .lqn-btn:hover{border-color:var(--acc);color:var(--text)}
+    .lqn-notes-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto;margin-bottom:8px}
+    .lqn-note-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#0f1628;cursor:pointer}
+    .lqn-note-item.active{border-color:var(--acc);background:#0a1228}
+    .lqn-note-item .title{flex:1;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lqn-note-item .meta{font-size:10px;color:var(--muted)}
+    .lqn-tree-folder{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#0f1628}
+    .lqn-tree-fhdr{display:flex;align-items:center;gap:6px;cursor:pointer}
+    .lqn-tree-fhdr .name{flex:1;font-size:10px}
+    .lqn-tree-fhdr .count{font-size:9px;line-height:1;padding:2px 5px;border-radius:999px;border:1px solid var(--line);color:var(--muted);opacity:.75;background:transparent}
+    .lqn-tree-notes{margin-top:6px;padding-left:14px;display:flex;flex-direction:column;gap:6px}
+    .lqn-tree-note{display:flex;align-items:center;gap:6px;padding:5px 6px;border:1px solid var(--line);border-radius:7px;background:#101a30;cursor:pointer}
+    .lqn-tree-note.active{border-color:var(--acc);background:#0a1228}
+    .lqn-tree-note .title{font-size:10px;font-weight:400}
+    .lqn-save-meta{font-size:10px;color:var(--muted)}
+    .lqn-editor{display:flex;flex-direction:column;gap:6px}
+    .lqn-title{width:100%;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--text);font-size:11px;outline:none}
+    .lqn-title:focus{border-color:var(--acc)}
+    .lqn-content{
+      width:100%;
+      min-height:280px;
+      height:42vh;
+      max-height:72vh;
+      resize:vertical;
+      overflow:auto;
+      background:#0e1320;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:8px 10px;
+      color:var(--text);
+      font-size:11px;
+      outline:none;
+      line-height:1.6;
+    }
+    .lqn-content:focus{border-color:var(--acc)}
+    .lqn-empty{font-size:11px;color:var(--muted);padding:10px;text-align:center}
+    @media(max-width:980px){.lq-wrap{grid-template-columns:1fr}.lq-left,.lq-right,.lq-notes{min-height:unset}.lq-content,.lq-chat,.lq-notes-body{max-height:none}}
+    @media(max-width:980px){.ls-layout{grid-template-columns:1fr}.ls-list,.ls-main{max-height:none}}
+
+    /* ══ PROJECT MANAGEMENT ══ */
+    .pm-top{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+    .pm-input{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;outline:none}
+    .pm-input:focus{border-color:var(--acc)}
+    .pm-layout{display:grid;grid-template-columns:260px 1fr;gap:12px}
+    .pm-left,.pm-right{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .pm-hdr{padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;font-weight:800}
+    .pm-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:nowrap}
+    .pm-title-row .pm-hdr-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .pm-title-row .pm-hdr-actions{display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto}
+    .pm-list{padding:8px;max-height:68vh;overflow:auto}
+    .pm-proj{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);cursor:pointer;margin-bottom:7px}
+    .pm-proj.active{border-color:#7b6a3a;background:#231f12}
+    .pm-proj .t{font-size:12px;font-weight:700;color:#97a6c8}
+    .pm-proj .m{font-size:10px;color:#607196;margin-top:4px}
+    .pm-proj.active .t{color:#f3d98a}
+    .pm-proj.active .m{color:#c2ae75}
+    .pm-proj-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .pm-proj-actions{display:flex;align-items:center;gap:6px}
+    .pm-folder-row{margin:4px 0 6px 12px;padding:6px 8px;border:1px solid #22324f;border-radius:7px;background:#0f1728;cursor:pointer}
+    .pm-folder-row.active{border-color:var(--acc);background:#0b1b34}
+    .pm-folder-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
+    .pm-folder-row .n{font-size:11px;font-weight:700}
+    .pm-folder-row .c{font-size:10px;color:var(--muted);margin-top:3px}
+    .pm-folder-input{width:100%;background:#0f1728;border:1px solid #2f4e7f;border-radius:6px;color:var(--text);padding:4px 6px;font-size:11px;outline:none}
+    .pm-folder-input:focus{border-color:var(--acc)}
+    .pm-icon-btn{font-size:10px;padding:2px 6px;border-radius:6px;border:1px solid var(--line);background:#13223f;color:#9ec1f7;cursor:pointer}
+    .pm-icon-btn:hover{background:#1c3461}
+    .pm-right-body{padding:10px;display:grid;grid-template-columns:340px 1fr;gap:12px}
+    .pm-box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+    .pm-hdr.clickable{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+    .pm-hdr.clickable:hover{background:#111a2e}
+    .pm-hdr .hint{font-size:10px;color:var(--muted);font-weight:600}
+    .pm-fold{overflow:hidden;max-height:0;opacity:0;transform:translateY(-4px);transition:max-height .22s ease,opacity .18s ease,transform .2s ease;margin-bottom:0}
+    .pm-fold.open{max-height:260px;opacity:1;transform:translateY(0);margin-bottom:10px}
+    .pm-issues{max-height:58vh;overflow:auto;display:flex;flex-direction:column;gap:7px}
+    .pm-issue{padding:8px;border:1px solid var(--line);border-radius:8px;background:#0f1628;cursor:pointer}
+    .pm-issue.active{border-color:var(--acc);background:#0a1228}
+    .pm-issue .t{font-size:11px;font-weight:800;color:#e8f0ff;transition:color .15s ease,opacity .15s ease}
+    .pm-issue.is-done .t{color:#7f8ca8;opacity:.9}
+    .pm-issue:not(.is-done) .t{color:#f1f6ff;opacity:1}
+    .pm-issue .m{font-size:10px;color:var(--muted);display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+    .pm-tree-folder{border:1px solid var(--line);border-radius:8px;background:#0f1628;overflow:hidden}
+    .pm-tree-folder + .pm-tree-folder{margin-top:7px}
+    .pm-tree-h{display:flex;align-items:center;gap:6px;padding:7px 8px;cursor:pointer;background:#101a2f}
+    .pm-tree-h:hover{background:#15213a}
+    .pm-tree-name{font-size:11px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pm-tree-count{font-size:10px;color:var(--muted)}
+    .pm-tree-items{padding:6px}
+    .pm-title-accent{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#18305c,#101a2f 70%);border:1px solid #2b4375;border-radius:8px;padding:7px 9px;margin-bottom:9px}
+    .pm-title-accent .tx{font-size:11px;font-weight:800;color:#b9d2ff;letter-spacing:.02em}
+    .pm-section-divider{height:1px;background:linear-gradient(90deg,transparent,#2b4375 20%,#2b4375 80%,transparent);margin:10px 0 10px}
+    .pm-mini{font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--line);background:#12213d;color:#a8c3f7;cursor:pointer}
+    .pm-mini:hover{background:#1a2e55}
+    .pm-mini-danger{background:#3a1a26;border-color:#6a2a3d;color:#ff9bb0}
+    .pm-mini-danger:hover{background:#522135}
+    .pm-tag{font-size:10px;padding:2px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+    .pm-tag.type-bug{background:#3a1a26;border-color:#6a2a3d;color:#ff9bb0}
+    .pm-tag.type-req{background:#1f2541;border-color:#3a4a84;color:#9fb8ff}
+    .pm-tag.type-opt{background:#1c2e26;border-color:#335949;color:#89dbb8}
+    .pm-tag.pri-p0{background:#4a181f;border-color:#8a2c3b;color:#ff9cab}
+    .pm-tag.pri-p1{background:#452717;border-color:#7a4a2a;color:#ffc18f}
+    .pm-tag.pri-p2{background:#243149;border-color:#3f5d85;color:#9fc2ff}
+    .pm-tag.pri-p3{background:#2a2f3f;border-color:#4d5570;color:#b4bfd9}
+    .pm-tag.st-open{background:#1f2541;border-color:#3b4d8d;color:#9db7ff}
+    .pm-tag.st-clarify{background:#3f3218;border-color:#6d5730;color:#f0d28f}
+    .pm-tag.st-in_progress{background:#193142;border-color:#2f5e7a;color:#8cd8ff}
+    .pm-tag.st-blocked{background:#4b1b22;border-color:#8f3041;color:#ff9aae}
+    .pm-tag.st-done{background:#1d3127;border-color:#336049;color:#8fddb6}
+    .pm-detail{max-height:58vh;overflow:auto}
+    .pm-kv{font-size:11px;line-height:1.7;margin-bottom:8px}
+    .pm-sub{font-size:11px;font-weight:700;margin:10px 0 6px}
+    .pm-gov-card{border:1px solid #1f2a44;border-radius:10px;background:#10182b;padding:10px;margin-top:8px}
+    .pm-gov-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .pm-gov-title{font-size:12px;font-weight:800;color:#d9e6ff;margin-bottom:0}
+    .pm-gov-block{margin-bottom:10px}
+    .pm-gov-label{font-size:11px;font-weight:700;color:#b7c8ea;margin-bottom:4px}
+    .pm-gov-empty{font-size:11px;color:#667491;margin-left:10px}
+    .pm-gov-res{font-size:12px;line-height:1.7;color:#d8e3fb}
+    .pm-actions.pm-actions-sm{margin-top:6px}
+    .pm-actions.pm-actions-sm .btn{font-size:11px;padding:5px 9px}
+    .pm-actions.pm-actions-inline{margin-top:0}
+    .pm-actions.pm-actions-inline .btn{font-size:11px;padding:4px 8px}
+    .pm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+    .pm-head .tt{font-size:13px;font-weight:800;line-height:1.4}
+    .pm-trash{width:28px;height:28px;border-radius:8px;border:1px solid #ff527044;background:#ff527018;color:#ff6f84;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .pm-trash:hover{background:#ff52702a;border-color:#ff527077}
+    .pm-state-wrap{position:relative;display:inline-block}
+    .pm-state-btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+    .pm-state-pop{position:absolute;top:30px;left:0;background:#0f1728;border:1px solid var(--line);border-radius:10px;min-width:160px;padding:6px;box-shadow:0 10px 26px rgba(0,0,0,.38);z-index:8}
+    .pm-state-opt{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border-radius:8px;font-size:11px;color:var(--text);cursor:pointer}
+    .pm-state-opt:hover{background:#18243f}
+    .pm-state-opt.active{background:#1e2f57;color:#9fc2ff}
+    .pm-text{width:100%;min-height:70px;resize:vertical;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;outline:none}
+    .pm-text:focus{border-color:var(--acc)}
+    .pm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .pm-q{font-size:11px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#0f1628;margin-bottom:6px}
+    .pm-plan{font-size:11px;line-height:1.6;padding-left:16px}
+    .pm-empty{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+    @media(max-width:1100px){.pm-right-body{grid-template-columns:1fr}.pm-layout{grid-template-columns:1fr}}
 
     /* MISC */
     .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
@@ -672,6 +926,7 @@
       <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="切换主题">🌙</button>
       <button class="theme-toggle" onclick="openFeedback()" title="祈告上苍（反馈问题或建议）">🙏 祈告上苍</button>
       <span class="chip" id="chip-sync">⟳ 同步中</span>
+      <span class="chip" id="chip-gateway">Gateway: 检测中</span>
       <span class="chip" id="chip-tasks">— 旨意</span>
       <button class="btn-refresh" onclick="loadAll()">⟳ 立即刷新</button>
       <span id="cd"></span>
@@ -681,14 +936,15 @@
   <!-- TABS -->
   <div class="tabs">
     <div class="tab active" data-tab="edicts">📜 旨意看板 <span class="tbadge" id="tb-e">0</span></div>
-    <div class="tab" data-tab="monitor">🔭 省部调度 <span class="tbadge" id="tb-m">0</span></div>
-    <div class="tab" data-tab="officials">👥 官员总览</div>
+    <div class="tab" data-tab="officials">👥 部门总览</div>
     <div class="tab" data-tab="models">⚙️ 模型配置</div>
     <div class="tab" data-tab="skills">🛠️ 技能配置</div>
     <div class="tab" data-tab="sessions">💬 小任务 <span class="tbadge" id="tb-s">0</span></div>
     <div class="tab" data-tab="memorials">📜 奏折阁 <span class="tbadge" id="tb-mem">0</span></div>
     <div class="tab" data-tab="templates">📜 旨库</div>
     <div class="tab" data-tab="morning">📰 天下要闻</div>
+    <div class="tab" data-tab="learning">📚 学习系统</div>
+    <div class="tab" data-tab="pm">🗂 项目管理</div>
   </div>
 
   <!-- ══ 旨意看板 ══ -->
@@ -709,20 +965,13 @@
     <div id="edict-grid" class="edict-grid"></div>
   </div>
 
-  <!-- ══ 省部调度 ══ -->
-  <div class="panel" id="panel-monitor">
-    <div id="agent-status-panel"></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">各省部当前承接旨意与执行状态 · 每5秒自动刷新</div>
-    <div class="duty-grid" id="duty-grid"></div>
-  </div>
-
-  <!-- ══ 官员总览 ══ -->
+  <!-- ══ 部门总览 ══ -->
   <div class="panel" id="panel-officials">
     <div id="off-activity" class="off-activity" style="display:none"></div>
     <div id="off-kpi" class="off-kpi"></div>
     <div class="off-layout">
       <div id="off-ranklist" class="off-ranklist"></div>
-      <div id="off-detail" class="off-detail"><div class="od-empty">← 点击左侧官员查看详情</div></div>
+      <div id="off-detail" class="off-detail"><div class="od-empty">← 点击左侧部门查看 SOUL 与流转详情</div></div>
     </div>
   </div>
 
@@ -819,6 +1068,10 @@
       <div class="sub-section">
         <div class="sub-sec-title">📂 新闻分类 <span style="font-weight:400;font-size:11px;color:var(--muted)">— 勾选启用，取消禁用</span></div>
         <div id="sub-cats" class="sub-cats"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input id="new-cat" class="sub-input" placeholder="新增分类名称，如：科技政策" onkeydown="if(event.key==='Enter')addCategory()">
+          <button class="btn btn-p" onclick="addCategory()" style="font-size:12px;padding:6px 14px">新增分类</button>
+        </div>
       </div>
       <div class="sub-section">
         <div class="sub-sec-title">🔑 自定义关注词 <span style="font-weight:400;font-size:11px;color:var(--muted)">— 额外关键词过滤</span></div>
@@ -862,6 +1115,55 @@
 
     <div id="mb-body"></div>
   </div>
+
+  <!-- ══ 学习系统 ══ -->
+  <div class="panel" id="panel-learning">
+    <div class="mb-hdr">
+      <div>
+        <div class="mb-title">📚 学习系统 · 礼部学策</div>
+        <div id="ls-subtitle" class="mb-sub">输入学习方向后，礼部先生成10问，再基于你的回答生成个性化路径与知识架构。</div>
+      </div>
+    </div>
+
+    <div class="ls-top">
+      <input id="ls-topic-input" class="ls-topic" placeholder="输入你想学习的方向/主题，例如：系统化学习 AI Agent 架构设计与落地">
+      <button class="btn btn-g" id="ls-start-btn" onclick="startLearningPlan()" style="font-size:12px;padding:8px 16px">请礼部出10问</button>
+    </div>
+
+    <div class="ls-layout">
+      <div class="ls-left">
+        <div class="ls-lhdr">学习计划列表</div>
+        <div class="ls-list" id="ls-list"></div>
+      </div>
+      <div class="ls-right">
+        <div class="ls-rhdr">计划详情</div>
+        <div class="ls-main" id="ls-main"><div class="ls-empty">先输入学习主题并生成第一份礼部10问</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 项目管理 ══ -->
+  <div class="panel" id="panel-pm">
+    <div class="mb-hdr">
+      <div style="flex:1;min-width:0">
+        <div class="mb-title">🗂 项目管理 · 工部治理台</div>
+        <div class="mb-sub">记录 BUG/需求/优化，工部评审并推动流转。</div>
+      </div>
+      <button class="btn btn-g" onclick="openPmCreateProjectModal()" style="font-size:12px;padding:7px 12px;white-space:nowrap">＋ 创建项目</button>
+    </div>
+    <div class="pm-layout">
+      <div class="pm-left">
+        <div class="pm-hdr">项目列表</div>
+        <div class="pm-list" id="pm-project-list"></div>
+      </div>
+      <div class="pm-right">
+        <div class="pm-hdr" id="pm-project-title">未选择项目</div>
+        <div class="pm-right-body" id="pm-right-body">
+          <div class="pm-empty">先创建或选择一个项目</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- TASK DETAIL MODAL -->
@@ -869,6 +1171,14 @@
   <div class="modal" id="modal">
     <div class="modal-close" onclick="closeModal()">✕</div>
     <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- AGENT SESSION MODAL -->
+<div class="modal-bg" id="agent-session-bg" onclick="closeAgentSessionModal(event)">
+  <div class="modal" id="agent-session-modal">
+    <div class="modal-close" onclick="closeAgentSessionModal()">✕</div>
+    <div id="agent-session-body"></div>
   </div>
 </div>
 
@@ -894,6 +1204,16 @@ let liveStatus=null, agentConfig=null, activeTab='edicts', countdown=5;
 let globalScanActions = [], globalScanDetailOpen = false;
 let globalScanCheckedAt = '', globalScanCount = 0;
 const GLOBAL_SCAN_STORAGE_KEY = 'openclaw_global_scan_state_v1';
+let _lastLiveLoadAt = 0;
+const AUTO_REFRESH_TABS = new Set(['edicts','officials','sessions','memorials']);
+
+function isLearningModalOpen(){
+  return activeTab === 'learning' && document.getElementById('modal-bg') && document.getElementById('modal-bg').classList.contains('open');
+}
+
+function isAutoRefreshEnabledTab(tab){
+  return AUTO_REFRESH_TABS.has(String(tab||''));
+}
 
 function persistGlobalScanState(meta = {}){
   try{
@@ -1085,13 +1405,24 @@ function renderEdicts(tasks){
 let _agentsStatusData = null;
 let _agentsStatusLoading = false;
 
+function updateGatewayChip(gw){
+  const el = document.getElementById('chip-gateway');
+  if(!el) return;
+  const cls = (gw && gw.probe) ? 'ok' : (gw && gw.alive) ? 'warn' : 'err';
+  const status = gw && gw.status ? gw.status : '未知';
+  el.textContent = `Gateway: ${status}`;
+  el.className = 'chip ' + cls;
+}
+
 async function loadAgentsStatus(){
   if(_agentsStatusLoading) return;
   _agentsStatusLoading = true;
   try{
     _agentsStatusData = await fetchJ(API+'/agents-status');
+    if(_agentsStatusData && _agentsStatusData.ok) updateGatewayChip(_agentsStatusData.gateway||{});
     renderAgentsStatus(_agentsStatusData);
   }catch(e){
+    updateGatewayChip({alive:false, probe:false, status:'🔴 未启动'});
     document.getElementById('agent-status-panel').innerHTML=
       '<div class="as-panel"><div style="color:var(--danger);font-size:12px">⚠️ 无法获取 Agent 状态</div></div>';
   }finally{
@@ -1109,13 +1440,11 @@ function renderAgentsStatus(data){
   const idle = filtered.filter(a=>a.status==='idle').length;
   const offline = filtered.filter(a=>a.status==='offline').length;
   const unconf = filtered.filter(a=>a.status==='unconfigured').length;
-  const gwCls = gw.probe?'ok':gw.alive?'warn':'err';
 
   document.getElementById('agent-status-panel').innerHTML=`
     <div class="as-panel">
       <div class="as-header">
         <span class="as-title">🔌 Agent 在线状态</span>
-        <span class="as-gw ${gwCls}">Gateway: ${esc(gw.status||'未知')}</span>
         <button class="as-refresh" onclick="loadAgentsStatus()" title="刷新状态">🔄 刷新</button>
         ${offline+unconf>0?`<button class="as-wake-all" onclick="wakeAllAgents()" title="唤醒所有离线Agent">⚡ 全部唤醒</button>`:''}
       </div>
@@ -1171,8 +1500,213 @@ async function wakeAllAgents(){
   setTimeout(()=>loadAgentsStatus(), 30000);
 }
 
+function roleTag(role){
+  const r = String(role||'').toLowerCase();
+  if(r==='user') return 'user';
+  if(r==='assistant') return 'assistant';
+  if(r==='tool') return 'tool';
+  return '';
+}
+
+let _asAgentId = '';
+let _asLabel = '';
+let _asSelectedSessionId = '';
+
+function closeAgentSessionModal(e){
+  if(e && e.target !== document.getElementById('agent-session-bg') && !e.target.classList.contains('modal-close')) return;
+  const bg = document.getElementById('agent-session-bg');
+  if(bg) bg.classList.remove('open');
+}
+
+async function openAgentSessions(agentId, label){
+  _asAgentId = agentId;
+  _asLabel = label || agentId;
+  _asSelectedSessionId = '';
+  const body = document.getElementById('agent-session-body');
+  const bg = document.getElementById('agent-session-bg');
+  if(!body || !bg) return;
+  body.innerHTML = `
+    <div class="modal-id">🧾 ${esc(_asLabel)} 会话面板</div>
+    <div class="modal-title">${esc(agentId)} · 会话与实时对话</div>
+    <div class="asess-wrap">
+      <div class="asess-left" id="asess-left"><div class="asess-empty">加载中...</div></div>
+      <div class="asess-right" id="asess-right">
+        <div class="asess-head">
+          <span id="asess-head-meta">请先选择会话</span>
+          <button class="dc-mini-btn" onclick="loadAgentSessions('${agentId}')">刷新会话</button>
+        </div>
+        <div class="asess-logbox" id="asess-logbox"><div class="asess-empty">请先选择会话</div></div>
+        <div class="asess-composer">
+          <textarea id="asess-input" class="asess-input" placeholder="给 ${esc(agentId)} 发送消息（Enter 发送，Shift+Enter 换行）" onkeydown="handleAsessInputKey(event)"></textarea>
+          <button id="asess-send-btn" class="asess-send" onclick="sendAgentSessionMessage()">发送</button>
+        </div>
+      </div>
+    </div>
+  `;
+  bg.classList.add('open');
+  const input = document.getElementById('asess-input');
+  if(input) input.focus();
+  await loadAgentSessions(agentId);
+}
+
+async function loadAgentSessions(agentId){
+  const left = document.getElementById('asess-left');
+  if(!left) return {all:[], list:[]};
+  try{
+    const d = await fetchJ(API + '/agent-sessions/' + encodeURIComponent(agentId));
+    if(!d.ok){ left.innerHTML = `<div class="asess-empty">${esc(d.error||'加载失败')}</div>`; return {all:[], list:[]}; }
+    const all = d.sessions || [];
+    const alive = all.filter(s=>s.alive);
+    const list = (alive.length ? alive : all).slice().sort((a,b)=>{
+      const ta = new Date(a.updatedAt || 0).getTime();
+      const tb = new Date(b.updatedAt || 0).getTime();
+      return tb - ta;
+    });
+    if(!list.length){
+      left.innerHTML = '<div class="asess-empty">暂无会话</div>';
+      return {all, list};
+    }
+    left.innerHTML = `
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">存活会话 ${alive.length} / 总会话 ${all.length}</div>
+      ${list.map(s=>`
+        <div class="asess-item ${_asSelectedSessionId===s.sessionId?'active':''}" onclick="selectAgentSession('${agentId}','${s.sessionId}')">
+          <div style="font-size:12px;font-weight:700">${esc((s.sessionKey||'').replace(/^agent:[^:]+:/,''))}</div>
+          <div class="asess-meta">sessionId: ${esc(s.sessionId||'-')}</div>
+          <div class="asess-meta">status: ${esc(s.status||'-')} ${s.alive?'🟢':''}</div>
+          <div class="asess-meta">updated: ${esc(String(s.updatedAt||''))}</div>
+        </div>
+      `).join('')}
+    `;
+    const sidInList = _asSelectedSessionId && list.some(s=>s.sessionId===_asSelectedSessionId);
+    const sid = (sidInList ? _asSelectedSessionId : '') || (list[0] && list[0].sessionId) || '';
+    if(sid){
+      _asSelectedSessionId = sid;
+      await loadAgentSessionLog(agentId, sid);
+      left.querySelectorAll('.asess-item').forEach(el=>{
+        if(el.innerHTML.includes(sid)) el.classList.add('active');
+      });
+    }
+    return {all, list};
+  }catch(e){
+    left.innerHTML = `<div class="asess-empty">加载失败: ${esc(e.message)}</div>`;
+    return {all:[], list:[]};
+  }
+}
+
+async function selectAgentSession(agentId, sessionId){
+  _asSelectedSessionId = sessionId;
+  document.querySelectorAll('#asess-left .asess-item').forEach(el=>el.classList.remove('active'));
+  await loadAgentSessionLog(agentId, sessionId);
+  await loadAgentSessions(agentId);
+}
+
+async function loadAgentSessionLog(agentId, sessionId){
+  const box = document.getElementById('asess-logbox');
+  const meta = document.getElementById('asess-head-meta');
+  if(!box) return;
+  box.innerHTML = '<div class="asess-empty">加载会话内容...</div>';
+  if(meta) meta.textContent = `sessionId: ${sessionId}`;
+  try{
+    const url = API + `/agent-session-log?agentId=${encodeURIComponent(agentId)}&sessionId=${encodeURIComponent(sessionId)}&limit=160`;
+    const d = await fetchJ(url);
+    if(!d.ok){ box.innerHTML = `<div class="asess-empty">${esc(d.error||'加载失败')}</div>`; return; }
+    const entries = d.entries || [];
+    if(!entries.length){
+      box.innerHTML = '<div class="asess-empty">该会话暂无可展示内容</div>';
+      return;
+    }
+    if(meta) meta.textContent = `sessionId: ${sessionId} · 共 ${entries.length} 条`;
+    box.innerHTML = `
+      ${entries.map(e=>`
+        <div class="asess-log-row ${roleTag(e.role)}">
+          <div class="r">${esc(e.role||'')} · ${esc(fmtActivityTime(e.at)||'')}</div>
+          <div class="t">${esc(e.text||'')}</div>
+        </div>
+      `).join('')}
+    `;
+    box.scrollTop = box.scrollHeight;
+  }catch(e){
+    box.innerHTML = `<div class="asess-empty">加载失败: ${esc(e.message)}</div>`;
+  }
+}
+
+function handleAsessInputKey(e){
+  if(!e) return;
+  if(e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendAgentSessionMessage();
+  }
+}
+
+function appendLocalUserMessage(text){
+  const box = document.getElementById('asess-logbox');
+  if(!box) return;
+  const empty = box.querySelector('.asess-empty');
+  if(empty) box.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = 'asess-log-row user';
+  const meta = document.createElement('div');
+  meta.className = 'r';
+  meta.textContent = 'user · 刚刚(本地)';
+  const body = document.createElement('div');
+  body.className = 't';
+  body.textContent = text || '';
+  row.appendChild(meta);
+  row.appendChild(body);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function refreshSessionAfterSend(){
+  if(!_asAgentId) return;
+  const waits = [1200, 2200, 3500, 5000];
+  for(let i=0; i<waits.length; i++){
+    await new Promise(resolve => setTimeout(resolve, waits[i]));
+    const snap = await loadAgentSessions(_asAgentId);
+    if(!_asSelectedSessionId && snap.list && snap.list[0]){
+      _asSelectedSessionId = snap.list[0].sessionId || '';
+    }
+    if(_asSelectedSessionId) await loadAgentSessionLog(_asAgentId, _asSelectedSessionId);
+  }
+}
+
+async function sendAgentSessionMessage(){
+  const input = document.getElementById('asess-input');
+  const btn = document.getElementById('asess-send-btn');
+  if(!input || !btn) return;
+  const message = (input.value||'').trim();
+  if(!_asAgentId){ toast('未选择 agent','err'); return; }
+  if(!message){ toast('消息不能为空','err'); return; }
+  btn.disabled = true;
+  btn.textContent = '发送中...';
+  try{
+    const r = await postJ(API + '/agent-chat', {agentId: _asAgentId, message, timeoutSec: 180});
+    if(r && r.ok){
+      toast(r.message || '已发送','ok');
+      appendLocalUserMessage(message);
+      input.value = '';
+      _asSelectedSessionId = '';
+      await refreshSessionAfterSend();
+    }else{
+      toast((r&&r.error)||'发送失败','err');
+    }
+  }catch(e){
+    toast('发送失败: '+e.message,'err');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = '发送';
+    input.focus();
+  }
+}
+
 /* ══ DEPT MONITOR ══ */
 function renderMonitor(tasks){
+  const dutyGridEl = document.getElementById('duty-grid');
+  const tbmEl = document.getElementById('tb-m');
+  if(!dutyGridEl){
+    if(tbmEl) tbmEl.textContent = '0';
+    return;
+  }
   const DEPTS = [
     {id:'taizi',   label:'太子',  emoji:'🤴',role:'太子',    rank:'储君'},
     {id:'zhongshu',label:'中书省',emoji:'📜',role:'中书令',  rank:'正一品'},
@@ -1244,12 +1778,15 @@ function renderMonitor(tasks){
       <div class="dc-footer">
         <span class="dc-model">🤖 ${esc(off.model_short||'待配置')}</span>
         ${off.last_active?`<span class="dc-la">⏰ ${esc(off.last_active)}</span>`:''}
+        <div class="dc-actions">
+          <button class="dc-mini-btn" onclick="event.stopPropagation();openAgentSessions('${d.id}','${d.label}')">💬 会话</button>
+        </div>
       </div>
     </div>`;
   });
 
-  document.getElementById('tb-m').textContent = activeCount + '活跃';
-  document.getElementById('duty-grid').innerHTML = cards.join('');
+  if(tbmEl) tbmEl.textContent = activeCount + '活跃';
+  dutyGridEl.innerHTML = cards.join('');
 }
 
 /* ══ TASK DETAIL MODAL ══ */
@@ -1433,6 +1970,10 @@ function openTask(id){
 function closeModal(e){
   if(e&&e.target!==document.getElementById('modal-bg')&&!e.target.classList.contains('modal-close'))return;
   document.getElementById('modal-bg').classList.remove('open');
+  const m = document.getElementById('modal');
+  if(m) m.classList.remove('modal-learning');
+  currentTopicPlanId = '';
+  currentTopicId = '';
   stopLiveActivity();
 }
 
@@ -1527,7 +2068,7 @@ async function schedulerAction(taskId, action){
   if(!taskId) return;
   try{
     if(action==='scan'){
-      const r = await postJ(API+'/scheduler-scan', {thresholdSec: 180});
+      const r = await postJ(API+'/scheduler-scan', {thresholdSec: 600});
       if(r.ok){ toast(`🔍 扫描完成：${r.count||0} 个动作`,'ok'); }
       else{ toast(r.error||'扫描失败','err'); }
       fetchSchedulerState(taskId);
@@ -1802,7 +2343,8 @@ function renderModels(cfg){
   if(!cfg||!cfg.agents){document.getElementById('model-grid').innerHTML='<div class="empty" style="grid-column:1/-1">请确保本地服务器已启动</div>';return}
   const models = getModels(cfg);
   const opts=models.map(m=>`<option value="${m.id}">${m.l} (${m.p})</option>`).join('');
-  document.getElementById('model-grid').innerHTML=cfg.agents.map(ag=>`
+  const agents = (cfg.agents||[]).filter(ag=>ag.id!=='main'); // main 与 taizi 重复，隐藏
+  document.getElementById('model-grid').innerHTML=agents.map(ag=>`
     <div class="mc-card">
       <div class="mc-top"><span class="mc-emoji">${ag.emoji||'🏛️'}</span>
         <div><div class="mc-name">${esc(ag.label)} <span style="font-size:11px;color:var(--muted)">${esc(ag.id)}</span></div><div class="mc-role">${esc(ag.role)}</div></div>
@@ -1812,7 +2354,7 @@ function renderModels(cfg){
       <div class="mc-btns"><button class="btn btn-p" id="btn-${ag.id}" onclick="applyModel('${ag.id}')" disabled>应用</button><button class="btn btn-g" onclick="resetMC('${ag.id}')">重置</button></div>
       <div class="mc-st" id="mcs-${ag.id}"></div>
     </div>`).join('');
-  cfg.agents.forEach(ag=>{const s=document.getElementById('sel-'+ag.id);if(s)s.value=ag.model});
+  agents.forEach(ag=>{const s=document.getElementById('sel-'+ag.id);if(s)s.value=ag.model});
 }
 function onMC(id){const s=document.getElementById('sel-'+id),b=document.getElementById('btn-'+id),ag=agentConfig&&agentConfig.agents?agentConfig.agents.find(a=>a.id===id):null;if(!ag||!s)return;b.disabled=s.value===ag.model}
 function resetMC(id){const s=document.getElementById('sel-'+id),b=document.getElementById('btn-'+id),ag=agentConfig&&agentConfig.agents?agentConfig.agents.find(a=>a.id===id):null;if(!ag||!s)return;s.value=ag.model;b.disabled=true}
@@ -1836,10 +2378,44 @@ function renderCL(log){
 /* ══ SKILLS ══ */
 function renderSkills(cfg){
   if(!cfg||!cfg.agents){document.getElementById('skills-grid').innerHTML='<div class="empty">无法加载</div>';return}
-  document.getElementById('skills-grid').innerHTML=cfg.agents.map(ag=>`
-    <div class="sk-card"><div class="sk-hdr"><span class="sk-emoji">${ag.emoji||'🏛️'}</span><span class="sk-name">${esc(ag.label)}</span><span class="sk-cnt">${(ag.skills||[]).length} 技能</span></div>
-    <div class="sk-list">${!(ag.skills||[]).length?'<div class="sk-empty">暂无 Skills</div>':(ag.skills||[]).map(sk=>`<div class="sk-item" onclick="openSkill('${esc(ag.id)}','${esc(sk.name)}')"><span class="si-name">📦 ${esc(sk.name)}</span><span class="si-desc">${esc(sk.description||'无描述')}</span><span class="si-arrow">›</span></div>`).join('')}</div>
-    <div class="sk-add" onclick="openAddSkillForm('${esc(ag.id)}','${esc(ag.label)}')">＋ 添加技能</div></div>`).join('')
+  const agents = (cfg.agents||[]).filter(ag=>ag.id!=='main'); // main 与 taizi 重复，隐藏
+  const globalMap = new Map();
+  agents.forEach(ag=>{
+    (ag.skills||[]).filter(sk=>sk.scope==='global').forEach(sk=>{
+      if(!globalMap.has(sk.name)) globalMap.set(sk.name, sk);
+    });
+  });
+  const globalSkills = Array.from(globalMap.values()).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+
+  const globalCard = `
+    <div class="sk-global">
+      <div class="sk-hdr">
+        <span class="sk-emoji">🌐</span>
+        <span class="sk-name">全局 Skills</span>
+        <span class="sk-cnt">${globalSkills.length} 技能</span>
+      </div>
+      <div class="sk-list">
+        ${!globalSkills.length
+          ? '<div class="sk-empty">暂无全局 Skills</div>'
+          : globalSkills.map(sk=>`<div class="sk-item" onclick="openGlobalSkill('${esc(sk.name)}')"><span class="si-name">📦 ${esc(sk.name)}</span><span class="si-desc">${esc(sk.description||'无描述')}</span><span class="si-arrow">›</span></div>`).join('')}
+      </div>
+    </div>`;
+
+  const agentCards = agents.map(ag=>{
+    const ownSkills = (ag.skills||[]).filter(sk=>sk.scope==='workspace');
+    return `<div class="sk-card">
+      <div class="sk-hdr"><span class="sk-emoji">${ag.emoji||'🏛️'}</span><span class="sk-name">${esc(ag.label)}</span><span class="sk-cnt">${ownSkills.length} 专属</span></div>
+      <div class="sk-list">${!ownSkills.length?'<div class="sk-empty">暂无专属 Skills</div>':ownSkills.map(sk=>`<div class="sk-item" onclick="openSkill('${esc(ag.id)}','${esc(sk.name)}')"><span class="si-name">📦 ${esc(sk.name)}</span><span class="si-desc">🧩专属 · ${esc(sk.description||'无描述')}</span><span class="si-arrow">›</span></div>`).join('')}</div>
+      <div class="sk-add" onclick="openAddSkillForm('${esc(ag.id)}','${esc(ag.label)}')">＋ 添加技能</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('skills-grid').innerHTML = globalCard + agentCards;
+}
+
+function openGlobalSkill(skillName){
+  const aid = ((agentConfig&&agentConfig.agents)||[]).find(a=>a.id!=='main')?.id || 'taizi';
+  openSkill(aid, skillName);
 }
 
 /* skill detail modal — 写入 modal-body (复用已有 modal) */
@@ -1960,6 +2536,13 @@ async function submitAddSkill(e, agentId, agentLabel){
 async function loadLive(){
   try{
     liveStatus=await fetchJ(API+'/live-status');
+    try{
+      const st = await fetchJ(API+'/agents-status');
+      if(st && st.ok){
+        _agentsStatusData = st;
+        updateGatewayChip(st.gateway||{});
+      }
+    }catch(_){}
     // 提前加载官员数据，供省部调度 Tab 使用
     if(!officialsData){
       try{ officialsData = await fetchJ(API+'/officials-stats'); }catch(e){}
@@ -1975,6 +2558,7 @@ async function loadLive(){
   }catch(e){
     document.getElementById('chip-sync').textContent='❌ 服务器未启动';
     document.getElementById('chip-sync').className='chip err';
+    updateGatewayChip({alive:false, probe:false, status:'🔴 未启动'});
   }
 }
 async function loadAgentConfig(){
@@ -1989,12 +2573,916 @@ async function loadAgentConfig(){
   }
 }
 async function loadAll(){
-  await loadLive();
+  const now = Date.now();
+  // 学习页体验优化：
+  // 1) 打开主题弹窗时暂停自动刷新，避免界面抖动/卡顿
+  // 2) 学习页仅每30秒执行一次全量 live 拉取，其余只刷新学习数据
+  const skipLive = isLearningModalOpen();
+  const needLive = !skipLive && (activeTab !== 'learning' || (now - _lastLiveLoadAt) > 30000);
+  if(needLive){
+    await loadLive();
+    _lastLiveLoadAt = now;
+  }
   if(['models','skills'].includes(activeTab))await loadAgentConfig();
   if(activeTab==='sessions')renderSessions(liveStatus?liveStatus.tasks:[]);
   if(activeTab==='memorials')renderMemorials();
   if(activeTab==='templates')renderTemplates();
   if(activeTab==='morning' && !_newsPolling) loadMorning();
+  if(activeTab==='learning' && !isLearningModalOpen()) loadLearningPlans();
+  if(activeTab==='pm') loadPm();
+}
+
+/* ══ PROJECT MANAGEMENT (工部治理台) ══ */
+let pmProjects = [];
+let selectedPmProjectId = '';
+let selectedPmItemId = '';
+let selectedPmFolderId = '';
+let _pmLoading = false;
+let pmProjectEditOpen = false;
+let pmStatusMenuOpen = false;
+let pmTypeMenuOpen = false;
+let pmPriorityMenuOpen = false;
+let pmIssueCreateOpen = true;
+let pmEditingFolderId = '';
+let pmEditingFolderName = '';
+var pmPendingConfirmAction = null;
+let pmRenderBusy = false;
+const pmProjectFoldersOpen = {};
+const pmCollapsedFolders = {};
+
+const PM_TYPE_LABEL = {bug:'BUG', req:'需求', opt:'优化'};
+const PM_STATUS_LABEL = {
+  open:'待处理',
+  clarify:'待澄清',
+  in_progress:'处理中',
+  blocked:'阻塞',
+  done:'已完成',
+};
+const PM_STATUS_CLASS = {
+  open:'st-Assigned',
+  clarify:'st-Menxia',
+  in_progress:'st-Doing',
+  blocked:'st-Blocked',
+  done:'st-Done',
+};
+
+function pmFmt(ts){
+  if(!ts) return '-';
+  return String(ts).replace('T',' ').slice(0,16);
+}
+
+function _getSelectedPmProject(){
+  return pmProjects.find(p=>p.id===selectedPmProjectId) || null;
+}
+
+function pmGetFolders(project){
+  const fs = Array.isArray((project||{}).folders) ? project.folders : [];
+  if(fs.length) return fs;
+  return [{id:'FLD-DEFAULT', name:'默认文件夹'}];
+}
+
+function pmIssueStatusClass(status){
+  const s = String(status||'').trim();
+  return s ? `st-${s}` : '';
+}
+
+function pmIssueTypeClass(type){
+  const t = String(type||'').trim().toLowerCase();
+  return t ? `type-${t}` : '';
+}
+
+function pmIssuePriorityClass(priority){
+  const p = String(priority||'').trim().toLowerCase();
+  return p ? `pri-${p}` : '';
+}
+
+function pmFolderKey(projectId, folderId){
+  return `${String(projectId||'')}::${String(folderId||'')}`;
+}
+
+function pmIsFolderCollapsed(projectId, folderId){
+  return !!pmCollapsedFolders[pmFolderKey(projectId, folderId)];
+}
+
+function _getSelectedPmItem(project){
+  if(!project) return null;
+  return (project.items||[]).find(i=>i.id===selectedPmItemId) || null;
+}
+
+function _getSelectedPmFolder(project){
+  const folders = pmGetFolders(project);
+  return folders.find(f=>f.id===selectedPmFolderId) || folders[0] || null;
+}
+
+async function loadPm(preferLatest=false){
+  if(_pmLoading) return;
+  _pmLoading = true;
+  try{
+    const d = await fetchJ(API+'/pm/projects');
+    if(!d.ok) throw new Error(d.error||'加载失败');
+    pmProjects = Array.isArray(d.projects) ? d.projects : [];
+    if(preferLatest && pmProjects.length){
+      selectedPmProjectId = pmProjects[0].id;
+      selectedPmItemId = '';
+      selectedPmFolderId = '';
+    }
+    if(selectedPmProjectId && !pmProjects.some(p=>p.id===selectedPmProjectId)){
+      selectedPmProjectId = pmProjects[0] ? pmProjects[0].id : '';
+      selectedPmItemId = '';
+      selectedPmFolderId = '';
+    }
+    const project = _getSelectedPmProject();
+    const folders = pmGetFolders(project);
+    if(project && selectedPmFolderId && !folders.some(f=>f.id===selectedPmFolderId)){
+      selectedPmFolderId = '';
+    }
+    if(project && !selectedPmFolderId){
+      selectedPmFolderId = (folders[0] && folders[0].id) || '';
+    }
+    if(project && selectedPmItemId && !(project.items||[]).some(i=>i.id===selectedPmItemId)){
+      selectedPmItemId = '';
+    }
+    if(project && selectedPmItemId){
+      const cur = (project.items||[]).find(i=>i.id===selectedPmItemId);
+      if(cur && (cur.folderId||selectedPmFolderId)!==selectedPmFolderId){
+        selectedPmItemId = '';
+      }
+    }
+    if(project && !selectedPmItemId){
+      const first = (project.items||[]).find(i=>(i.folderId||selectedPmFolderId)===selectedPmFolderId);
+      if(first) selectedPmItemId = first.id;
+    }
+    renderPm();
+  }catch(e){
+    const listEl = document.getElementById('pm-project-list');
+    const right = document.getElementById('pm-right-body');
+    if(listEl) listEl.innerHTML = `<div class="pm-empty">加载失败：${esc(e.message)}</div>`;
+    if(right) right.innerHTML = '<div class="pm-empty">项目数据加载失败</div>';
+  }finally{
+    _pmLoading = false;
+  }
+}
+
+function renderPm(){
+  const listEl = document.getElementById('pm-project-list');
+  const titleEl = document.getElementById('pm-project-title');
+  const right = document.getElementById('pm-right-body');
+  if(!listEl || !titleEl || !right) return;
+  pmRenderBusy = true;
+  try{
+
+  if(!pmProjects.length){
+    selectedPmFolderId = '';
+    listEl.innerHTML = '<div class="pm-empty">暂无项目</div>';
+    titleEl.textContent = '未选择项目';
+    titleEl.classList.remove('pm-title-row');
+    titleEl.classList.remove('clickable');
+    titleEl.onclick = null;
+    right.innerHTML = '<div class="pm-empty">先创建一个项目，再录入 BUG/需求/优化</div>';
+    return;
+  }
+
+  listEl.innerHTML = pmProjects.map(p=>{
+    const items = Array.isArray(p.items) ? p.items : [];
+    const done = items.filter(i=>i.status==='done').length;
+    const expanded = !!pmProjectFoldersOpen[p.id];
+    const active = expanded;
+    const showFolders = expanded;
+    const folders = pmGetFolders(p);
+    return `<div>
+      <div class="pm-proj ${active?'active':''}" onclick="pmToggleProject('${p.id}')">
+        <div class="pm-proj-head"><div class="t">${esc(p.name||p.id)}</div></div>
+        <div class="m">${esc(p.id)} · ${items.length}条 · 已完成${done}</div>
+      </div>
+      ${showFolders ? folders.map(f=>{
+        const cnt = items.filter(i=>(i.folderId||folders[0].id)===f.id).length;
+        const isEditing = pmEditingFolderId===f.id;
+        return `<div class="pm-folder-row ${selectedPmFolderId===f.id?'active':''}" ${isEditing?'':`onclick="pmSelectFolder('${p.id}','${f.id}')"`}>
+          <div class="pm-folder-head">
+            ${isEditing
+              ? `<input class="pm-folder-input" value="${esc(pmEditingFolderName||f.name||'')}" onmousedown="event.stopPropagation()" onclick="event.stopPropagation()" oninput="pmEditingFolderName=this.value" onkeydown="pmFolderEditKey(event,'${f.id}',this.value)" onblur="pmApplyRenameFolderDeferred('${f.id}',this.value)" autofocus>`
+              : `<div class="n">📁 ${esc(f.name)}</div>`}
+            <button class="pm-icon-btn" data-project-id="${esc(p.id)}" data-folder-id="${esc(f.id)}" onclick="pmHandleRenameFolderClick(event,this)">✎</button>
+          </div>
+          <div class="c">${cnt} 条问题</div>
+        </div>`;
+      }).join('') : ''}
+    </div>`;
+  }).join('');
+
+  const project = _getSelectedPmProject();
+  if(!project){
+    selectedPmFolderId = '';
+    titleEl.textContent = '未选择项目';
+    titleEl.classList.remove('pm-title-row');
+    titleEl.classList.remove('clickable');
+    titleEl.onclick = null;
+    right.innerHTML = '<div class="pm-empty">请选择项目</div>';
+    return;
+  }
+
+  const items = Array.isArray(project.items) ? project.items : [];
+  const folders = pmGetFolders(project);
+  const selectedFolder = _getSelectedPmFolder(project);
+  const selectedItem = _getSelectedPmItem(project);
+  const folderItems = items.filter(i=>(i.folderId||folders[0].id)===(selectedFolder?selectedFolder.id:folders[0].id));
+  titleEl.classList.remove('clickable');
+  titleEl.classList.add('pm-title-row');
+  titleEl.innerHTML = `
+    <span class="pm-hdr-title">${esc(project.name||project.id)} · ${esc((selectedFolder&&selectedFolder.name)||'默认文件夹')}</span>
+    <span class="pm-hdr-actions">
+      <button class="pm-mini pm-mini-danger" onclick="event.stopPropagation();pmDeleteFolder()">删除文件夹</button>
+      <button class="pm-mini" onclick="event.stopPropagation();pmPromptCreateFolder()">＋文件夹</button>
+      <button class="pm-mini" onclick="event.stopPropagation();togglePmIssueCreate()">${pmIssueCreateOpen?'收起新增':'新增问题'}</button>
+      <button class="pm-mini" onclick="event.stopPropagation();togglePmProjectEdit()">${pmProjectEditOpen?'收起编辑':'编辑项目'}</button>
+    </span>
+  `;
+  titleEl.onclick = null;
+
+  right.innerHTML = `
+    <div class="pm-box">
+      <div class="pm-fold ${pmProjectEditOpen?'open':''}">
+        <div class="pm-sub">项目设置</div>
+        <input id="pm-edit-name" class="pm-input" style="width:100%;margin-bottom:8px" value="${esc(project.name||'')}" placeholder="项目名称">
+        <textarea id="pm-edit-desc" class="pm-text" style="min-height:62px" placeholder="项目说明">${esc(project.description||'')}</textarea>
+        <div class="pm-actions" style="margin-bottom:10px">
+          <button class="btn btn-g" style="font-size:12px;padding:8px 12px" onclick="pmSaveProject()">💾 保存项目信息</button>
+          <button class="btn btn-p" style="font-size:12px;padding:8px 12px;background:#ff527022;border:1px solid #ff527044;color:#ff7a8f" onclick="pmDeleteProject()">🗑 删除项目</button>
+        </div>
+      </div>
+      ${pmProjectEditOpen ? '<div class="pm-section-divider"></div>' : ''}
+
+      ${pmIssueCreateOpen ? '<div class="pm-sub">新增记录</div>' : ''}
+      <div class="pm-fold ${pmIssueCreateOpen?'open':''}" style="margin-bottom:10px">
+        <input id="pm-item-title" class="pm-input" style="width:100%;margin-bottom:8px" placeholder="标题（如：登录页空白）">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <select id="pm-item-folder" class="pm-input" style="min-width:120px">
+            ${folders.map(f=>`<option value="${esc(f.id)}" ${selectedFolder&&selectedFolder.id===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <select id="pm-item-type" class="pm-input" style="min-width:90px">
+            <option value="bug">BUG</option>
+            <option value="req">需求</option>
+            <option value="opt">优化</option>
+          </select>
+          <select id="pm-item-priority" class="pm-input" style="min-width:90px">
+            <option value="P0">P0</option>
+            <option value="P1">P1</option>
+            <option value="P2" selected>P2</option>
+            <option value="P3">P3</option>
+          </select>
+        </div>
+        <textarea id="pm-item-desc" class="pm-text" placeholder="描述现象、复现步骤、期望行为"></textarea>
+        <div class="pm-actions">
+          <button class="btn btn-p" style="font-size:12px;padding:8px 12px" onclick="pmCreateItem()">＋ 创建</button>
+        </div>
+      </div>
+
+      ${pmIssueCreateOpen ? '<div class="pm-section-divider"></div>' : '<div style="height:8px"></div>'}
+      <div class="pm-issues">
+        ${folderItems.length ? folderItems.map(i=>`
+          <div class="pm-issue ${i.id===selectedPmItemId?'active':''} ${i.status==='done'?'is-done':''}" onclick="pmSelectItem('${i.id}')">
+            <div class="t">${esc(i.title||i.id)}</div>
+            <div class="m">
+              <span class="pm-tag ${pmIssueTypeClass(i.type)}">${esc(PM_TYPE_LABEL[i.type]||i.type||'-')}</span>
+              <span class="pm-tag ${pmIssuePriorityClass(i.priority)}">${esc(i.priority||'-')}</span>
+              <span class="pm-tag ${pmIssueStatusClass(i.status)}">${esc(PM_STATUS_LABEL[i.status]||i.status||'-')}</span>
+            </div>
+          </div>
+        `).join('') : '<div class="pm-empty">该文件夹暂无问题</div>'}
+      </div>
+    </div>
+
+    <div class="pm-box pm-detail">
+      ${selectedItem ? pmRenderItemDetail(project, selectedItem) : '<div class="pm-empty">请选择左侧问题单查看详情</div>'}
+    </div>
+  `;
+  }catch(e){
+    console.error('[PM render error]', e);
+    listEl.innerHTML = `<div class="pm-empty">渲染异常：${esc((e&&e.message)||'unknown error')}</div>`;
+    right.innerHTML = '<div class="pm-empty">项目管理渲染异常，请刷新页面重试</div>';
+  }finally{
+    pmRenderBusy = false;
+  }
+}
+
+function pmRenderItemDetail(project, item){
+  const qa = Array.isArray(item.qa) ? item.qa : [];
+  const questions = Array.isArray(item.questions) ? item.questions : [];
+  const plan = Array.isArray(item.plan) ? item.plan : [];
+  const statusOpts = ['open','clarify','in_progress','blocked','done'];
+  const typeOpts = ['bug','req','opt'];
+  const priorityOpts = ['P0','P1','P2','P3'];
+  return `
+    <div class="pm-head">
+      <div class="tt">${esc(item.title||item.id)}</div>
+      <button class="pm-trash" title="删除问题" onclick="pmDeleteItem()">🗑</button>
+    </div>
+    <div class="pm-kv">
+      <span class="pm-state-wrap">
+        <span class="tag ${PM_STATUS_CLASS[item.status]||''} pm-state-btn" onclick="togglePmStatusMenu()">
+          ${esc(PM_STATUS_LABEL[item.status]||item.status||'-')} ▾
+        </span>
+        ${pmStatusMenuOpen ? `
+          <span class="pm-state-pop">
+            ${statusOpts.map(s=>`
+              <span class="pm-state-opt ${s===item.status?'active':''}" onclick="pmSetStatus('${s}')">
+                <span>${esc(PM_STATUS_LABEL[s]||s)}</span>
+                <span>${s===item.status?'✓':''}</span>
+              </span>
+            `).join('')}
+          </span>` : ''}
+      </span>
+      <span class="pm-state-wrap">
+        <span class="pm-tag pm-state-btn" onclick="togglePmTypeMenu()">${esc(PM_TYPE_LABEL[item.type]||item.type||'-')} ▾</span>
+        ${pmTypeMenuOpen ? `
+          <span class="pm-state-pop">
+            ${typeOpts.map(t=>`
+              <span class="pm-state-opt ${t===item.type?'active':''}" onclick="pmSetType('${t}')">
+                <span>${esc(PM_TYPE_LABEL[t]||t)}</span>
+                <span>${t===item.type?'✓':''}</span>
+              </span>
+            `).join('')}
+          </span>` : ''}
+      </span>
+      <span class="pm-state-wrap">
+        <span class="pm-tag pm-state-btn" onclick="togglePmPriorityMenu()">${esc(item.priority||'-')} ▾</span>
+        ${pmPriorityMenuOpen ? `
+          <span class="pm-state-pop">
+            ${priorityOpts.map(p=>`
+              <span class="pm-state-opt ${p===item.priority?'active':''}" onclick="pmSetPriority('${p}')">
+                <span>${esc(p)}</span>
+                <span>${p===item.priority?'✓':''}</span>
+              </span>
+            `).join('')}
+          </span>` : ''}
+      </span>
+      <span class="pm-tag">${esc(item.id||'-')}</span>
+      <span class="pm-tag">更新 ${esc(pmFmt(item.updatedAt))}</span>
+    </div>
+    <div class="pm-sub" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span>问题描述</span>
+      <button class="btn btn-g" style="font-size:11px;padding:4px 10px" onclick="pmSaveDescription()">保存</button>
+    </div>
+    <textarea id="pm-detail-desc" class="pm-text" style="min-height:90px">${esc(item.description||'')}</textarea>
+
+    <div class="pm-gov-card">
+      <div class="pm-gov-head">
+        <div class="pm-gov-title">工部行动建议</div>
+        <div class="pm-actions pm-actions-sm pm-actions-inline">
+          <button class="btn btn-p" onclick="pmGongbuReview('review')">工部复审</button>
+          <button class="btn btn-g" onclick="pmGongbuReview('execute')">工部催办</button>
+        </div>
+      </div>
+      <div class="pm-gov-block">
+        <div class="pm-gov-label">待澄清问题</div>
+        ${questions.length ? questions.map(q=>`<div class="pm-q">❓ ${esc(q)}</div>`).join('') : '<div class="pm-gov-empty">暂无待澄清问题</div>'}
+      </div>
+      <div class="pm-gov-block">
+        <div class="pm-gov-label">执行计划</div>
+        ${plan.length ? `<ol class="pm-plan">${plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>` : '<div class="pm-gov-empty">暂无执行计划</div>'}
+      </div>
+      ${item.resolution ? `<div class="pm-gov-block"><div class="pm-gov-label">修复结论</div><div class="pm-gov-res">${esc(item.resolution)}</div></div>` : ''}
+    </div>
+    <div class="pm-section-divider"></div>
+    <div style="max-height:180px;overflow:auto;margin-bottom:8px">
+      ${qa.length ? qa.map(x=>`<div class="pm-q"><b>${pmRoleLabel(x.role)}：</b>${esc(x.text||'')}<div style="font-size:10px;color:var(--muted);margin-top:4px">${esc(pmFmt(x.at))}</div></div>`).join('') : '<div class="pm-kv">暂无问答记录</div>'}
+    </div>
+    <textarea id="pm-reply-text" class="pm-text" placeholder="补充信息，或回复工部疑问"></textarea>
+    <div class="pm-actions">
+      <button class="btn btn-g" style="font-size:12px;padding:6px 10px" onclick="pmAddReply(false)">提交回复</button>
+      <button class="btn btn-p" style="font-size:12px;padding:6px 10px" onclick="pmAddReply(true)">回复并让工部继续</button>
+    </div>
+  `;
+}
+
+function pmSelectProject(projectId){
+  selectedPmProjectId = projectId;
+  selectedPmItemId = '';
+  selectedPmFolderId = '';
+  pmIssueCreateOpen = false;
+  pmProjectEditOpen = false;
+  pmStatusMenuOpen = false;
+  pmTypeMenuOpen = false;
+  pmPriorityMenuOpen = false;
+  const p = _getSelectedPmProject();
+  const folders = pmGetFolders(p);
+  selectedPmFolderId = (folders[0] && folders[0].id) || '';
+  if(p && Array.isArray(p.items) && p.items.length){
+    const first = p.items.find(i=>(i.folderId||selectedPmFolderId)===selectedPmFolderId);
+    selectedPmItemId = first ? first.id : '';
+  }
+  renderPm();
+}
+
+function pmToggleProject(projectId){
+  if(selectedPmProjectId !== projectId){
+    Object.keys(pmProjectFoldersOpen).forEach(k=>{ pmProjectFoldersOpen[k] = false; });
+    pmProjectFoldersOpen[projectId] = true;
+    pmSelectProject(projectId);
+    renderPm();
+    return;
+  }
+  pmProjectFoldersOpen[projectId] = !pmProjectFoldersOpen[projectId];
+  renderPm();
+}
+
+function pmSelectFolder(projectId, folderId){
+  selectedPmProjectId = projectId;
+  pmProjectFoldersOpen[projectId] = true;
+  selectedPmFolderId = folderId;
+  pmIssueCreateOpen = false;
+  const p = _getSelectedPmProject();
+  const items = (p&&Array.isArray(p.items)) ? p.items : [];
+  const first = items.find(i=>(i.folderId||folderId)===folderId);
+  selectedPmItemId = first ? first.id : '';
+  renderPm();
+}
+
+function togglePmProjectEdit(){
+  pmProjectEditOpen = !pmProjectEditOpen;
+  renderPm();
+}
+
+function togglePmIssueCreate(){
+  pmIssueCreateOpen = !pmIssueCreateOpen;
+  renderPm();
+}
+
+function pmSelectItem(itemId){
+  selectedPmItemId = itemId;
+  pmStatusMenuOpen = false;
+  pmTypeMenuOpen = false;
+  pmPriorityMenuOpen = false;
+  renderPm();
+}
+
+function togglePmStatusMenu(){
+  pmTypeMenuOpen = false;
+  pmPriorityMenuOpen = false;
+  pmStatusMenuOpen = !pmStatusMenuOpen;
+  renderPm();
+}
+
+function togglePmTypeMenu(){
+  pmStatusMenuOpen = false;
+  pmPriorityMenuOpen = false;
+  pmTypeMenuOpen = !pmTypeMenuOpen;
+  renderPm();
+}
+
+function togglePmPriorityMenu(){
+  pmStatusMenuOpen = false;
+  pmTypeMenuOpen = false;
+  pmPriorityMenuOpen = !pmPriorityMenuOpen;
+  renderPm();
+}
+
+function togglePmFolder(projectId, folderId){
+  const k = pmFolderKey(projectId, folderId);
+  pmCollapsedFolders[k] = !pmCollapsedFolders[k];
+  renderPm();
+}
+
+function pmRoleLabel(role){
+  const r = String(role||'').toLowerCase();
+  if(r==='user') return '用户';
+  if(r==='codex') return 'Codex';
+  return '工部';
+}
+
+function pmOpenConfirmDialog(title, message, onConfirm){
+  pmPendingConfirmAction = (typeof onConfirm === 'function') ? onConfirm : null;
+  const body = document.getElementById('modal-body');
+  if(!body) return;
+  body.innerHTML = `
+    <div class="modal-id">工部治理台 · 操作确认</div>
+    <div class="modal-title">${esc(title||'请确认')}</div>
+    <div class="pm-kv" style="font-size:13px;line-height:1.8;margin-bottom:16px">${esc(message||'确认继续？')}</div>
+    <div class="pm-actions" style="justify-content:flex-end">
+      <button class="btn btn-g" style="padding:8px 14px;font-size:12px" onclick="pmCloseConfirmDialog()">取消</button>
+      <button class="btn btn-p" style="padding:8px 14px;font-size:12px;background:#ff527022;border:1px solid #ff527055;color:#ff7a8f" onclick="pmRunConfirmDialog()">确认删除</button>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function pmCloseConfirmDialog(){
+  pmPendingConfirmAction = null;
+  closeModal();
+}
+
+async function pmRunConfirmDialog(){
+  const fn = pmPendingConfirmAction;
+  pmPendingConfirmAction = null;
+  closeModal();
+  if(typeof fn === 'function'){
+    await fn();
+  }
+}
+
+function openPmCreateProjectModal(){
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">项目管理</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:14px">＋ 创建项目</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="pm-modal-project-name" class="pm-input" style="width:100%" placeholder="项目名称">
+      <textarea id="pm-modal-project-desc" class="pm-text" style="min-height:90px" placeholder="项目说明（可选）"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-g" onclick="closeModal()" style="font-size:12px;padding:8px 14px">取消</button>
+        <button class="btn btn-p" onclick="pmCreateProjectFromModal()" style="font-size:12px;padding:8px 14px">创建</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+  const input = document.getElementById('pm-modal-project-name');
+  if(input) input.focus();
+}
+
+async function pmCreateProject(){
+  let name = '';
+  let description = '';
+  const nameEl = document.getElementById('pm-project-name');
+  const descEl = document.getElementById('pm-project-desc');
+  const mNameEl = document.getElementById('pm-modal-project-name');
+  const mDescEl = document.getElementById('pm-modal-project-desc');
+  if(mNameEl){
+    name = (mNameEl.value||'').trim();
+    description = (mDescEl && mDescEl.value ? mDescEl.value : '').trim();
+  }else{
+    if(!nameEl) return;
+    name = (nameEl.value||'').trim();
+    description = (descEl && descEl.value ? descEl.value : '').trim();
+  }
+  if(!name){ toast('请输入项目名称','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/project-create', {name, description});
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    if(nameEl) nameEl.value = '';
+    if(descEl) descEl.value = '';
+    if(mNameEl) mNameEl.value = '';
+    if(mDescEl) mDescEl.value = '';
+    selectedPmProjectId = (r.project||{}).id || '';
+    selectedPmItemId = '';
+    pmProjectEditOpen = false;
+    pmStatusMenuOpen = false;
+    pmTypeMenuOpen = false;
+    pmPriorityMenuOpen = false;
+    await loadPm();
+    closeModal();
+    toast('项目已创建','ok');
+  }catch(e){
+    toast('创建失败: '+e.message,'err');
+  }
+}
+
+function pmCreateProjectFromModal(){
+  pmCreateProject();
+}
+
+async function pmSaveProject(){
+  const project = _getSelectedPmProject();
+  if(!project){ toast('请先选择项目','err'); return; }
+  const nameEl = document.getElementById('pm-edit-name');
+  const descEl = document.getElementById('pm-edit-desc');
+  const name = nameEl ? (nameEl.value||'').trim() : '';
+  const description = descEl ? (descEl.value||'').trim() : '';
+  if(!name){ toast('项目名称不能为空','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/project-update', {projectId: project.id, name, description});
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    await loadPm();
+    toast('项目信息已保存','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function pmDeleteProject(){
+  const project = _getSelectedPmProject();
+  if(!project){ toast('请先选择项目','err'); return; }
+  if(!confirm(`确认删除项目「${project.name||project.id}」？此操作不可恢复。`)) return;
+  try{
+    const r = await postJ(API+'/pm/project-delete', {projectId: project.id});
+    if(!r.ok){ toast(r.error||'删除失败','err'); return; }
+    selectedPmProjectId = '';
+    selectedPmItemId = '';
+    await loadPm();
+    toast('项目已删除','ok');
+  }catch(e){
+    toast('删除失败: '+e.message,'err');
+  }
+}
+
+async function pmCreateItem(){
+  const project = _getSelectedPmProject();
+  if(!project){ toast('请先选择项目','err'); return; }
+  const titleEl = document.getElementById('pm-item-title');
+  const typeEl = document.getElementById('pm-item-type');
+  const priEl = document.getElementById('pm-item-priority');
+  const folderEl = document.getElementById('pm-item-folder');
+  const descEl = document.getElementById('pm-item-desc');
+  const title = titleEl ? (titleEl.value||'').trim() : '';
+  if(!title){ toast('请输入记录标题','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/item-create', {
+      projectId: project.id,
+      title,
+      folderId: folderEl ? folderEl.value : '',
+      type: typeEl ? typeEl.value : 'bug',
+      priority: priEl ? priEl.value : 'P2',
+      description: descEl ? (descEl.value||'').trim() : '',
+    });
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    if(titleEl) titleEl.value = '';
+    if(descEl) descEl.value = '';
+    selectedPmItemId = (r.item||{}).id || selectedPmItemId;
+    pmIssueCreateOpen = false;
+    await loadPm();
+    toast('记录已创建','ok');
+  }catch(e){
+    toast('创建失败: '+e.message,'err');
+  }
+}
+
+function pmPromptCreateFolder(){
+  const body = document.getElementById('modal-body');
+  if(!body) return;
+  body.innerHTML = `
+    <div class="modal-id">工部治理台 · 新增文件夹</div>
+    <div class="modal-title">创建文件夹</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="pm-modal-folder-name" class="pm-input" style="width:100%" placeholder="请输入文件夹名称" onkeydown="if(event.key==='Enter'){event.preventDefault();pmCreateFolderFromModal();}">
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-g" onclick="closeModal()" style="font-size:12px;padding:8px 14px">取消</button>
+        <button class="btn btn-p" onclick="pmCreateFolderFromModal()" style="font-size:12px;padding:8px 14px">创建</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+  const input = document.getElementById('pm-modal-folder-name');
+  if(input) input.focus();
+}
+
+function pmCreateFolderFromModal(){
+  const input = document.getElementById('pm-modal-folder-name');
+  const name = input ? (input.value||'').trim() : '';
+  if(!name){ toast('请输入文件夹名称','err'); return; }
+  closeModal();
+  pmCreateFolder(name);
+}
+
+async function pmCreateFolder(nameFromCaller){
+  const project = _getSelectedPmProject();
+  if(!project){ toast('请先选择项目','err'); return; }
+  const name = (nameFromCaller || '').trim();
+  if(!name) return;
+  try{
+    const r = await postJ(API+'/pm/folder-create', {projectId: project.id, name});
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    selectedPmFolderId = (r.folder||{}).id || selectedPmFolderId;
+    await loadPm();
+    toast('文件夹已创建','ok');
+  }catch(e){
+    toast('创建失败: '+e.message,'err');
+  }
+}
+
+async function pmDeleteFolder(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder){ toast('请先选择文件夹','err'); return; }
+  const folders = pmGetFolders(project);
+  if((folders||[]).length<=1){
+    toast('至少保留一个文件夹，无法删除','err');
+    return;
+  }
+  const items = Array.isArray(project.items) ? project.items : [];
+  const count = items.filter(i=>(i.folderId||folders[0].id)===folder.id).length;
+  if(count>0){
+    toast(`该文件夹下仍有 ${count} 条问题，无法删除`,'err');
+    return;
+  }
+  pmOpenConfirmDialog(
+    '确认删除文件夹',
+    `确认删除文件夹「${folder.name||folder.id}」？删除后不可恢复。`,
+    async ()=>{
+      try{
+        const r = await postJ(API+'/pm/folder-delete', {projectId: project.id, folderId: folder.id});
+        if(!r.ok){ toast(r.error||'删除失败','err'); return; }
+        const nextFolders = pmGetFolders(r.project||project);
+        selectedPmFolderId = (nextFolders[0] && nextFolders[0].id) || '';
+        selectedPmItemId = '';
+        await loadPm();
+        toast('文件夹已删除','ok');
+      }catch(e){
+        toast('删除失败: '+e.message,'err');
+      }
+    }
+  );
+}
+
+function pmStartRenameFolder(folderId, currentName){
+  pmEditingFolderId = folderId;
+  pmEditingFolderName = String(currentName||'');
+  renderPm();
+}
+
+function pmStartRenameFolderById(projectId, folderId){
+  const project = pmProjects.find(p=>p.id===projectId);
+  const folders = pmGetFolders(project);
+  const folder = folders.find(f=>f.id===folderId);
+  pmStartRenameFolder(folderId, folder ? String(folder.name||'') : '');
+}
+
+function pmHandleRenameFolderClick(event, btn){
+  if(event && event.stopPropagation) event.stopPropagation();
+  try{
+    const projectId = (btn && btn.dataset && btn.dataset.projectId) ? btn.dataset.projectId : '';
+    const folderId = (btn && btn.dataset && btn.dataset.folderId) ? btn.dataset.folderId : '';
+    if(!folderId){ toast('未获取到文件夹标识','err'); return; }
+    pmStartRenameFolderById(projectId, folderId);
+  }catch(e){
+    console.error('[PM rename click error]', e);
+    toast('编辑文件夹失败: '+((e&&e.message)||'unknown error'),'err');
+  }
+}
+
+function pmFolderEditKey(e, folderId, value){
+  if(!e) return;
+  if(e.key==='Enter'){
+    e.preventDefault();
+    pmApplyRenameFolder(folderId, value);
+  }else if(e.key==='Escape'){
+    e.preventDefault();
+    pmEditingFolderId = '';
+    pmEditingFolderName = '';
+    renderPm();
+  }
+}
+
+function pmApplyRenameFolderDeferred(folderId, valueFromInput){
+  setTimeout(()=>{
+    pmApplyRenameFolder(folderId, valueFromInput);
+  }, 0);
+}
+
+async function pmApplyRenameFolder(folderId, valueFromInput){
+  if(pmRenderBusy){
+    pmApplyRenameFolderDeferred(folderId, valueFromInput);
+    return;
+  }
+  const project = _getSelectedPmProject();
+  if(!project){ toast('请先选择项目','err'); return; }
+  const folders = pmGetFolders(project);
+  const folder = folders.find(f=>f.id===folderId);
+  if(!folder){ pmEditingFolderId=''; pmEditingFolderName=''; return; }
+  const raw = (valueFromInput !== undefined && valueFromInput !== null) ? String(valueFromInput) : String(pmEditingFolderName||'');
+  const next = raw.trim();
+  if(!next){
+    toast('文件夹名称不能为空','err');
+    return;
+  }
+  if(next===folder.name){
+    pmEditingFolderId = '';
+    pmEditingFolderName = '';
+    renderPm();
+    return;
+  }
+  try{
+    const r = await postJ(API+'/pm/folder-update', {projectId: project.id, folderId, name: next});
+    if(!r.ok){ toast(r.error||'修改失败','err'); return; }
+    pmEditingFolderId = '';
+    pmEditingFolderName = '';
+    await loadPm();
+    toast('文件夹已更新','ok');
+  }catch(e){
+    toast('修改失败: '+e.message,'err');
+  }
+}
+
+async function pmDeleteItem(){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  pmOpenConfirmDialog(
+    '确认删除问题单',
+    `确认删除问题单「${item.title||item.id}」？删除后不可恢复。`,
+    async ()=>{
+      try{
+        const r = await postJ(API+'/pm/item-delete', {projectId: project.id, itemId: item.id});
+        if(!r.ok){ toast(r.error||'删除失败','err'); return; }
+        selectedPmItemId = '';
+        await loadPm();
+        toast('问题单已删除','ok');
+      }catch(e){
+        toast('删除失败: '+e.message,'err');
+      }
+    }
+  );
+}
+
+async function pmSetStatus(status){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  pmStatusMenuOpen = false;
+  try{
+    const r = await postJ(API+'/pm/item-update', {projectId: project.id, itemId: item.id, status});
+    if(!r.ok){ toast(r.error||'更新失败','err'); return; }
+    await loadPm();
+    toast('状态已更新','ok');
+  }catch(e){
+    toast('更新失败: '+e.message,'err');
+  }
+}
+
+async function pmSetType(itemType){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  pmTypeMenuOpen = false;
+  try{
+    const r = await postJ(API+'/pm/item-update', {projectId: project.id, itemId: item.id, type: itemType});
+    if(!r.ok){ toast(r.error||'更新失败','err'); return; }
+    await loadPm();
+    toast('类型已更新','ok');
+  }catch(e){
+    toast('更新失败: '+e.message,'err');
+  }
+}
+
+async function pmSetPriority(priority){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  pmPriorityMenuOpen = false;
+  try{
+    const r = await postJ(API+'/pm/item-update', {projectId: project.id, itemId: item.id, priority});
+    if(!r.ok){ toast(r.error||'更新失败','err'); return; }
+    await loadPm();
+    toast('优先级已更新','ok');
+  }catch(e){
+    toast('更新失败: '+e.message,'err');
+  }
+}
+
+async function pmSaveDescription(){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  const descEl = document.getElementById('pm-detail-desc');
+  if(!project || !item || !descEl){ toast('请先选择问题单','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/item-update', {
+      projectId: project.id,
+      itemId: item.id,
+      description: (descEl.value||'').trim(),
+    });
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    await loadPm();
+    toast('描述已保存','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function pmAddReply(andReview){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  const textEl = document.getElementById('pm-reply-text');
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  const text = textEl ? (textEl.value||'').trim() : '';
+  if(!text){ toast('请输入回复内容','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/item-reply', {projectId: project.id, itemId: item.id, text, role:'user'});
+    if(!r.ok){ toast(r.error||'提交失败','err'); return; }
+    if(textEl) textEl.value = '';
+    await loadPm();
+    toast('回复已提交','ok');
+    if(andReview){
+      await pmGongbuReview('review');
+    }
+  }catch(e){
+    toast('提交失败: '+e.message,'err');
+  }
+}
+
+async function pmGongbuReview(mode){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  const m = mode || 'review';
+  try{
+    toast('工部处理中，请稍候...','ok',2000);
+    const r = await postJ(API+'/pm/gongbu-review', {projectId: project.id, itemId: item.id, mode: m});
+    if(!r.ok){ toast(r.error||'工部处理失败','err'); return; }
+    await loadPm();
+    if(r.warning) toast(r.warning,'warn',5000);
+    else toast('工部结果已更新','ok');
+  }catch(e){
+    toast('工部处理失败: '+e.message,'err');
+  }
 }
 
 /* ══ SESSIONS / 小任务 ══ */
@@ -2227,6 +3715,7 @@ const DEFAULT_CATS = ['政治','军事','经济','AI大模型'];
 
 // --- Subscription config ---
 let subConfig = null;
+let selectedMorningCategory = '';
 
 async function loadSubConfig(){
   try{ subConfig = await fetchJ(API+'/morning-config'); }
@@ -2237,16 +3726,19 @@ function renderSubConfig(){
   if(!subConfig) return;
   // Categories
   const catsEl = document.getElementById('sub-cats');
-  const allCats = [...DEFAULT_CATS];
+  const allCats = [];
+  (subConfig.categories||[]).forEach(c=>{ if(c && c.name && !allCats.includes(c.name)) allCats.push(c.name); });
+  DEFAULT_CATS.forEach(c=>{ if(!allCats.includes(c)) allCats.push(c); });
   (subConfig.categories||[]).forEach(c=>{ if(!allCats.includes(c.name)) allCats.push(c.name); });
   const enabledSet = new Set((subConfig.categories||[]).filter(c=>c.enabled).map(c=>c.name));
   catsEl.innerHTML = allCats.map(cat=>{
     const meta=CAT_META[cat]||{icon:'📰',color:'var(--acc)',desc:cat};
     const on=enabledSet.has(cat);
-    return `<div class="sub-cat ${on?'active':''}" onclick="toggleCat('${esc(cat)}')">
+    return `<div class="sub-cat ${on?'active':''}" onclick='toggleCat(${JSON.stringify(cat)})'>
       <div class="sc-check">${on?'✓':''}</div>
       <span style="font-size:16px">${meta.icon}</span>
       <div><div class="sc-label">${esc(cat)}</div><div class="sc-count">${meta.desc}</div></div>
+      <div class="sc-del" onclick='event.stopPropagation();removeCategory(${JSON.stringify(cat)})' title="删除分类">✕</div>
     </div>`;
   }).join('');
   // Keywords
@@ -2290,6 +3782,36 @@ function toggleCat(name){
   else cats.push({name, enabled:true});
   subConfig.categories = cats;
   renderSubConfig();
+  saveSubConfig(true).then(()=>loadMorning()).catch(()=>{});
+}
+
+function removeCategory(name){
+  if(!subConfig || !Array.isArray(subConfig.categories)) return;
+  const next = subConfig.categories.filter(c=>c && c.name !== name);
+  if(!next.length){
+    toast('至少保留一个分类','err');
+    return;
+  }
+  subConfig.categories = next;
+  if(selectedMorningCategory === name) selectedMorningCategory = '';
+  renderSubConfig();
+  saveSubConfig(true).then(()=>loadMorning()).catch(()=>{});
+  toast(`已删除分类：${name}`,'ok');
+}
+
+function addCategory(){
+  if(!subConfig) subConfig = {};
+  if(!subConfig.categories) subConfig.categories = [];
+  const inp = document.getElementById('new-cat');
+  const name = (inp && inp.value ? inp.value : '').trim();
+  if(!name){ toast('请输入分类名称','err'); return; }
+  if(subConfig.categories.find(c=>c.name===name)){ toast('分类已存在','err'); return; }
+  subConfig.categories.push({name, enabled:true});
+  if(!CAT_META[name]) CAT_META[name] = {icon:'📰', color:'var(--acc)', desc:name};
+  if(inp) inp.value = '';
+  renderSubConfig();
+  toast(`已新增分类：${name}`,'ok');
+  saveSubConfig().then(()=>loadMorning()).catch(()=>{});
 }
 
 function addKeyword(){
@@ -2334,7 +3856,7 @@ function removeFeed(i){
   renderSubConfig();
 }
 
-async function saveSubConfig(){
+async function saveSubConfig(silent=false){
   if(!subConfig) subConfig = {};
   subConfig.notification = {
     enabled: document.getElementById('notification-enabled').checked,
@@ -2342,13 +3864,32 @@ async function saveSubConfig(){
     webhook: document.getElementById('notification-webhook').value.trim()
   };
   const st = document.getElementById('sub-status');
-  st.style.display='block'; st.style.color='var(--acc)'; st.textContent='⟳ 保存中…';
+  if(!silent){
+    st.style.display='block'; st.style.color='var(--acc)'; st.textContent='⟳ 保存中…';
+  }
   try{
     const r = await postJ(API+'/morning-config', subConfig);
-    if(r.ok){ st.style.color='var(--ok)'; st.textContent='✅ 配置已保存'; toast('订阅配置已保存','ok'); }
-    else{ st.style.color='var(--danger)'; st.textContent='❌ '+(r.error||'保存失败'); }
-  }catch(e){ st.style.color='var(--danger)'; st.textContent='❌ 服务器连接失败'; }
-  setTimeout(()=>st.style.display='none', 3000);
+    if(r.ok){
+      if(!silent){
+        st.style.color='var(--ok)'; st.textContent='✅ 配置已保存'; toast('订阅配置已保存','ok');
+      }
+      return true;
+    } else {
+      if(!silent){
+        st.style.color='var(--danger)'; st.textContent='❌ '+(r.error||'保存失败');
+      }
+      return false;
+    }
+  }catch(e){
+    if(!silent){
+      st.style.color='var(--danger)'; st.textContent='❌ 服务器连接失败';
+    }
+    return false;
+  }finally{
+    if(!silent){
+      setTimeout(()=>st.style.display='none', 3000);
+    }
+  }
 }
 
 // --- News rendering ---
@@ -2372,40 +3913,71 @@ function renderMorning(d){
   }
   const body = document.getElementById('mb-body');
   const cats = d.categories||{};
-  if(!Object.keys(cats).length){
-    body.innerHTML='<div class="mb-empty">暂无数据，点击右上角「立即采集」获取今日简报</div>';
-    return;
-  }
-  // Filter by enabled categories
   const enabledSet = subConfig ? new Set((subConfig.categories||[]).filter(c=>c.enabled).map(c=>c.name)) : null;
   const userKws = (subConfig && subConfig.keywords||[]).map(k=>k.toLowerCase());
-
-  body.innerHTML = `<div class="mb-cats">
-    ${Object.entries(cats).map(([cat, items])=>{
-      if(enabledSet && !enabledSet.has(cat)) return '';
+  const mergedCatNames = [];
+  if(subConfig && Array.isArray(subConfig.categories)){
+    subConfig.categories.forEach(c=>{
+      if(!c || !c.name) return;
+      if(enabledSet && !enabledSet.has(c.name)) return;
+      if(!mergedCatNames.includes(c.name)) mergedCatNames.push(c.name);
+    });
+  }
+  Object.keys(cats).forEach(cat=>{
+    if(enabledSet && !enabledSet.has(cat)) return;
+    if(!mergedCatNames.includes(cat)) mergedCatNames.push(cat);
+  });
+  const entries = mergedCatNames.map(cat=>{
+      const items = cats[cat] || [];
       const meta = CAT_META[cat]||{icon:'📰',color:'var(--acc)'};
-      // Boost items matching user keywords
-      const scored = items.map(item=>{
+      const scored = (items||[]).map(item=>{
         const text = ((item.title||'')+(item.summary||'')).toLowerCase();
         const kwHits = userKws.filter(k=>text.includes(k)).length;
         return {...item, _kwHits: kwHits};
       }).sort((a,b)=>b._kwHits-a._kwHits);
-      return `<div class="mb-cat">
+      return {cat, meta, items: scored};
+    });
+
+  if(!entries.length){
+    body.innerHTML='<div class="mb-empty">暂无已启用分类的数据，请在订阅管理中启用或新增分类</div>';
+    return;
+  }
+
+  if(!selectedMorningCategory || !entries.some(x=>x.cat===selectedMorningCategory)){
+    selectedMorningCategory = entries[0].cat;
+  }
+  const selected = entries.find(x=>x.cat===selectedMorningCategory) || entries[0];
+
+  body.innerHTML = `
+    <div class="mb-layout">
+      <div class="mb-left">
+        <div class="mb-left-hdr">新闻分类</div>
+        <div class="mb-cat-list">
+          ${entries.map(x=>`
+            <div class="mb-cat-item ${x.cat===selectedMorningCategory?'active':''}" onclick='setMorningCategory(${JSON.stringify(x.cat)})'>
+              <span class="mb-ci-icon">${x.meta.icon}</span>
+              <span class="mb-ci-name" style="color:${x.meta.color}">${esc(x.cat)}</span>
+              <span class="mb-ci-count">${x.items.length} 条</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="mb-right">
         <div class="mb-cat-hdr">
-          <span class="mb-cat-icon">${meta.icon}</span>
-          <span class="mb-cat-name" style="color:${meta.color}">${esc(cat)}</span>
-          <span class="mb-cat-cnt">${scored.length} 条</span>
+          <span class="mb-cat-icon">${selected.meta.icon}</span>
+          <span class="mb-cat-name" style="color:${selected.meta.color}">${esc(selected.cat)}</span>
+          <span class="mb-cat-cnt">${selected.items.length} 条</span>
         </div>
         <div class="mb-news-list">
-          ${!scored.length ? '<div class="mb-empty" style="padding:16px">暂无新闻</div>' :
-            scored.map(item => {
+          ${!selected.items.length ? '<div class="mb-empty" style="padding:16px">暂无新闻</div>' :
+            selected.items.map(item => {
               const hasImg = item.image && item.image.startsWith('http');
               const kwBadge = item._kwHits ? `<span style="font-size:9px;padding:1px 5px;border-radius:999px;background:#a07aff22;color:#a07aff;border:1px solid #a07aff44;margin-left:4px">⭐ 关注</span>` : '';
               return `<div class="mb-card" onclick="window.open('${esc(item.link)}','_blank')">
                 <div class="mb-img">
                   ${hasImg
-                    ? `<img src="${esc(item.image)}" onerror="this.parentElement.textContent='${meta.icon}'" loading="lazy">`
-                    : `<span>${meta.icon}</span>`}
+                    ? `<img src="${esc(item.image)}" onerror="this.parentElement.textContent='${selected.meta.icon}'" loading="lazy">`
+                    : `<span>${selected.meta.icon}</span>`}
                 </div>
                 <div class="mb-info">
                   <div class="mb-headline">${esc(item.title)}${kwBadge}</div>
@@ -2418,9 +3990,13 @@ function renderMorning(d){
               </div>`;
             }).join('')}
         </div>
-      </div>`;
-    }).join('')}
-  </div>`;
+      </div>
+    </div>`;
+}
+
+function setMorningCategory(cat){
+  selectedMorningCategory = cat;
+  loadMorning();
 }
 
 let _newsPolling = null;
@@ -2430,6 +4006,8 @@ async function refreshNews(){
   const btn = document.getElementById('mb-refresh-btn');
   btn.disabled = true; btn.textContent = '⟳ 采集中…';
   try{
+    // 先把分类/关键词配置保存，再采集（否则会按旧配置采）
+    if(subConfig) await saveSubConfig(true);
     // 记录采集前的数据时间戳
     try{
       const old = await fetchJ(API+'/morning-brief');
@@ -2469,141 +4047,960 @@ async function refreshNews(){
   }
 }
 
+/* ══ LEARNING SYSTEM (礼部学习路径) ══ */
+let learningPlans = [];
+let selectedLearningId = '';
+let learningAnswerDrafts = {};
+const LEARNING_DRAFT_KEY = 'openclaw_learning_drafts_v1';
+let currentTopicPlanId = '';
+let currentTopicId = '';
+let topicNotesStore = {};
+const TOPIC_NOTES_KEY = 'openclaw_learning_topic_notes_v1';
+
+function loadLearningDrafts(){
+  try{
+    const raw = localStorage.getItem(LEARNING_DRAFT_KEY);
+    learningAnswerDrafts = raw ? JSON.parse(raw) : {};
+    if(!learningAnswerDrafts || typeof learningAnswerDrafts !== 'object') learningAnswerDrafts = {};
+  }catch(_){
+    learningAnswerDrafts = {};
+  }
+}
+
+function saveLearningDrafts(){
+  try{ localStorage.setItem(LEARNING_DRAFT_KEY, JSON.stringify(learningAnswerDrafts)); }catch(_){}
+}
+
+function getPlanAnswersWithDraft(plan){
+  const base = Array.isArray(plan && plan.answers) ? plan.answers : [];
+  const draft = learningAnswerDrafts[(plan||{}).id] || [];
+  const merged = [];
+  for(let i=0;i<10;i++){
+    const d = String(draft[i]||'').trim();
+    if(d){ merged.push(d); continue; }
+    merged.push(String(base[i]||'').trim());
+  }
+  return merged;
+}
+
+function filledAnswersCount(arr){
+  return (arr||[]).filter(x=>String(x||'').trim()).length;
+}
+
+async function loadLearningPlans(){
+  const listEl = document.getElementById('ls-list');
+  const mainEl = document.getElementById('ls-main');
+  if(!listEl || !mainEl) return;
+  if(!Object.keys(learningAnswerDrafts).length) loadLearningDrafts();
+  try{
+    const res = await fetchJ(API+'/learning-plan');
+    learningPlans = Array.isArray(res.plans) ? res.plans : [];
+    if(!selectedLearningId && learningPlans.length){
+      selectedLearningId = learningPlans[0].id;
+    }
+    if(selectedLearningId && !learningPlans.find(x=>x.id===selectedLearningId)){
+      selectedLearningId = learningPlans.length ? learningPlans[0].id : '';
+    }
+    renderLearningPlans();
+  }catch(e){
+    listEl.innerHTML = '<div class="ls-empty">⚠️ 无法加载学习计划</div>';
+    mainEl.innerHTML = '<div class="ls-empty">请检查后端服务是否运行</div>';
+  }
+}
+
+function renderLearningPlans(){
+  const listEl = document.getElementById('ls-list');
+  const mainEl = document.getElementById('ls-main');
+  if(!listEl || !mainEl) return;
+  if(!learningPlans.length){
+    listEl.innerHTML = '<div class="ls-empty">暂无学习计划</div>';
+    mainEl.innerHTML = '<div class="ls-empty">先输入学习主题并生成第一份礼部10问</div>';
+    return;
+  }
+  listEl.innerHTML = learningPlans.map(p=>`
+    <div class="ls-item ${p.id===selectedLearningId?'active':''}" onclick="selectLearningPlan('${esc(p.id)}')">
+      <div class="ls-item-topic">${esc(p.topic||'未命名主题')}</div>
+      <div class="ls-item-meta">
+        <span>${p.status==='planned'?'✅ 已成图':'🧭 待填写10问'}</span>
+        <span>${esc((p.updatedAt||'').replace('T',' ').slice(0,16))}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const plan = learningPlans.find(x=>x.id===selectedLearningId) || learningPlans[0];
+  if(plan) selectedLearningId = plan.id;
+  renderLearningDetail(plan);
+}
+
+function selectLearningPlan(planId){
+  selectedLearningId = planId;
+  renderLearningPlans();
+}
+
+function renderLearningDetail(plan){
+  const mainEl = document.getElementById('ls-main');
+  if(!mainEl) return;
+  if(!plan){
+    mainEl.innerHTML = '<div class="ls-empty">请选择左侧计划</div>';
+    return;
+  }
+
+  const questions = Array.isArray(plan.questions) ? plan.questions : [];
+  const answers = getPlanAnswersWithDraft(plan);
+  const filled = filledAnswersCount(answers);
+
+  if(plan.status !== 'planned'){
+    mainEl.innerHTML = `
+      <div class="ls-sec">
+        <div class="ls-st">当前阶段：礼部十问澄清</div>
+        <div class="ls-card">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px">状态：待填写十问</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">进度：已填写 ${filled}/10</div>
+          <div style="height:8px;background:#0e1320;border:1px solid var(--line);border-radius:999px;overflow:hidden">
+            <div style="height:100%;width:${Math.min(100, Math.round((filled/10)*100))}%;background:linear-gradient(90deg,#6a9eff,#2ecc8a)"></div>
+          </div>
+        </div>
+        <div class="ls-card">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px">下一步</div>
+          <div style="font-size:11px;color:var(--muted)">点击下方按钮，在弹框中填写/继续填写 10 个问题。填写后由礼部生成学习路径与知识架构。</div>
+          <div style="margin-top:10px">
+            <button class="btn btn-g" onclick="openLearningQuestionnaire('${esc(plan.id)}')" style="font-size:12px;padding:8px 16px">${filled>0?'继续填写十问':'开始填写十问'}</button>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const result = plan.result || {};
+  const curriculum = Array.isArray(result.curriculum) ? result.curriculum : [];
+  const profile = result.learner_profile || '';
+  const map = result.knowledge_map_mermaid || '';
+
+  const phaseStat = {};
+  curriculum.forEach(t=>{
+    const ph = String(t.phase||'未分阶段').trim() || '未分阶段';
+    phaseStat[ph] = (phaseStat[ph]||0) + 1;
+  });
+
+  mainEl.innerHTML = `
+    <div class="ls-sec">
+      <div class="ls-st">学习者画像</div>
+      <div class="ls-card" style="font-size:11px;line-height:1.65;color:var(--muted)">${esc(profile||'（无）')}</div>
+    </div>
+    <div class="ls-sec">
+      <div class="ls-st">阶段规划（细化目录，点击进入学习）</div>
+      <div class="ls-card" style="margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">
+          ${Object.keys(phaseStat).length
+            ? Object.entries(phaseStat).map(([k,v])=>`${esc(k)}：${v}个主题`).join(' · ')
+            : '暂无阶段统计'}
+        </div>
+      </div>
+      <div class="ls-catalog">
+        ${curriculum.map((t, idx)=>`
+          <div class="ls-topic-item" onclick="openLearningTopicModal('${esc(plan.id)}','${esc(t.id||('T'+(idx+1)))}')">
+            <div class="ls-topic-no">${String(idx+1).padStart(2,'0')}</div>
+            <div class="ls-topic-title">${esc(t.title||('主题'+(idx+1)))}</div>
+            <div class="ls-topic-phase">${esc(t.phase||'')}</div>
+            <div class="ls-topic-arrow">›</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="ls-sec">
+      <div class="ls-st">知识架构图（Mermaid）</div>
+      <div class="ls-mermaid-wrap">
+        <div id="ls-mermaid-view" class="ls-mermaid-diagram"></div>
+      </div>
+      <div class="ls-mermaid-tools">
+        <button class="dc-mini-btn" onclick="toggleLearningMermaidSource()">显示/隐藏源码</button>
+      </div>
+      <pre id="ls-mermaid-src" class="ls-mermaid" style="display:none">${esc(map||'')}</pre>
+    </div>
+  `;
+  renderLearningMermaid(map||'');
+}
+
+let _mermaidReady = false;
+let _mermaidLoading = null;
+
+function toggleLearningMermaidSource(){
+  const src = document.getElementById('ls-mermaid-src');
+  if(!src) return;
+  src.style.display = src.style.display === 'none' ? 'block' : 'none';
+}
+
+function ensureMermaidLib(){
+  if(_mermaidReady && window.mermaid) return Promise.resolve(window.mermaid);
+  if(_mermaidLoading) return _mermaidLoading;
+  _mermaidLoading = new Promise((resolve, reject)=>{
+    if(window.mermaid){
+      try{
+        window.mermaid.initialize({startOnLoad:false, theme:'dark', securityLevel:'loose', flowchart:{curve:'basis'}});
+      }catch(_){}
+      _mermaidReady = true;
+      resolve(window.mermaid);
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+    s.async = true;
+    s.onload = ()=>{
+      try{
+        window.mermaid.initialize({startOnLoad:false, theme:'dark', securityLevel:'loose', flowchart:{curve:'basis'}});
+      }catch(_){}
+      _mermaidReady = true;
+      resolve(window.mermaid);
+    };
+    s.onerror = ()=> reject(new Error('Mermaid 库加载失败'));
+    document.head.appendChild(s);
+  }).catch((e)=>{
+    _mermaidLoading = null;
+    throw e;
+  });
+  return _mermaidLoading;
+}
+
+async function renderLearningMermaid(code){
+  const view = document.getElementById('ls-mermaid-view');
+  if(!view) return;
+  const source = normalizeLearningMermaidSource(code);
+  if(!source){
+    view.innerHTML = '<div class="ls-empty">暂无架构图</div>';
+    return;
+  }
+  // 优先渲染图形，失败则回落源码
+  try{
+    const mermaid = await ensureMermaidLib();
+    // 先 parse 校验，避免 mermaid 返回“Syntax error”炸弹 SVG
+    try{
+      const parsed = await mermaid.parse(source, {suppressErrors:true});
+      if(parsed === false){
+        view.innerHTML = `<pre class="ls-mermaid">${esc(source)}</pre>`;
+        return;
+      }
+    }catch(_){
+      view.innerHTML = `<pre class="ls-mermaid">${esc(source)}</pre>`;
+      return;
+    }
+    const id = 'ls-mermaid-'+Date.now();
+    const out = await mermaid.render(id, source);
+    const svg = String((out && out.svg) || '');
+    if(!svg || /Syntax error in text/i.test(svg)){
+      view.innerHTML = `<pre class="ls-mermaid">${esc(source)}</pre>`;
+      return;
+    }
+    view.innerHTML = svg;
+  }catch(_){
+    view.innerHTML = `<pre class="ls-mermaid">${esc(source)}</pre>`;
+  }
+}
+
+function normalizeLearningMermaidSource(code){
+  let raw = String(code||'').trim();
+  if(!raw) return '';
+  // 去掉常见错误噪声
+  raw = raw.replace(/Syntax error in text[\s\S]*$/ig, '').trim();
+  // 提取 fenced code
+  const fm = raw.match(/```(?:mermaid)?\s*([\s\S]*?)```/i);
+  if(fm && fm[1]) raw = fm[1].trim();
+  // 只截取第一段合法 Mermaid 起始
+  const lines = raw.split('\n');
+  const startIdx = lines.findIndex(ln => /^\s*(flowchart|graph|mindmap|timeline|stateDiagram|classDiagram|sequenceDiagram|gantt|journey)\b/i.test(ln));
+  if(startIdx > 0) raw = lines.slice(startIdx).join('\n').trim();
+  raw = repairLearningMermaidSyntax(raw);
+  // flowchart 规范兜底：如果不是 mermaid 起始，返回空，避免渲染报错
+  if(!/^\s*(flowchart|graph|mindmap|timeline|stateDiagram|classDiagram|sequenceDiagram|gantt|journey)\b/i.test(raw)){
+    return '';
+  }
+  return raw;
+}
+
+function repairLearningMermaidSyntax(src){
+  let s = String(src||'');
+  if(!s) return s;
+  // 修复 LLM 常见写法：subgraph X { ... } -> subgraph X ... end
+  s = s.replace(/^\s*subgraph\s+([^\n{]+)\s*\{\s*$/gmi, (m, g1)=>`subgraph ${String(g1).trim()}`);
+  s = s.replace(/^\s*\}\s*$/gmi, 'end');
+  // 清理多余的 markdown 标题/说明行
+  s = s.split('\n').filter(ln=>!/^#{1,6}\s+/.test(ln.trim())).join('\n');
+  return s.trim();
+}
+
+function updateLearningDraft(planId, idx, val){
+  if(!planId) return;
+  if(!Array.isArray(learningAnswerDrafts[planId])) learningAnswerDrafts[planId] = new Array(10).fill('');
+  learningAnswerDrafts[planId][idx] = String(val||'');
+  saveLearningDrafts();
+}
+
+function openLearningQuestionnaire(planId){
+  const plan = learningPlans.find(x=>x.id===planId);
+  if(!plan){ toast('计划不存在','err'); return; }
+  const questions = Array.isArray(plan.questions) ? plan.questions : [];
+  const answers = getPlanAnswersWithDraft(plan);
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px">📚 礼部十问填写</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${esc(plan.topic||'')}</div>
+    <div style="max-height:64vh;overflow:auto;padding-right:4px">
+      ${questions.map((q,idx)=>`
+        <div class="ls-q">
+          <div class="ls-qh">${esc(q.id||('Q'+(idx+1)))} · ${esc(q.question||'')}</div>
+          <div class="ls-qw">${esc(q.why||'')}</div>
+          <textarea class="ls-ans" id="ls-modal-ans-${idx}" oninput="updateLearningDraft('${esc(plan.id)}',${idx},this.value)" placeholder="请填写你的回答...">${esc(answers[idx]||'')}</textarea>
+        </div>
+      `).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px">
+      <div style="font-size:11px;color:var(--muted)">自动保存草稿，刷新页面不会丢失</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g" onclick="closeModal()" style="padding:8px 14px;font-size:12px">稍后继续</button>
+        <button class="btn btn-p" id="ls-modal-generate-btn" onclick="generateLearningPath('${esc(plan.id)}')" style="padding:8px 14px;font-size:12px">提交并生成路径</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function _findLearningPlan(planId){
+  return learningPlans.find(x=>x.id===planId);
+}
+
+function _findLearningTopic(plan, topicId){
+  const curriculum = (((plan||{}).result||{}).curriculum||[]);
+  return curriculum.find(t=>String(t.id)===String(topicId));
+}
+
+function _renderTopicContent(topic){
+  const resources = Array.isArray(topic.resources) ? topic.resources : [];
+  const points = Array.isArray(topic.key_points) ? topic.key_points : [];
+  const practice = Array.isArray(topic.practice) ? topic.practice : [];
+  const supplements = Array.isArray(topic.supplements) ? topic.supplements : [];
+  return `
+    <div class="ls-card" style="margin-bottom:8px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:4px">${esc(topic.title||'')}</div>
+      <div style="font-size:11px;color:var(--muted)">${esc(topic.phase||'')}</div>
+      <div style="font-size:12px;margin-top:8px"><b>学习目标：</b>${esc(topic.objective||'')}</div>
+      <div style="font-size:12px;white-space:pre-wrap;line-height:1.6;margin-top:8px">${esc(topic.content||'')}</div>
+    </div>
+    <div class="ls-card" style="margin-bottom:8px">
+      <div style="font-size:12px;font-weight:800;margin-bottom:4px">要点</div>
+      <div style="font-size:12px;line-height:1.6">${points.map(x=>`• ${esc(x)}`).join('<br>')||'（无）'}</div>
+    </div>
+    <div class="ls-card" style="margin-bottom:8px">
+      <div style="font-size:12px;font-weight:800;margin-bottom:4px">练习</div>
+      <div style="font-size:12px;line-height:1.6">${practice.map(x=>`• ${esc(x)}`).join('<br>')||'（无）'}</div>
+    </div>
+    <div class="ls-card" style="margin-bottom:8px">
+      <div style="font-size:12px;font-weight:800;margin-bottom:4px">扩展资源</div>
+      <div>${resources.map(r=>r.link?`<a class="ls-link" href="${esc(r.link)}" target="_blank">${esc(r.title||r.link)}</a>`:`<div style="font-size:11px">${esc(r.title||'')}</div>`).join('')||'<div style="font-size:11px;color:var(--muted)">（无）</div>'}</div>
+    </div>
+    <div class="ls-card">
+      <div style="font-size:12px;font-weight:800;margin-bottom:4px">问答总结补充</div>
+      ${supplements.length? supplements.map(s=>`<div class="lq-sup"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">${esc((s.at||'').replace('T',' ').slice(0,16))}</div>${esc(s.content||'')}</div>`).join('') : '<div style="font-size:11px;color:var(--muted)">（暂无）</div>'}
+    </div>
+  `;
+}
+
+function _renderTopicChat(chat){
+  const entries = Array.isArray(chat) ? chat : [];
+  return entries.length ? entries.map(m=>`
+    <div class="lq-msg ${m.role==='user'?'user':'ai'}">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${m.role==='user'?'你':'礼部'} · ${esc((m.at||'').replace('T',' ').slice(11,19))}</div>
+      <div style="white-space:pre-wrap">${esc(m.text||'')}</div>
+    </div>
+  `).join('') : '<div style="font-size:12px;color:var(--muted)">还没有问答，先在右下角提问。</div>';
+}
+
+function loadTopicNotesStore(){
+  try{
+    const raw = localStorage.getItem(TOPIC_NOTES_KEY);
+    topicNotesStore = raw ? JSON.parse(raw) : {};
+    if(!topicNotesStore || typeof topicNotesStore !== 'object') topicNotesStore = {};
+  }catch(_){
+    topicNotesStore = {};
+  }
+}
+
+function saveTopicNotesStore(){
+  try{ localStorage.setItem(TOPIC_NOTES_KEY, JSON.stringify(topicNotesStore)); }catch(_){}
+}
+
+function _topicNoteScopeKey(planId, topicId){
+  return `${String(planId||'')}::${String(topicId||'')}`;
+}
+
+function _ensureTopicNotes(planId, topicId){
+  if(!Object.keys(topicNotesStore).length) loadTopicNotesStore();
+  const k = _topicNoteScopeKey(planId, topicId);
+  if(!topicNotesStore[k]){
+    const t = Date.now();
+    topicNotesStore[k] = {
+      folders: [{id:'F1', name:'默认目录'}],
+      notes: [{id:'N1', folderId:'F1', title:'课堂笔记', content:'', starred:false, createdAt:t, updatedAt:t}],
+      selectedFolderId: 'F1',
+      selectedNoteId: 'N1',
+      expandedFolderIds: ['F1']
+    };
+    saveTopicNotesStore();
+  }
+  const st = topicNotesStore[k];
+  if(!Array.isArray(st.folders) || !st.folders.length) st.folders = [{id:'F1', name:'默认目录'}];
+  if(!Array.isArray(st.notes) || !st.notes.length){
+    const t = Date.now();
+    st.notes = [{id:'N1', folderId:st.folders[0].id, title:'课堂笔记', content:'', starred:false, createdAt:t, updatedAt:t}];
+  }
+  if(!st.selectedFolderId) st.selectedFolderId = st.folders[0].id;
+  if(!Array.isArray(st.expandedFolderIds)) st.expandedFolderIds = [st.selectedFolderId];
+  if(!st.selectedNoteId || !st.notes.find(n=>n.id===st.selectedNoteId)){
+    const cands = st.notes.filter(n=>n.folderId===st.selectedFolderId);
+    st.selectedNoteId = (cands[0]||st.notes[0]).id;
+  }
+  return st;
+}
+
+function _getCurrentTopicNotesState(){
+  if(!currentTopicPlanId || !currentTopicId) return null;
+  return _ensureTopicNotes(currentTopicPlanId, currentTopicId);
+}
+
+function _renderTopicNotes(){
+  const root = document.getElementById('lq-notes-root');
+  if(!root) return;
+  const st = _getCurrentTopicNotesState();
+  if(!st){ root.innerHTML = '<div class="lqn-empty">无可用笔记</div>'; return; }
+  const folder = st.folders.find(f=>f.id===st.selectedFolderId) || st.folders[0];
+  const allNotes = st.notes || [];
+  const notesInSelectedFolder = allNotes
+    .filter(n=>n.folderId===folder.id)
+    .sort((a,b)=> (b.starred===a.starred ? (b.updatedAt||0)-(a.updatedAt||0) : (b.starred?1:-1)));
+  if(!notesInSelectedFolder.find(n=>n.id===st.selectedNoteId)){
+    st.selectedNoteId = (notesInSelectedFolder[0] || allNotes[0]).id;
+    saveTopicNotesStore();
+  }
+  const note = allNotes.find(n=>n.id===st.selectedNoteId);
+
+  const treeHtml = st.folders.map(f=>{
+    const expanded = st.expandedFolderIds.includes(f.id);
+    const fnotes = allNotes
+      .filter(n=>n.folderId===f.id)
+      .sort((a,b)=> (b.starred===a.starred ? (b.updatedAt||0)-(a.updatedAt||0) : (b.starred?1:-1)));
+    return `
+      <div class="lqn-tree-folder">
+        <div class="lqn-tree-fhdr" onclick="toggleTopicFolderExpand('${esc(f.id)}')">
+          <span>${expanded?'▾':'▸'}</span>
+          <span class="name" onclick="event.stopPropagation();selectTopicNoteFolder('${esc(f.id)}')">${esc(f.name)}</span>
+          <span class="count">${fnotes.length}</span>
+        </div>
+        ${expanded ? `
+          <div class="lqn-tree-notes">
+            ${fnotes.map(n=>`
+              <div class="lqn-tree-note ${n.id===st.selectedNoteId?'active':''}" onclick="selectTopicNote('${esc(n.id)}')">
+                <span onclick="event.stopPropagation();toggleTopicNoteStar('${esc(n.id)}')">${n.starred?'⭐':'☆'}</span>
+                <span class="title">${esc(n.title||'未命名笔记')}</span>
+              </div>
+            `).join('') || '<div class="lqn-empty">该目录暂无笔记</div>'}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+
+  root.innerHTML = `
+    <div class="lqn-shell">
+    <div class="lqn-tools">
+      <button class="lqn-btn" onclick="addTopicNoteFolder()">+ 目录</button>
+      <button class="lqn-btn" onclick="renameTopicNoteFolder()">重命名目录</button>
+      <button class="lqn-btn" onclick="removeTopicNoteFolder()">删除目录</button>
+      <button class="lqn-btn" onclick="addTopicNote()">+ 笔记</button>
+      <button class="lqn-btn" onclick="removeTopicNote()">删除笔记</button>
+    </div>
+    <div class="lqn-notes-list">${treeHtml || '<div class="lqn-empty">暂无目录</div>'}</div>
+    ${note ? `
+      <div class="lqn-editor">
+        <input id="lqn-title" class="lqn-title" value="${esc(note.title||'')}" oninput="updateTopicNoteTitle(this.value)" placeholder="笔记标题">
+        <textarea id="lqn-content" class="lqn-content" oninput="updateTopicNoteContent(this.value)" placeholder="记录你对该主题的理解、疑问、结论、行动项...">${esc(note.content||'')}</textarea>
+      </div>
+    ` : '<div class="lqn-empty">请选择一条笔记</div>'}
+    </div>
+  `;
+}
+
+function selectTopicNoteFolder(folderId){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  st.selectedFolderId = folderId;
+  if(!st.expandedFolderIds.includes(folderId)) st.expandedFolderIds.push(folderId);
+  const first = st.notes.find(n=>n.folderId===folderId) || st.notes[0];
+  st.selectedNoteId = first ? first.id : '';
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function toggleTopicFolderExpand(folderId){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const idx = st.expandedFolderIds.indexOf(folderId);
+  if(idx>=0) st.expandedFolderIds.splice(idx,1);
+  else st.expandedFolderIds.push(folderId);
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function addTopicNoteFolder(){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const name = (prompt('目录名称')||'').trim();
+  if(!name) return;
+  const id = 'F' + Date.now();
+  st.folders.push({id, name});
+  st.selectedFolderId = id;
+  if(!st.expandedFolderIds.includes(id)) st.expandedFolderIds.push(id);
+  const nid = 'N' + Date.now();
+  st.notes.push({id:nid, folderId:id, title:'新笔记', content:'', starred:false, createdAt:Date.now(), updatedAt:Date.now()});
+  st.selectedNoteId = nid;
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function renameTopicNoteFolder(){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const f = st.folders.find(x=>x.id===st.selectedFolderId); if(!f) return;
+  const name = (prompt('新目录名称', f.name)||'').trim();
+  if(!name) return;
+  f.name = name;
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function removeTopicNoteFolder(){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  if(st.folders.length<=1){ toast('至少保留一个目录','err'); return; }
+  if(!confirm('删除当前目录及其笔记？')) return;
+  const fid = st.selectedFolderId;
+  st.folders = st.folders.filter(f=>f.id!==fid);
+  st.expandedFolderIds = (st.expandedFolderIds||[]).filter(x=>x!==fid);
+  st.notes = st.notes.filter(n=>n.folderId!==fid);
+  st.selectedFolderId = st.folders[0].id;
+  if(!st.notes.length){
+    const nid='N'+Date.now();
+    st.notes.push({id:nid, folderId:st.selectedFolderId, title:'课堂笔记', content:'', starred:false, createdAt:Date.now(), updatedAt:Date.now()});
+    st.selectedNoteId=nid;
+  }else{
+    st.selectedNoteId = (st.notes.find(n=>n.folderId===st.selectedFolderId)||st.notes[0]).id;
+  }
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function addTopicNote(){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const nid = 'N' + Date.now();
+  st.notes.push({id:nid, folderId:st.selectedFolderId, title:'新笔记', content:'', starred:false, createdAt:Date.now(), updatedAt:Date.now()});
+  st.selectedNoteId = nid;
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function removeTopicNote(){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const note = st.notes.find(n=>n.id===st.selectedNoteId); if(!note) return;
+  if(!confirm(`删除笔记「${note.title||'未命名'}」？`)) return;
+  st.notes = st.notes.filter(n=>n.id!==note.id);
+  const cands = st.notes.filter(n=>n.folderId===st.selectedFolderId);
+  st.selectedNoteId = (cands[0]||st.notes[0]||{}).id || '';
+  if(!st.notes.length){
+    const nid='N'+Date.now();
+    st.notes.push({id:nid, folderId:st.selectedFolderId, title:'课堂笔记', content:'', starred:false, createdAt:Date.now(), updatedAt:Date.now()});
+    st.selectedNoteId=nid;
+  }
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function selectTopicNote(noteId){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  st.selectedNoteId = noteId;
+  const note = st.notes.find(n=>n.id===noteId);
+  if(note){
+    st.selectedFolderId = note.folderId;
+    if(!st.expandedFolderIds.includes(note.folderId)) st.expandedFolderIds.push(note.folderId);
+  }
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function _getSelectedTopicNote(st){
+  return (st||{}).notes ? st.notes.find(n=>n.id===st.selectedNoteId) : null;
+}
+
+function toggleTopicNoteStar(noteId){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const n = st.notes.find(x=>x.id===noteId); if(!n) return;
+  n.starred = !n.starred;
+  n.updatedAt = Date.now();
+  saveTopicNotesStore();
+  _renderTopicNotes();
+}
+
+function updateTopicNoteTitle(val){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const n = _getSelectedTopicNote(st); if(!n) return;
+  n.title = String(val||'');
+  n.updatedAt = Date.now();
+  saveTopicNotesStore();
+}
+
+function updateTopicNoteContent(val){
+  const st = _getCurrentTopicNotesState(); if(!st) return;
+  const n = _getSelectedTopicNote(st); if(!n) return;
+  n.content = String(val||'');
+  n.updatedAt = Date.now();
+  saveTopicNotesStore();
+}
+
+function openLearningTopicModal(planId, topicId){
+  const plan = _findLearningPlan(planId);
+  if(!plan){ toast('计划不存在','err'); return; }
+  const topic = _findLearningTopic(plan, topicId);
+  if(!topic){ toast('主题不存在','err'); return; }
+  currentTopicPlanId = planId;
+  currentTopicId = topicId;
+  const chat = (((plan.topicChats||{})[String(topicId)])||[]);
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px">📘 ${esc(topic.title||'学习主题')}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${esc(plan.topic||'')}</div>
+    <div class="lq-wrap">
+      <div class="lq-left">
+        <div class="lq-hdr">礼部准备内容</div>
+        <div class="lq-content" id="lq-content">${_renderTopicContent(topic)}</div>
+      </div>
+      <div class="lq-right">
+        <div class="lq-hdr">与礼部实时问答</div>
+        <div class="lq-chat" id="lq-chat">${_renderTopicChat(chat)}</div>
+        <div class="lq-input-wrap">
+          <textarea id="lq-input" class="lq-input" placeholder="围绕当前小主题提问，例如：这一节最小可执行练习是什么？"></textarea>
+          <div class="lq-actions">
+            <button class="btn btn-g" id="lq-sum-btn" onclick="summarizeLearningTopic()" style="padding:8px 12px;font-size:12px">总结并回写左侧知识</button>
+            <button class="btn btn-p" id="lq-send-btn" onclick="sendLearningTopicMessage()" style="padding:8px 12px;font-size:12px">发送给礼部</button>
+          </div>
+        </div>
+      </div>
+      <div class="lq-notes">
+        <div class="lq-hdr">主题笔记</div>
+        <div class="lq-notes-body" id="lq-notes-root"></div>
+      </div>
+    </div>
+  `;
+  const m = document.getElementById('modal');
+  if(m) m.classList.add('modal-learning');
+  document.getElementById('modal-bg').classList.add('open');
+  _renderTopicNotes();
+  setTimeout(()=>{
+    const box = document.getElementById('lq-chat');
+    if(box) box.scrollTop = box.scrollHeight;
+  }, 20);
+}
+
+async function sendLearningTopicMessage(){
+  if(!currentTopicPlanId || !currentTopicId) return;
+  const input = document.getElementById('lq-input');
+  const btn = document.getElementById('lq-send-btn');
+  const message = (input && input.value ? input.value : '').trim();
+  if(!message){ toast('请输入问题','err'); return; }
+  if(btn){ btn.disabled = true; btn.textContent = '礼部思考中…'; }
+  try{
+    const res = await postJ(API+'/learning-plan/topic-chat', {planId: currentTopicPlanId, topicId: currentTopicId, message});
+    if(!res.ok){ toast(res.error||'发送失败','err'); return; }
+    if(input) input.value = '';
+    const p = _findLearningPlan(currentTopicPlanId);
+    if(res.plan && p){
+      Object.assign(p, res.plan);
+    }else{
+      await loadLearningPlans();
+    }
+    const plan = _findLearningPlan(currentTopicPlanId);
+    const topic = _findLearningTopic(plan, currentTopicId);
+    if(plan && topic){
+      document.getElementById('lq-chat').innerHTML = _renderTopicChat(((plan.topicChats||{})[String(currentTopicId)])||[]);
+      document.getElementById('lq-content').innerHTML = _renderTopicContent(topic);
+      const box = document.getElementById('lq-chat');
+      if(box) box.scrollTop = box.scrollHeight;
+    }
+    renderLearningPlans();
+  }catch(e){
+    toast('请求失败，请稍后重试','err');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '发送给礼部'; }
+  }
+}
+
+async function summarizeLearningTopic(){
+  if(!currentTopicPlanId || !currentTopicId) return;
+  const btn = document.getElementById('lq-sum-btn');
+  if(btn){ btn.disabled = true; btn.textContent = '礼部总结中…'; }
+  try{
+    const res = await postJ(API+'/learning-plan/topic-summarize', {planId: currentTopicPlanId, topicId: currentTopicId});
+    if(!res.ok){ toast(res.error||'总结失败','err'); return; }
+    const p = _findLearningPlan(currentTopicPlanId);
+    if(res.plan && p){
+      Object.assign(p, res.plan);
+    }else{
+      await loadLearningPlans();
+    }
+    const plan = _findLearningPlan(currentTopicPlanId);
+    const topic = _findLearningTopic(plan, currentTopicId);
+    if(topic){
+      document.getElementById('lq-content').innerHTML = _renderTopicContent(topic);
+    }
+    renderLearningPlans();
+    toast('总结已回写到该主题学习内容','ok');
+  }catch(e){
+    toast('请求失败，请稍后重试','err');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '总结并回写左侧知识'; }
+  }
+}
+
+async function startLearningPlan(){
+  const inp = document.getElementById('ls-topic-input');
+  const btn = document.getElementById('ls-start-btn');
+  const topic = (inp && inp.value ? inp.value : '').trim();
+  if(!topic){ toast('请输入学习方向或主题','err'); return; }
+  if(btn){ btn.disabled = true; btn.textContent = '礼部思考中…'; }
+  try{
+    const res = await postJ(API+'/learning-plan/start', {topic});
+    if(!res.ok){
+      toast(res.error||'生成失败','err');
+      return;
+    }
+    if(inp) inp.value = '';
+    toast('礼部10问已生成，请补充回答','ok');
+    await loadLearningPlans();
+    if(res.plan && res.plan.id) selectedLearningId = res.plan.id;
+    renderLearningPlans();
+  }catch(e){
+    toast('请求失败，请稍后重试','err');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '请礼部出10问'; }
+  }
+}
+
+async function generateLearningPath(planId){
+  const pid = planId || selectedLearningId;
+  const plan = learningPlans.find(x=>x.id===pid);
+  if(!plan){ toast('请先选择一个计划','err'); return; }
+
+  const answers = getPlanAnswersWithDraft(plan).slice(0, 10);
+  for(let i=0;i<10;i++){
+    const el = document.getElementById('ls-modal-ans-'+i);
+    if(el){
+      answers[i] = String(el.value||'').trim();
+      updateLearningDraft(plan.id, i, answers[i]);
+    }
+  }
+  const btn = document.getElementById('ls-modal-generate-btn') || document.getElementById('ls-generate-btn');
+  if(btn){ btn.disabled = true; btn.textContent = '礼部生成路径中…'; }
+  try{
+    const res = await postJ(API+'/learning-plan/answer', {planId: plan.id, answers});
+    if(!res.ok){
+      toast(res.error||'生成失败','err');
+      return;
+    }
+    delete learningAnswerDrafts[plan.id];
+    saveLearningDrafts();
+    toast('学习路径与知识架构已生成','ok');
+    closeModal();
+    await loadLearningPlans();
+    selectedLearningId = plan.id;
+    renderLearningPlans();
+  }catch(e){
+    toast('请求失败，请稍后重试','err');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '基于回答生成学习路径与知识架构'; }
+  }
+}
+
 /* ══ OFFICIALS ══ */
 let officialsData = null;
 let selectedOfficial = null;
 
 async function loadOfficials(){
   try{
-    officialsData = await fetchJ(API+'/officials-stats');
+    const [off, st] = await Promise.all([
+      fetchJ(API+'/officials-stats'),
+      fetchJ(API+'/agents-status').catch(()=>null),
+    ]);
+    officialsData = off;
+    if(st && st.ok) _agentsStatusData = st;
     renderOfficials(officialsData);
   }catch(e){
     document.getElementById('off-detail').innerHTML='<div class="od-empty">⚠️ 无法加载，请确认服务器已启动</div>';
   }
 }
 
-const MEDALS = ['🥇','🥈','🥉'];
+const OFFICIAL_ORDER = ['taizi','zhongshu','menxia','shangshu','libu','hubu','bingbu','xingbu','gongbu','libu_hr','zaochao'];
+const AGENT_FLOW_MAP = {
+  taizi:   {upstream:'皇上/入口渠道', decision:'识别是否为旨意，建单并转交中书', downstream:'中书省'},
+  zhongshu:{upstream:'太子/门下省(驳回)', decision:'拆解任务、起草方案、明确执行路径', downstream:'门下省（审议）/尚书省（准奏后）'},
+  menxia:  {upstream:'中书省', decision:'审议方案，准奏或封驳', downstream:'尚书省 或 中书省(修订)'},
+  shangshu:{upstream:'门下省(准奏)/中书省(直派)', decision:'派单六部、汇总结果、回奏太子', downstream:'六部/太子'},
+  libu:    {upstream:'尚书省', decision:'文档规范、报告与表达交付', downstream:'尚书省'},
+  hubu:    {upstream:'尚书省', decision:'预算资源、成本核算、数据口径', downstream:'尚书省'},
+  bingbu:  {upstream:'尚书省', decision:'工程实现、技术方案、执行落地', downstream:'尚书省'},
+  xingbu:  {upstream:'尚书省', decision:'合规审计、风险红线、质量把关', downstream:'尚书省'},
+  gongbu:  {upstream:'尚书省', decision:'部署运维、基础设施、自动化', downstream:'尚书省'},
+  libu_hr: {upstream:'尚书省', decision:'人事协同、能力建设、组织治理', downstream:'尚书省'},
+  zaochao: {upstream:'定时任务/太子', decision:'资讯采集、简报生成、分发', downstream:'太子/消息渠道'},
+};
 
 function renderOfficials(data){
   if(!data||!data.officials) return;
-  const offs = data.officials;
-  const totals = data.totals||{};
-  const maxTk = Math.max(...offs.map(o=>o.tokens_in+o.tokens_out+o.cache_read+o.cache_write),1);
+  const offs = (data.officials || []).slice().sort((a,b)=>{
+    const ia = OFFICIAL_ORDER.indexOf(a.id);
+    const ib = OFFICIAL_ORDER.indexOf(b.id);
+    return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
+  });
 
-  // 活跃提示条
+  const allEdicts = (liveStatus && Array.isArray(liveStatus.tasks) ? liveStatus.tasks : []).filter(t=>isEdict(t));
+  const runningEdicts = allEdicts.filter(t=>!['Done','Cancelled'].includes(t.state));
+  const realtimeSessions = {};
+  ((_agentsStatusData && _agentsStatusData.agents) || []).forEach(a=>{
+    realtimeSessions[a.id] = Number(a.sessions || 0);
+  });
+
   const alive = offs.filter(o=>(o.heartbeat||{}).status==='active');
   const actEl = document.getElementById('off-activity');
   if(alive.length){
     actEl.style.display='flex';
     actEl.innerHTML=`<span class="act-label">🟢 当前活跃：</span>`
       +alive.map(o=>`<span class="act-dot alive">${o.emoji} ${o.role}</span>`).join('')
-      +`<span style="color:var(--muted);font-size:11px;margin-left:auto">其余官员待命</span>`;
+      +`<span style="color:var(--muted);font-size:11px;margin-left:auto">其余部门待命</span>`;
+  }else if(actEl){
+    actEl.style.display='none';
+    actEl.innerHTML='';
   }
 
-  // KPI 行
   document.getElementById('off-kpi').innerHTML=`
-    <div class="kpi"><div class="kpi-v blue">${offs.length}</div><div class="kpi-l">在职官员</div></div>
-    <div class="kpi"><div class="kpi-v gold">${totals.tasks_done||0}</div><div class="kpi-l">累计完成旨意</div></div>
-    <div class="kpi"><div class="kpi-v ${(totals.cost_cny||0)>20?'warn':'green'}">¥${totals.cost_cny||0}</div><div class="kpi-l">累计费用（含缓存）</div></div>
-    <div class="kpi"><div class="kpi-v" style="font-size:16px;padding-top:4px">${esc(data.top_official||'—')}</div><div class="kpi-l">功绩最高</div></div>`;
+    <div class="kpi"><div class="kpi-v blue">${offs.length}</div><div class="kpi-l">在职部门</div></div>
+    <div class="kpi"><div class="kpi-v green">${alive.length}</div><div class="kpi-l">在线活跃</div></div>
+    <div class="kpi"><div class="kpi-v gold">${runningEdicts.length}</div><div class="kpi-l">进行中旨意</div></div>
+    <div class="kpi"><div class="kpi-v" style="font-size:16px;padding-top:4px">${esc((data.checkedAt||'').replace('T',' ').substring(11,19)||'—')}</div><div class="kpi-l">数据刷新时间</div></div>`;
 
-  // 左侧排行榜
   document.getElementById('off-ranklist').innerHTML=`
-    <div class="orl-hdr">功绩排行</div>`
+    <div class="orl-hdr">部门列表</div>`
     +offs.map(o=>{
       const hb=o.heartbeat||{status:'idle'};
+      const myTasks = runningEdicts.filter(t=>t.org===o.label);
+      const sessCnt = Number.isFinite(realtimeSessions[o.id]) ? realtimeSessions[o.id] : Number(o.sessions||0);
       return `<div class="orl-item${selectedOfficial===o.id?' selected':''}" onclick="selectOfficial('${o.id}',this)">
-        <span class="orl-medal">${o.merit_rank<=3?MEDALS[o.merit_rank-1]:'#'+o.merit_rank}</span>
         <span class="orl-emoji">${o.emoji}</span>
         <span class="orl-name"><div class="orl-role">${esc(o.role)}</div><div class="orl-org">${esc(o.label)}</div></span>
-        <span class="orl-score">${o.merit_score}分</span>
+        <span class="tag" style="font-size:10px">${sessCnt} 会话</span>
+        <span class="tag st-Doing" style="font-size:10px">${myTasks.length} 任务</span>
         <span class="orl-hbdot ${hb.status}"></span>
       </div>`;
     }).join('');
 
-  // 默认选中第一个
   if(!selectedOfficial && offs.length) selectOfficial(offs[0].id);
 }
 
-function selectOfficial(id, el){
+async function selectOfficial(id, el){
   selectedOfficial = id;
-  // 高亮行
   document.querySelectorAll('.orl-item').forEach(x=>x.classList.remove('selected'));
   if(el) el.classList.add('selected');
-  // 渲染详情
   if(!officialsData) return;
   const o = officialsData.officials.find(x=>x.id===id);
   if(!o) return;
   const hb = o.heartbeat||{status:'idle',label:'⚪ 待命'};
-  const totTk = o.tokens_in+o.tokens_out+o.cache_read+o.cache_write;
-  const maxTk = Math.max(...officialsData.officials.map(x=>x.tokens_in+x.tokens_out+x.cache_read+x.cache_write),1);
-  const costCls = o.cost_cny>10?'hi':o.cost_cny>3?'md':'lo';
-  const edicts = o.participated_edicts||[];
+  const allTasks = (liveStatus && Array.isArray(liveStatus.tasks) ? liveStatus.tasks : []).filter(t=>isEdict(t));
+  const running = allTasks.filter(t=>!['Done','Cancelled'].includes(t.state) && t.org===o.label);
+  const recent = allTasks.filter(t=>['Done','Cancelled'].includes(t.state) && t.org===o.label).slice(0,5);
+  const flow = AGENT_FLOW_MAP[id] || {upstream:'—', decision:'—', downstream:'—'};
 
-  const tkBars = [
-    {l:'输入', v:o.tokens_in,   color:'#6a9eff', max:maxTk},
-    {l:'输出', v:o.tokens_out,  color:'#a07aff', max:maxTk},
-    {l:'缓存读', v:o.cache_read, color:'#2ecc8a', max:maxTk},
-    {l:'缓存写', v:o.cache_write,color:'#f5c842', max:maxTk},
-  ];
+  const [soulResp, sessResp] = await Promise.all([
+    fetchJ(API + '/agent-soul/' + encodeURIComponent(id)).catch(()=>({ok:false,error:'SOUL读取失败'})),
+    fetchJ(API + '/agent-sessions/' + encodeURIComponent(id)).catch(()=>({ok:false,error:'会话读取失败'})),
+  ]);
+  const soulText = (soulResp && soulResp.ok && soulResp.content) ? soulResp.content : '';
+  const soulPath = soulResp && soulResp.path ? soulResp.path : '';
+  const sessions = (sessResp && sessResp.ok && Array.isArray(sessResp.sessions)) ? sessResp.sessions : [];
+  const aliveSessions = sessions.filter(s=>s.alive);
+  const topSessions = (aliveSessions.length ? aliveSessions : sessions).slice(0, 6);
 
   document.getElementById('off-detail').innerHTML=`
-    <!-- hero -->
     <div class="od-hero">
       <div class="od-emoji">${o.emoji}</div>
       <div>
         <div class="od-name">${esc(o.role)}</div>
         <div class="od-role">${esc(o.label)} · <span style="color:var(--acc)">${esc(o.model_short||o.model)}</span></div>
-        <div class="od-rank-badge">🏅 ${esc(o.rank)} · 功绩分 ${o.merit_score}</div>
+        <div class="od-rank-badge">🔧 ${esc(id)} · 省部调度视图已集成</div>
       </div>
       <div class="od-hb">
         <div class="hb ${hb.status}" style="margin-bottom:4px">${esc(hb.label)}</div>
         ${o.last_active?`<div style="font-size:10px;color:var(--muted)">活跃 ${esc(o.last_active)}</div>`:''}
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">${o.sessions} 个会话 · ${o.messages} 条消息</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${aliveSessions.length} 活跃会话 · ${sessions.length} 总会话</div>
+        <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end">
+          <button class="dc-mini-btn" onclick="wakeAgent('${id}', this)">⚡ 唤醒</button>
+          <button class="dc-mini-btn" onclick="openAgentSessions('${id}','${esc(o.label)}')">💬 打开会话面板</button>
+        </div>
       </div>
     </div>
 
-    <!-- 核心功绩 -->
     <div class="od-section">
-      <div class="od-sec-title">功绩统计</div>
-      <div class="od-stats">
-        <div class="ods"><div class="ods-v" style="color:var(--ok)">${o.tasks_done}</div><div class="ods-l">完成旨意</div></div>
-        <div class="ods"><div class="ods-v" style="color:var(--warn)">${o.tasks_active}</div><div class="ods-l">执行中</div></div>
-        <div class="ods"><div class="ods-v" style="color:var(--acc)">${o.flow_participations}</div><div class="ods-l">流转参与</div></div>
+      <div class="od-sec-title">内部流转机制</div>
+      <div class="od-flow">
+        <div class="od-flow-card"><div class="k">上游输入</div><div class="v">${esc(flow.upstream)}</div></div>
+        <div class="od-flow-card"><div class="k">核心决策</div><div class="v">${esc(flow.decision)}</div></div>
+        <div class="od-flow-card"><div class="k">下游输出</div><div class="v">${esc(flow.downstream)}</div></div>
       </div>
     </div>
 
-    <!-- Token 消耗 -->
     <div class="od-section">
-      <div class="od-sec-title">Token 消耗</div>
-      ${tkBars.map(b=>`
-      <div class="tbar">
-        <div class="tbar-hdr"><span class="tbar-label">${b.l}</span><span class="tbar-val">${b.v.toLocaleString()}</span></div>
-        <div class="tbar-track"><div class="tbar-fill" style="width:${b.max>0?Math.round(b.v/b.max*100):0}%;background:${b.color}"></div></div>
-      </div>`).join('')}
+      <div class="od-sec-title">当前承接任务（省部调度）</div>
+      ${running.length ? `<div class="od-now-list">
+        ${running.map(t=>`
+          <div class="od-now-item" onclick='openTask(${JSON.stringify(t.id)})'>
+            <span class="od-now-id">${esc(t.id)}</span>
+            <span class="od-now-title">${esc(t.title||'(无标题)')}</span>
+            <span class="tag st-${t.state}">${stateLabel(t)}</span>
+          </div>
+        `).join('')}
+      </div>` : '<div style="font-size:12px;color:var(--muted);padding:8px 0">当前无进行中旨意</div>'}
     </div>
 
-    <!-- 费用 -->
     <div class="od-section">
-      <div class="od-sec-title">累计费用</div>
-      <div class="od-cost-row">
-        <div class="cost-chip ${costCls}"><b>¥${o.cost_cny}</b> 人民币</div>
-        <div class="cost-chip ${costCls}"><b>$${o.cost_usd}</b> 美元</div>
-        <div class="cost-chip" style="font-size:11px;color:var(--muted)">总计 ${totTk.toLocaleString()} tokens（含缓存）</div>
+      <div class="od-sec-title">会话概览</div>
+      ${topSessions.length ? `<div class="od-session-list">
+        ${topSessions.map(s=>`
+          <div class="od-session-item">
+            <span class="od-session-id">${esc((s.sessionId||'').substring(0,8) || '-')}</span>
+            <span class="od-session-meta">${esc(s.status||'-')} ${s.alive?'🟢':''}</span>
+            <span class="od-session-meta" style="margin-left:auto">${esc(String(s.updatedAt||'').replace('T',' ').substring(0,19))}</span>
+          </div>
+        `).join('')}
+      </div>` : '<div style="font-size:12px;color:var(--muted);padding:8px 0">暂无会话记录</div>'}
+    </div>
+
+    <div class="od-section">
+      <div class="od-sec-title">SOUL（行为规范）</div>
+      <div class="od-soul-wrap">
+        <div class="od-soul-head">
+          <span>${soulPath ? esc(soulPath) : '未读取到 SOUL 文件'}</span>
+          <span>${soulResp && soulResp.updatedAt ? esc(String(soulResp.updatedAt).replace('T',' ').substring(0,19)) : ''}</span>
+        </div>
+        <div class="od-soul-body">
+          ${soulText ? `<pre>${esc(soulText)}</pre>` : '<div style="font-size:12px;color:var(--muted)">暂无 SOUL 内容</div>'}
+        </div>
       </div>
     </div>
 
-    <!-- 参与旨意 -->
     <div class="od-section">
-      <div class="od-sec-title">参与旨意（${edicts.length} 道）</div>
-      ${!edicts.length
-        ? '<div style="font-size:12px;color:var(--muted);padding:8px 0">暂无旨意记录</div>'
-        : `<div class="od-edict-list">${edicts.map(e=>`
-          <div class="oe-item" onclick='openTask(${JSON.stringify(e.id)})'>
-            <span class="oe-id">${esc(e.id)}</span>
-            <span class="oe-title">${esc(e.title.substring(0,35))}</span>
-            <span class="tag st-${e.state} oe-state">${STATE_LABEL[e.state]||e.state}</span>
-          </div>`).join('')}</div>`}
+      <div class="od-sec-title">最近完成/结束旨意</div>
+      ${recent.length ? `<div class="od-edict-list">${recent.map(e=>`
+        <div class="oe-item" onclick='openTask(${JSON.stringify(e.id)})'>
+          <span class="oe-id">${esc(e.id)}</span>
+          <span class="oe-title">${esc((e.title||'').substring(0,35))}</span>
+          <span class="tag st-${e.state} oe-state">${STATE_LABEL[e.state]||e.state}</span>
+        </div>`).join('')}</div>` : '<div style="font-size:12px;color:var(--muted);padding:8px 0">暂无记录</div>'}
     </div>`;
 }
 
@@ -2695,7 +5092,7 @@ async function runGlobalSchedulerScan(){
   btn.textContent = '⟳ 巡检中...';
   if(st) st.textContent = '巡检中...';
   try{
-    const r = await postJ(API + '/scheduler-scan', {thresholdSec: 180});
+    const r = await postJ(API + '/scheduler-scan', {thresholdSec: 600});
     if(r.ok){
       const count = r.count || 0;
       const at = (r.checkedAt || '').replace('T',' ').substring(11,19);
@@ -2818,6 +5215,8 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   if(activeTab==='officials')loadOfficials();
   if(activeTab==='monitor')loadAgentsStatus();
   if(activeTab==='morning')loadMorning();
+  if(activeTab==='learning')loadLearningPlans();
+  if(activeTab==='pm')loadPm();
   if(activeTab==='sessions')renderSessions(liveStatus?liveStatus.tasks:[]);
   if(activeTab==='memorials')renderMemorials();
   if(activeTab==='templates')renderTemplates();
@@ -2828,13 +5227,29 @@ function startCd(){
   countdown=5;
   const el=document.getElementById('cd');
   const iv=setInterval(()=>{
+    if(!isAutoRefreshEnabledTab(activeTab)){
+      el.textContent='⏸ 手动刷新';
+      return;
+    }
     countdown--;el.textContent='⟳ '+countdown+'s';
-    if(countdown<=0){clearInterval(iv);loadAll().then(()=>{el.textContent='';startCd()})}
+    if(countdown<=0){
+      clearInterval(iv);
+      if(isLearningModalOpen()){
+        el.textContent='⏸ 学习中';
+        setTimeout(()=>startCd(), 1000);
+        return;
+      }
+      loadAll().then(()=>{el.textContent='';startCd()});
+    }
   },1000);
 }
 
 /* ══ KEY ══ */
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal-bg').classList.remove('open')});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  document.getElementById('modal-bg').classList.remove('open');
+  document.getElementById('agent-session-bg').classList.remove('open');
+});
 
 /* ══ COURT CEREMONY (上朝仪式感) ══ */
 function showCeremony(){

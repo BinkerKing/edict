@@ -32,17 +32,7 @@ def main() -> int:
         print("reason=empty-task-id")
         return 1
 
-    # 1) 状态推进到门下
-    rc, msg = run_cmd([
-        "python3", "scripts/kanban_update.py", "state",
-        task_id, "Menxia", "方案提交门下省审议",
-    ])
-    if rc != 0:
-        print("HANDOFF_FAIL")
-        print(f"reason=state-failed:{msg[:300]}")
-        return 1
-
-    # 2) 写 flow
+    # 1) 先写 flow（提交审议痕迹）
     rc, msg = run_cmd([
         "python3", "scripts/kanban_update.py", "flow",
         task_id, "中书省", "门下省", remark,
@@ -50,6 +40,16 @@ def main() -> int:
     if rc != 0:
         print("HANDOFF_FAIL")
         print(f"reason=flow-failed:{msg[:300]}")
+        return 1
+
+    # 2) 状态推进到门下
+    rc, msg = run_cmd([
+        "python3", "scripts/kanban_update.py", "state",
+        task_id, "Menxia", "方案提交门下省审议",
+    ])
+    if rc != 0:
+        print("HANDOFF_FAIL")
+        print(f"reason=state-failed:{msg[:300]}")
         return 1
 
     # 3) 派发门下省

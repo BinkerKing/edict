@@ -12,8 +12,8 @@ Endpoints:
   GET  /api/last-result        → data/last_model_change_result.json
 """
 import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
 from urllib.request import Request, urlopen
 
 # 引入文件锁工具，确保与其他脚本并发安全
@@ -37,6 +37,7 @@ if str(CHANNELS_DIR.parent) not in sys.path:
 from channels import get_channel, get_channel_info, CHANNELS as NOTIFICATION_CHANNELS
 
 OCLAW_HOME = pathlib.Path.home() / '.openclaw'
+AGENTS_SKILLS_HOME = pathlib.Path.home() / '.agents' / 'skills'
 MAX_REQUEST_BODY = 1 * 1024 * 1024  # 1 MB
 ALLOWED_ORIGIN = None  # Set via --cors; None means restrict to localhost
 _DASHBOARD_PORT = 7891  # Updated at startup from --port arg
@@ -45,12 +46,16 @@ _DEFAULT_ORIGINS = {
     'http://127.0.0.1:5173', 'http://localhost:5173',  # Vite dev server
 }
 _SAFE_NAME_RE = re.compile(r'^[a-zA-Z0-9_\-\u4e00-\u9fff]+$')
+_SAFE_SKILL_RE = re.compile(r'^[a-zA-Z0-9_\-.\u4e00-\u9fff]+$')
 
 BASE = pathlib.Path(__file__).parent
 DIST = BASE / 'dist'          # React 构建产物 (npm run build)
+LEGACY_DASHBOARD_HTML = BASE / 'dashboard.html'  # 传统单页看板（当前主入口）
 DATA = BASE.parent / "data"
 SCRIPTS = BASE.parent / 'scripts'
 _ACTIVE_TASK_DATA_DIR = None
+LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
+PM_FILE = DATA / 'project_management.json'
 
 # 静态资源 MIME 类型
 _MIME_TYPES = {
@@ -241,7 +246,7 @@ def update_task_todos(task_id, todos):
 def read_skill_content(agent_id, skill_name):
     """Read SKILL.md content for a specific skill."""
     # 输入校验：防止路径遍历
-    if not _SAFE_NAME_RE.match(agent_id) or not _SAFE_NAME_RE.match(skill_name):
+    if not _SAFE_NAME_RE.match(agent_id) or not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': '参数含非法字符'}
     cfg = read_json(DATA / 'agent_config.json', {})
     agents = cfg.get('agents', [])
@@ -253,7 +258,7 @@ def read_skill_content(agent_id, skill_name):
         return {'ok': False, 'error': f'技能 {skill_name} 不存在'}
     skill_path = pathlib.Path(sk.get('path', '')).resolve()
     # 路径遍历保护：确保路径在 OCLAW_HOME 或项目目录下
-    allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve())
+    allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve(), AGENTS_SKILLS_HOME.resolve())
     if not any(str(skill_path).startswith(str(root)) for root in allowed_roots):
         return {'ok': False, 'error': '路径不在允许的目录范围内'}
     if not skill_path.exists():
@@ -265,9 +270,50 @@ def read_skill_content(agent_id, skill_name):
         return {'ok': False, 'error': str(e)}
 
 
+def read_agent_soul(agent_id):
+    """Read agent SOUL.md/soul.md from runtime workspace."""
+    if not _SAFE_NAME_RE.match(agent_id):
+        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
+
+    cfg = read_json(DATA / 'agent_config.json', {})
+    agents = cfg.get('agents', []) if isinstance(cfg, dict) else []
+    ag = next((a for a in agents if a.get('id') == agent_id), None)
+
+    candidates = []
+    if ag and ag.get('workspace'):
+        ws = pathlib.Path(str(ag.get('workspace'))).expanduser()
+        candidates.extend([ws / 'soul.md', ws / 'SOUL.md'])
+    ws_default = OCLAW_HOME / f'workspace-{agent_id}'
+    candidates.extend([ws_default / 'soul.md', ws_default / 'SOUL.md'])
+
+    allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve())
+    for p in candidates:
+        try:
+            pr = p.resolve()
+        except Exception:
+            continue
+        if not any(str(pr).startswith(str(root)) for root in allowed_roots):
+            continue
+        if pr.exists() and pr.is_file():
+            try:
+                content = pr.read_text(encoding='utf-8', errors='ignore')
+                mtime = datetime.datetime.utcfromtimestamp(pr.stat().st_mtime).isoformat() + 'Z'
+                return {
+                    'ok': True,
+                    'agentId': agent_id,
+                    'path': str(pr),
+                    'updatedAt': mtime,
+                    'content': content[:60000],
+                }
+            except Exception as e:
+                return {'ok': False, 'error': f'读取 SOUL 失败: {e}'}
+
+    return {'ok': False, 'error': f'未找到 {agent_id} 的 SOUL 文件'}
+
+
 def add_skill_to_agent(agent_id, skill_name, description, trigger=''):
     """Create a new skill for an agent with a standardised SKILL.md template."""
-    if not _SAFE_NAME_RE.match(skill_name):
+    if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skill_name 含非法字符: {skill_name}'}
     if not _SAFE_NAME_RE.match(agent_id):
         return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
@@ -311,7 +357,7 @@ def add_remote_skill(agent_id, skill_name, source_url, description=''):
     # 输入校验
     if not _SAFE_NAME_RE.match(agent_id):
         return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
-    if not _SAFE_NAME_RE.match(skill_name):
+    if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skillName 含非法字符: {skill_name}'}
     if not source_url or not isinstance(source_url, str):
         return {'ok': False, 'error': 'sourceUrl 必须是有效的字符串'}
@@ -472,7 +518,7 @@ def update_remote_skill(agent_id, skill_name):
     """更新已添加的远程 skill 为最新版本（重新从源 URL 下载）"""
     if not _SAFE_NAME_RE.match(agent_id):
         return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
-    if not _SAFE_NAME_RE.match(skill_name):
+    if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skillName 含非法字符: {skill_name}'}
     
     workspace = OCLAW_HOME / f'workspace-{agent_id}' / 'skills' / skill_name
@@ -504,7 +550,7 @@ def remove_remote_skill(agent_id, skill_name):
     """移除已添加的远程 skill"""
     if not _SAFE_NAME_RE.match(agent_id):
         return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
-    if not _SAFE_NAME_RE.match(skill_name):
+    if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skillName 含非法字符: {skill_name}'}
     
     workspace = OCLAW_HOME / f'workspace-{agent_id}' / 'skills' / skill_name
@@ -600,6 +646,873 @@ def push_notification():
 def push_to_feishu():
     """Push morning brief link to Feishu via webhook. (已弃用，使用 push_notification)"""
     push_notification()
+
+
+def _default_learning_questions(topic: str):
+    topic = (topic or '').strip() or '该主题'
+    return [
+        {'id': 'Q1', 'question': f'你学习「{topic}」的核心目标是什么？（如求职/创业/落地项目）', 'why': '明确终局目标，避免无效学习'},
+        {'id': 'Q2', 'question': '你希望在多长时间内达到可用水平？每周可投入多少小时？', 'why': '决定节奏与里程碑密度'},
+        {'id': 'Q3', 'question': '你当前的基础水平如何？是否已有相关项目或经验？', 'why': '确定起点与是否需要补前置知识'},
+        {'id': 'Q4', 'question': '你更偏好哪种学习方式？（阅读/视频/实战/导师反馈）', 'why': '匹配学习媒介，提高完成率'},
+        {'id': 'Q5', 'question': '你可使用的资源有哪些？（预算、课程平台、导师、设备）', 'why': '约束方案可执行性'},
+        {'id': 'Q6', 'question': '你最容易卡住的环节是什么？（理解慢/执行弱/坚持难）', 'why': '提前设计防卡机制'},
+        {'id': 'Q7', 'question': '你希望产出哪些可验证结果？（作品、证书、报告、上线系统）', 'why': '用成果驱动学习闭环'},
+        {'id': 'Q8', 'question': '你目前有哪些关联任务会与学习冲突？', 'why': '规划时间与优先级，降低中断'},
+        {'id': 'Q9', 'question': '你偏好的评估方式是什么？（周测、项目复盘、口头讲解）', 'why': '建立可量化反馈机制'},
+        {'id': 'Q10', 'question': '你希望我在学习中扮演什么角色？（教练/审查官/结对执行）', 'why': '确定协作模式与节奏'},
+    ]
+
+
+def _extract_json_payload(text: str):
+    raw = str(text or '').strip()
+    if not raw:
+        return None
+    # 1) 直接 JSON
+    try:
+        return json.loads(raw)
+    except Exception:
+        pass
+    # 2) fenced json
+    m = re.search(r'```(?:json)?\s*([\s\S]*?)```', raw, re.IGNORECASE)
+    if m:
+        fenced = m.group(1).strip()
+        try:
+            return json.loads(fenced)
+        except Exception:
+            pass
+    # 3) 平衡花括号扫描
+    for i, ch in enumerate(raw):
+        if ch != '{':
+            continue
+        depth = 0
+        for j in range(i, len(raw)):
+            c = raw[j]
+            if c == '{':
+                depth += 1
+            elif c == '}':
+                depth -= 1
+                if depth == 0:
+                    chunk = raw[i:j + 1]
+                    try:
+                        return json.loads(chunk)
+                    except Exception:
+                        break
+    return None
+
+
+def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420):
+    if not _SAFE_NAME_RE.match(agent_id):
+        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
+    if not _check_agent_workspace(agent_id):
+        return {'ok': False, 'error': f'{agent_id} 工作空间不存在'}
+    if not _check_gateway_alive():
+        return {'ok': False, 'error': 'Gateway 未启动'}
+    timeout_sec = max(120, min(900, int(timeout_sec or 420)))
+    cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', message, '--timeout', str(timeout_sec)]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_sec + 30)
+        raw = ((result.stdout or '') + '\n' + (result.stderr or '')).strip()
+        if result.returncode != 0:
+            return {'ok': False, 'error': (result.stderr or result.stdout or '执行失败').strip()[:500], 'raw': raw[:2000]}
+        return {'ok': True, 'raw': raw}
+    except subprocess.TimeoutExpired:
+        return {'ok': False, 'error': f'礼部响应超时（>{timeout_sec}s）'}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+
+
+def _load_learning_plans():
+    data = atomic_json_read(LEARNING_PLAN_FILE, {'plans': []})
+    if not isinstance(data, dict):
+        return {'plans': []}
+    plans = data.get('plans')
+    if not isinstance(plans, list):
+        data['plans'] = []
+    return data
+
+
+def _save_learning_plans(data):
+    if not isinstance(data, dict):
+        data = {'plans': []}
+    if not isinstance(data.get('plans'), list):
+        data['plans'] = []
+    atomic_json_write(LEARNING_PLAN_FILE, data)
+
+
+def _new_learning_id():
+    ms = int(time.time() * 1000)
+    return f'LRN-{datetime.datetime.fromtimestamp(ms/1000.0):%Y%m%d-%H%M%S}{ms % 1000:03d}'
+
+
+def _build_libu_question_prompt(topic: str):
+    topic = (topic or '').strip()
+    return (
+        "你是礼部尚书，负责学习体系设计。\n"
+        "请先做第一阶段：仅产出 10 个高质量澄清问题，用于后续制定个人学习路径。\n"
+        "要求：\n"
+        "1) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
+        "2) JSON 格式固定为："
+        "{\"questions\":[{\"id\":\"Q1\",\"question\":\"...\",\"why\":\"...\"},...]}。\n"
+        "3) questions 必须正好 10 条，id 必须是 Q1~Q10。\n"
+        "4) 问题应覆盖：目标、时间、基础、资源、偏好、约束、评估、成果。\n\n"
+        f"学习主题：{topic}\n"
+    )
+
+
+def _build_libu_plan_prompt(topic: str, qa_pairs):
+    qa_text = '\n'.join([f"- {x.get('id')}: {x.get('question')}\n  回答: {x.get('answer')}" for x in qa_pairs])
+    return (
+        "你是礼部尚书，负责学习体系设计。\n"
+        "现在进入第二阶段：基于主题和用户对10问的回答，生成“目录式学习计划（像书本目录）”和知识架构。\n"
+        "只输出 JSON 对象，不要 Markdown，不要解释。\n"
+        "JSON 格式：\n"
+        "{\n"
+        "  \"learner_profile\": \"...\",\n"
+        "  \"curriculum\": [\n"
+        "    {\n"
+        "      \"id\": \"T1\",\n"
+        "      \"title\": \"主题标题\",\n"
+        "      \"phase\": \"所属阶段（可选）\",\n"
+        "      \"objective\": \"该主题学习目标\",\n"
+        "      \"content\": \"礼部准备的核心学习内容（结构化文本）\",\n"
+        "      \"key_points\": [\"要点1\", \"要点2\"],\n"
+        "      \"resources\": [{\"title\":\"资源名\",\"type\":\"course|article|book|video|tool\",\"link\":\"https://...\"}],\n"
+        "      \"practice\": [\"练习1\", \"练习2\"]\n"
+        "    }\n"
+        "  ],\n"
+        "  \"knowledge_map_mermaid\": \"flowchart LR ...\",\n"
+        "  \"learning_path\": [\n"
+        "    {\"phase\":\"阶段名\",\"goal\":\"阶段目标\",\"duration\":\"建议时长\",\"milestones\":[\"里程碑\"],\"deliverables\":[\"产出\"]}\n"
+        "  ]\n"
+        "}\n"
+        "约束：\n"
+        "1) curriculum 必须细化到至少 12 个主题（建议 12~24），禁止只给 3 个大阶段。\n"
+        "2) 每个主题都要能独立学习并支持后续问答扩展。\n"
+        "3) 每个主题的 content 要具体，不少于 120 字，不能只写一句话。\n"
+        "4) phase 允许重复（多个主题属于同一阶段），但展示时应体现细分主题而非粗粒度阶段。\n"
+        "5) link 若不确定可留空字符串，但字段必须存在。\n\n"
+        "6) knowledge_map_mermaid 必须使用 Mermaid flowchart（推荐 flowchart LR），必须包含箭头 -->，并体现层级关系。\n"
+        "7) 图中至少包含：总目标节点、阶段节点、主题节点、输出节点；可用 subgraph 提升结构清晰度。\n\n"
+        f"学习主题：{topic}\n"
+        "用户问答：\n"
+        f"{qa_text}\n"
+    )
+
+
+def _normalize_questions(payload, topic):
+    questions = []
+    if isinstance(payload, dict) and isinstance(payload.get('questions'), list):
+        for i, q in enumerate(payload.get('questions')[:10], start=1):
+            if not isinstance(q, dict):
+                continue
+            qq = str(q.get('question') or '').strip()
+            if not qq:
+                continue
+            questions.append({
+                'id': f'Q{i}',
+                'question': qq,
+                'why': str(q.get('why') or '').strip(),
+            })
+    if len(questions) != 10:
+        return _default_learning_questions(topic)
+    return questions
+
+
+def _normalize_plan_payload(payload):
+    if not isinstance(payload, dict):
+        return None
+    learner_profile = str(payload.get('learner_profile') or '').strip()
+    knowledge_map_mermaid = str(payload.get('knowledge_map_mermaid') or '').strip()
+    learning_path = payload.get('learning_path')
+    if not isinstance(learning_path, list):
+        learning_path = []
+
+    curriculum = payload.get('curriculum')
+    if isinstance(curriculum, list) and curriculum:
+        normalized = []
+        for i, item in enumerate(curriculum, start=1):
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get('title') or '').strip()
+            if not title:
+                continue
+            tid = str(item.get('id') or f'T{i}').strip() or f'T{i}'
+            key_points = item.get('key_points') if isinstance(item.get('key_points'), list) else []
+            practice = item.get('practice') if isinstance(item.get('practice'), list) else []
+            resources = item.get('resources') if isinstance(item.get('resources'), list) else []
+            normalized.append({
+                'id': tid,
+                'order': i,
+                'title': title,
+                'phase': str(item.get('phase') or '').strip(),
+                'objective': str(item.get('objective') or '').strip(),
+                'content': str(item.get('content') or '').strip(),
+                'key_points': [str(x).strip() for x in key_points if str(x).strip()],
+                'resources': [r for r in resources if isinstance(r, dict)],
+                'practice': [str(x).strip() for x in practice if str(x).strip()],
+                'supplements': [],
+            })
+        if normalized:
+            return {
+                'learner_profile': learner_profile,
+                'knowledge_map_mermaid': knowledge_map_mermaid,
+                'learning_path': learning_path,
+                'curriculum': normalized,
+            }
+
+    # 兼容旧格式：learning_path + key_points
+    key_points = payload.get('key_points')
+    if not isinstance(learning_path, list) or len(learning_path) < 1:
+        return None
+    if not isinstance(key_points, list) or len(key_points) < 1:
+        return None
+
+    curriculum_fallback = []
+    kp = [x for x in key_points if isinstance(x, dict)]
+    per = max(1, len(kp) // max(1, len(learning_path)))
+    idx = 0
+    for i, ph in enumerate(learning_path, start=1):
+        if not isinstance(ph, dict):
+            continue
+        phase_name = str(ph.get('phase') or f'阶段{i}')
+        group = kp[idx: idx + per] if i < len(learning_path) else kp[idx:]
+        idx += per
+        content_lines = []
+        for g in group[:6]:
+            topic = str(g.get('topic') or '').strip()
+            details = str(g.get('details') or '').strip()
+            if topic or details:
+                content_lines.append(f'{topic}: {details}'.strip(': '))
+        curriculum_fallback.append({
+            'id': f'T{i}',
+            'order': i,
+            'title': phase_name,
+            'phase': phase_name,
+            'objective': str(ph.get('goal') or '').strip(),
+            'content': '\n'.join(content_lines)[:4000],
+            'key_points': [str(g.get('topic') or '').strip() for g in group if str(g.get('topic') or '').strip()],
+            'resources': [r for r in ph.get('resources', []) if isinstance(r, dict)] if isinstance(ph.get('resources'), list) else [],
+            'practice': [str(x).strip() for x in (ph.get('deliverables') or []) if str(x).strip()],
+            'supplements': [],
+        })
+    if not curriculum_fallback:
+        return None
+    return {
+        'learner_profile': learner_profile,
+        'knowledge_map_mermaid': knowledge_map_mermaid,
+        'learning_path': learning_path,
+        'curriculum': curriculum_fallback,
+    }
+
+
+def list_learning_plans():
+    data = _load_learning_plans()
+    changed = False
+    for p in data.get('plans', []):
+        if not isinstance(p, dict):
+            continue
+        if p.get('status') == 'planned':
+            result = p.get('result') or {}
+            if isinstance(result, dict) and not isinstance(result.get('curriculum'), list):
+                upgraded = _normalize_plan_payload(result)
+                if upgraded and isinstance(upgraded.get('curriculum'), list):
+                    p['result'] = upgraded
+                    changed = True
+            if 'topicChats' not in p or not isinstance(p.get('topicChats'), dict):
+                p['topicChats'] = {}
+                changed = True
+    if changed:
+        _save_learning_plans(data)
+    plans = data.get('plans', [])
+    plans_sorted = sorted(plans, key=lambda x: x.get('updatedAt', ''), reverse=True)
+    return {'ok': True, 'plans': plans_sorted}
+
+
+def get_learning_plan(plan_id):
+    data = _load_learning_plans()
+    plan = next((p for p in data.get('plans', []) if p.get('id') == plan_id), None)
+    if not plan:
+        return {'ok': False, 'error': f'学习计划 {plan_id} 不存在'}
+    changed = False
+    if plan.get('status') == 'planned':
+        result = plan.get('result') or {}
+        if isinstance(result, dict) and not isinstance(result.get('curriculum'), list):
+            upgraded = _normalize_plan_payload(result)
+            if upgraded and isinstance(upgraded.get('curriculum'), list):
+                plan['result'] = upgraded
+                changed = True
+        if 'topicChats' not in plan or not isinstance(plan.get('topicChats'), dict):
+            plan['topicChats'] = {}
+            changed = True
+    if changed:
+        _save_learning_plans(data)
+    return {'ok': True, 'plan': plan}
+
+
+def start_learning_plan(topic):
+    topic = str(topic or '').strip()
+    if not topic:
+        return {'ok': False, 'error': 'topic 不能为空'}
+    if len(topic) > 200:
+        topic = topic[:200]
+
+    ai_result = _run_agent_sync('libu', _build_libu_question_prompt(topic), timeout_sec=420)
+    raw = ai_result.get('raw', '')
+    parsed = _extract_json_payload(raw) if ai_result.get('ok') else None
+    questions = _normalize_questions(parsed, topic)
+
+    plan = {
+        'id': _new_learning_id(),
+        'topic': topic,
+        'status': 'questioning',
+        'questions': questions,
+        'answers': [''] * 10,
+        'result': {},
+        'source': 'libu' if ai_result.get('ok') else 'fallback',
+        'rawQuestionOutput': raw[:12000] if raw else '',
+        'createdAt': now_iso(),
+        'updatedAt': now_iso(),
+    }
+    data = _load_learning_plans()
+    plans = data.get('plans', [])
+    plans.insert(0, plan)
+    data['plans'] = plans
+    _save_learning_plans(data)
+    return {'ok': True, 'plan': plan, 'message': '礼部10问已生成'}
+
+
+def answer_learning_plan(plan_id, answers):
+    data = _load_learning_plans()
+    plans = data.get('plans', [])
+    plan = next((p for p in plans if p.get('id') == plan_id), None)
+    if not plan:
+        return {'ok': False, 'error': f'学习计划 {plan_id} 不存在'}
+    if not isinstance(answers, list) or len(answers) != 10:
+        return {'ok': False, 'error': 'answers 必须是长度为10的数组'}
+    norm_answers = [str(a or '').strip() for a in answers]
+    if sum(1 for a in norm_answers if a) < 6:
+        return {'ok': False, 'error': '请至少回答 6 个问题后再生成路径'}
+
+    qa_pairs = []
+    for i, q in enumerate(plan.get('questions', [])[:10], start=1):
+        qa_pairs.append({
+            'id': f'Q{i}',
+            'question': str((q or {}).get('question') or ''),
+            'answer': norm_answers[i - 1] if i - 1 < len(norm_answers) else '',
+        })
+
+    ai_result = _run_agent_sync('libu', _build_libu_plan_prompt(plan.get('topic', ''), qa_pairs), timeout_sec=600)
+    raw = ai_result.get('raw', '')
+    parsed = _extract_json_payload(raw) if ai_result.get('ok') else None
+    norm = _normalize_plan_payload(parsed)
+    if not norm:
+        return {'ok': False, 'error': '礼部返回格式无法解析，请重试一次', 'raw': raw[:1000]}
+
+    plan['answers'] = norm_answers
+    plan['status'] = 'planned'
+    plan['result'] = norm
+    plan.setdefault('topicChats', {})
+    plan['rawPlanOutput'] = raw[:20000] if raw else ''
+    plan['updatedAt'] = now_iso()
+    _save_learning_plans(data)
+    return {'ok': True, 'plan': plan, 'message': '学习路径与知识架构已生成'}
+
+
+def _find_plan_and_topic(plan, topic_id):
+    result = (plan or {}).get('result', {})
+    curriculum = result.get('curriculum', []) if isinstance(result, dict) else []
+    topic = next((t for t in curriculum if str(t.get('id')) == str(topic_id)), None)
+    return topic, curriculum
+
+
+def _build_topic_chat_prompt(plan, topic, message, chat_history):
+    profile = str((plan.get('result') or {}).get('learner_profile') or '')
+    resources_text = '\n'.join([
+        f"- {str(r.get('title') or '').strip()} ({str(r.get('type') or '').strip()}): {str(r.get('link') or '').strip()}"
+        for r in (topic.get('resources') or []) if isinstance(r, dict)
+    ])
+    history_lines = []
+    for x in chat_history[-8:]:
+        role = '用户' if x.get('role') == 'user' else '礼部'
+        history_lines.append(f"{role}: {str(x.get('text') or '').strip()}")
+    return (
+        "你是礼部尚书，正在进行单主题教学辅导。请直接回答用户问题，要求清晰、可执行、贴合该主题。\n"
+        "输出要求：\n"
+        "1) 先给结论，再给步骤。\n"
+        "2) 尽量给一个小练习和一个常见误区。\n"
+        "3) 不要输出 JSON，直接输出自然语言。\n\n"
+        f"学习总主题: {plan.get('topic', '')}\n"
+        f"学习者画像: {profile}\n"
+        f"当前小主题: {topic.get('title', '')}\n"
+        f"主题目标: {topic.get('objective', '')}\n"
+        f"主题内容:\n{topic.get('content', '')}\n"
+        f"主题要点: {'；'.join(topic.get('key_points', []) or [])}\n"
+        f"主题资源:\n{resources_text}\n"
+        "最近对话:\n"
+        f"{chr(10).join(history_lines)}\n\n"
+        f"用户本次问题: {message}\n"
+    )
+
+
+def chat_learning_topic(plan_id, topic_id, message):
+    text = str(message or '').strip()
+    if not text:
+        return {'ok': False, 'error': 'message 不能为空'}
+
+    data = _load_learning_plans()
+    plans = data.get('plans', [])
+    plan = next((p for p in plans if p.get('id') == plan_id), None)
+    if not plan:
+        return {'ok': False, 'error': f'学习计划 {plan_id} 不存在'}
+    if plan.get('status') != 'planned':
+        return {'ok': False, 'error': '该计划尚未生成目录与学习内容'}
+
+    topic, _ = _find_plan_and_topic(plan, topic_id)
+    if not topic:
+        return {'ok': False, 'error': f'主题 {topic_id} 不存在'}
+
+    topic_chats = plan.setdefault('topicChats', {})
+    chat = topic_chats.setdefault(str(topic_id), [])
+    chat.append({'role': 'user', 'text': text, 'at': now_iso()})
+
+    prompt = _build_topic_chat_prompt(plan, topic, text, chat)
+    ai_result = _run_agent_sync('libu', prompt, timeout_sec=360)
+    if not ai_result.get('ok'):
+        return {'ok': False, 'error': ai_result.get('error', '礼部回复失败')}
+    reply = str(ai_result.get('raw') or '').strip()[:10000]
+    if not reply:
+        reply = '我已理解你的问题。请你再具体一点，我会按步骤解答。'
+    chat.append({'role': 'assistant', 'text': reply, 'at': now_iso()})
+    plan['updatedAt'] = now_iso()
+    _save_learning_plans(data)
+    return {'ok': True, 'reply': reply, 'chat': chat, 'plan': plan}
+
+
+def summarize_learning_topic(plan_id, topic_id):
+    data = _load_learning_plans()
+    plans = data.get('plans', [])
+    plan = next((p for p in plans if p.get('id') == plan_id), None)
+    if not plan:
+        return {'ok': False, 'error': f'学习计划 {plan_id} 不存在'}
+    if plan.get('status') != 'planned':
+        return {'ok': False, 'error': '该计划尚未生成目录与学习内容'}
+
+    topic, _ = _find_plan_and_topic(plan, topic_id)
+    if not topic:
+        return {'ok': False, 'error': f'主题 {topic_id} 不存在'}
+
+    chat = ((plan.get('topicChats') or {}).get(str(topic_id)) or [])
+    if len(chat) < 2:
+        return {'ok': False, 'error': '该主题暂无可总结问答'}
+
+    chat_text = '\n'.join([f"{'用户' if x.get('role')=='user' else '礼部'}: {x.get('text','')}" for x in chat[-20:]])
+    prompt = (
+        "你是礼部尚书。请根据以下用户问答，提炼为可并入学习内容的补充笔记。\n"
+        "输出要求：\n"
+        "1) 直接输出自然语言，不要 JSON。\n"
+        "2) 结构包含：关键补充点、易错点、建议练习、下一步学习建议。\n"
+        "3) 200-500 字。\n\n"
+        f"总主题: {plan.get('topic', '')}\n"
+        f"当前小主题: {topic.get('title', '')}\n"
+        f"原有主题内容: {topic.get('content', '')}\n"
+        "问答记录:\n"
+        f"{chat_text}\n"
+    )
+    ai_result = _run_agent_sync('libu', prompt, timeout_sec=360)
+    if not ai_result.get('ok'):
+        return {'ok': False, 'error': ai_result.get('error', '礼部总结失败')}
+    summary = str(ai_result.get('raw') or '').strip()[:10000]
+    if not summary:
+        return {'ok': False, 'error': '礼部未返回总结内容'}
+
+    supplements = topic.setdefault('supplements', [])
+    supplements.append({
+        'at': now_iso(),
+        'source': 'qa-summary',
+        'content': summary,
+    })
+    plan['updatedAt'] = now_iso()
+    _save_learning_plans(data)
+    return {'ok': True, 'summary': summary, 'plan': plan}
+
+
+def _load_pm_data():
+    data = atomic_json_read(PM_FILE, {'projects': []})
+    if not isinstance(data, dict):
+        return {'projects': []}
+    if not isinstance(data.get('projects'), list):
+        data['projects'] = []
+    return data
+
+
+def _save_pm_data(data):
+    if not isinstance(data, dict):
+        data = {'projects': []}
+    if not isinstance(data.get('projects'), list):
+        data['projects'] = []
+    atomic_json_write(PM_FILE, data)
+
+
+def _new_pm_id(prefix='PM'):
+    ms = int(time.time() * 1000)
+    dt = datetime.datetime.fromtimestamp(ms / 1000.0)
+    return f'{prefix}-{dt:%Y%m%d%H%M%S}{ms % 1000:03d}'
+
+
+def _ensure_pm_project_folders(project):
+    if not isinstance(project, dict):
+        return
+    folders = project.get('folders')
+    if not isinstance(folders, list):
+        folders = []
+    normalized = []
+    seen = set()
+    for f in folders:
+        if isinstance(f, dict):
+            fid = str(f.get('id') or '').strip()
+            name = str(f.get('name') or '').strip()
+        else:
+            fid = ''
+            name = ''
+        if not fid:
+            fid = _new_pm_id('FLD')
+        if not name:
+            name = '默认文件夹'
+        if fid in seen:
+            continue
+        seen.add(fid)
+        normalized.append({'id': fid, 'name': name[:120]})
+    if not normalized:
+        normalized = [{'id': 'FLD-DEFAULT', 'name': '默认文件夹'}]
+    project['folders'] = normalized
+    valid_ids = {f['id'] for f in normalized}
+    for item in (project.get('items') or []):
+        fid = str(item.get('folderId') or '').strip()
+        if fid not in valid_ids:
+            item['folderId'] = normalized[0]['id']
+
+
+def pm_list_projects():
+    data = _load_pm_data()
+    projects = data.get('projects', [])
+    for p in projects:
+        _ensure_pm_project_folders(p)
+    projects_sorted = sorted(projects, key=lambda x: x.get('updatedAt', ''), reverse=True)
+    _save_pm_data(data)
+    return {'ok': True, 'projects': projects_sorted}
+
+
+def pm_create_project(name, description=''):
+    name = str(name or '').strip()
+    if not name:
+        return {'ok': False, 'error': '项目名称不能为空'}
+    data = _load_pm_data()
+    proj = {
+        'id': _new_pm_id('PRJ'),
+        'name': name[:120],
+        'description': str(description or '').strip()[:2000],
+        'owner': 'gongbu',
+        'folders': [{'id': 'FLD-DEFAULT', 'name': '默认文件夹'}],
+        'items': [],
+        'createdAt': now_iso(),
+        'updatedAt': now_iso(),
+    }
+    data['projects'].insert(0, proj)
+    _save_pm_data(data)
+    return {'ok': True, 'project': proj}
+
+
+def pm_update_project(project_id, name=None, description=None):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    if name is not None:
+        n = str(name or '').strip()
+        if not n:
+            return {'ok': False, 'error': '项目名称不能为空'}
+        project['name'] = n[:120]
+    if description is not None:
+        project['description'] = str(description or '').strip()[:2000]
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'project': project}
+
+
+def pm_delete_project(project_id):
+    data = _load_pm_data()
+    projects = data.get('projects', [])
+    idx = next((i for i, p in enumerate(projects) if p.get('id') == project_id), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    removed = projects.pop(idx)
+    _save_pm_data(data)
+    return {'ok': True, 'project': removed}
+
+
+def _find_project(data, project_id):
+    return next((p for p in data.get('projects', []) if p.get('id') == project_id), None)
+
+
+def _find_item(project, item_id):
+    return next((i for i in (project.get('items') or []) if i.get('id') == item_id), None)
+
+
+def pm_create_item(project_id, title, item_type='bug', priority='P2', description=''):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    title = str(title or '').strip()
+    if not title:
+        return {'ok': False, 'error': '标题不能为空'}
+    item_type = str(item_type or 'bug').lower()
+    if item_type not in {'bug', 'req', 'opt'}:
+        item_type = 'bug'
+    priority = str(priority or 'P2').upper()
+    if priority not in {'P0', 'P1', 'P2', 'P3'}:
+        priority = 'P2'
+    item = {
+        'id': _new_pm_id('ISS'),
+        'title': title[:200],
+        'type': item_type,
+        'priority': priority,
+        'status': 'open',
+        'folderId': project['folders'][0]['id'],
+        'description': str(description or '').strip()[:6000],
+        'owner': 'gongbu',
+        'qa': [],
+        'plan': [],
+        'questions': [],
+        'resolution': '',
+        'createdAt': now_iso(),
+        'updatedAt': now_iso(),
+    }
+    project.setdefault('items', []).insert(0, item)
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'item': item, 'project': project}
+
+
+def pm_update_item(project_id, item_id, status=None, priority=None, resolution=None, item_type=None, description=None, folder_id=None):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    item = _find_item(project, item_id)
+    if not item:
+        return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
+    if status is not None:
+        s = str(status).strip().lower()
+        if s in {'open', 'clarify', 'in_progress', 'blocked', 'done'}:
+            item['status'] = s
+    if priority is not None:
+        p = str(priority).strip().upper()
+        if p in {'P0', 'P1', 'P2', 'P3'}:
+            item['priority'] = p
+    if item_type is not None:
+        t = str(item_type).strip().lower()
+        if t in {'bug', 'req', 'opt'}:
+            item['type'] = t
+    if description is not None:
+        item['description'] = str(description or '').strip()[:6000]
+    if folder_id is not None:
+        fid = str(folder_id or '').strip()
+        valid_ids = {f.get('id') for f in (project.get('folders') or [])}
+        if fid in valid_ids:
+            item['folderId'] = fid
+    if resolution is not None:
+        item['resolution'] = str(resolution or '').strip()[:8000]
+    item['updatedAt'] = now_iso()
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'item': item, 'project': project}
+
+
+def pm_delete_item(project_id, item_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    items = project.get('items') or []
+    idx = next((i for i, it in enumerate(items) if it.get('id') == item_id), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
+    removed = items.pop(idx)
+    project['items'] = items
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'item': removed, 'project': project}
+
+
+def pm_create_folder(project_id, name):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    nm = str(name or '').strip()
+    if not nm:
+        return {'ok': False, 'error': '文件夹名称不能为空'}
+    if any(str(f.get('name') or '').strip() == nm for f in (project.get('folders') or [])):
+        return {'ok': False, 'error': '文件夹名称已存在'}
+    folder = {'id': _new_pm_id('FLD'), 'name': nm[:120]}
+    project.setdefault('folders', []).append(folder)
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'folder': folder, 'project': project}
+
+
+def pm_update_folder(project_id, folder_id, name):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    fid = str(folder_id or '').strip()
+    folder = next((f for f in (project.get('folders') or []) if f.get('id') == fid), None)
+    if not folder:
+        return {'ok': False, 'error': f'文件夹 {folder_id} 不存在'}
+    nm = str(name or '').strip()
+    if not nm:
+        return {'ok': False, 'error': '文件夹名称不能为空'}
+    if any((f.get('id') != fid and str(f.get('name') or '').strip() == nm) for f in (project.get('folders') or [])):
+        return {'ok': False, 'error': '文件夹名称已存在'}
+    folder['name'] = nm[:120]
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'folder': folder, 'project': project}
+
+
+def pm_delete_folder(project_id, folder_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    fid = str(folder_id or '').strip()
+    folders = project.get('folders') or []
+    folder = next((f for f in folders if f.get('id') == fid), None)
+    if not folder:
+        return {'ok': False, 'error': f'文件夹 {folder_id} 不存在'}
+    if len(folders) <= 1:
+        return {'ok': False, 'error': '至少保留一个文件夹，无法删除'}
+    items = project.get('items') or []
+    used = [it for it in items if (it.get('folderId') or (folders[0] or {}).get('id')) == fid]
+    if used:
+        return {'ok': False, 'error': f'该文件夹下仍有 {len(used)} 条问题，无法删除'}
+    project['folders'] = [f for f in folders if f.get('id') != fid]
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'folder': folder, 'project': project}
+
+
+def pm_add_reply(project_id, item_id, text, role='user'):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    item = _find_item(project, item_id)
+    if not item:
+        return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
+    msg = str(text or '').strip()
+    if not msg:
+        return {'ok': False, 'error': 'reply 不能为空'}
+    r = str(role or 'user').strip().lower()
+    if r not in {'user', 'codex', 'gongbu'}:
+        r = 'user'
+    item.setdefault('qa', []).append({'role': r, 'text': msg[:8000], 'at': now_iso()})
+    item['updatedAt'] = now_iso()
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'item': item, 'project': project}
+
+
+def _build_pm_gongbu_prompt(project, item, mode='review'):
+    qas = item.get('qa') or []
+    def _qa_role_label(x):
+        role = str((x or {}).get('role') or '').strip().lower()
+        if role == 'user':
+            return '用户'
+        if role == 'codex':
+            return 'Codex'
+        return '工部'
+    qtxt = '\n'.join([f"{_qa_role_label(x)}: {x.get('text','')}" for x in qas[-12:]])
+    return (
+        "你是工部尚书，负责软件项目的问题治理、流程优化和推进提醒。\n"
+        "请根据项目问题单进行评审或继续推进。\n"
+        "只输出 JSON 对象，不要 markdown。\n"
+        "格式：\n"
+        "{\n"
+        "  \"summary\":\"一句话结论\",\n"
+        "  \"status\":\"clarify|in_progress|done|blocked\",\n"
+        "  \"questions\":[\"需要用户回答的问题1\",\"问题2\"],\n"
+        "  \"plan\":[\"下一步1\",\"下一步2\"],\n"
+        "  \"resolution\":\"若已完成，给出修复/实现说明，否则留空\"\n"
+        "}\n"
+        "约束：\n"
+        "1) 若信息不足，status 必须为 clarify，且 questions 至少1条。\n"
+        "2) 若可执行，status 用 in_progress，并给出 plan。\n"
+        "3) 仅在确有结论时用 done。\n\n"
+        f"模式: {mode}\n"
+        f"项目: {project.get('name','')}\n"
+        f"问题单ID: {item.get('id','')}\n"
+        f"类型: {item.get('type','')}\n"
+        f"优先级: {item.get('priority','')}\n"
+        f"标题: {item.get('title','')}\n"
+        f"描述: {item.get('description','')}\n"
+        f"历史问答:\n{qtxt}\n"
+    )
+
+
+def pm_gongbu_review(project_id, item_id, mode='review'):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    item = _find_item(project, item_id)
+    if not item:
+        return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
+
+    prompt = _build_pm_gongbu_prompt(project, item, mode=mode)
+    ai = _run_agent_sync('gongbu', prompt, timeout_sec=480)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': ai.get('error', '工部评审失败')}
+    raw = str(ai.get('raw') or '').strip()
+    parsed = _extract_json_payload(raw)
+    if not isinstance(parsed, dict):
+        item.setdefault('qa', []).append({'role': 'gongbu', 'text': raw[:9000], 'at': now_iso()})
+        item['updatedAt'] = now_iso()
+        project['updatedAt'] = now_iso()
+        _save_pm_data(data)
+        return {'ok': True, 'item': item, 'project': project, 'warning': '工部返回非结构化结果，已记录原文'}
+
+    status = str(parsed.get('status') or '').strip().lower()
+    if status not in {'clarify', 'in_progress', 'done', 'blocked'}:
+        status = 'in_progress'
+    questions = parsed.get('questions') if isinstance(parsed.get('questions'), list) else []
+    plan = parsed.get('plan') if isinstance(parsed.get('plan'), list) else []
+    summary = str(parsed.get('summary') or '').strip()
+    resolution = str(parsed.get('resolution') or '').strip()
+
+    item['status'] = status
+    item['questions'] = [str(x).strip() for x in questions if str(x).strip()][:12]
+    item['plan'] = [str(x).strip() for x in plan if str(x).strip()][:20]
+    if resolution:
+        item['resolution'] = resolution[:8000]
+    item.setdefault('qa', []).append({
+        'role': 'gongbu',
+        'text': (summary + ('\n\n' if summary else '') + '\n'.join(item['plan']))[:9000],
+        'at': now_iso()
+    })
+    item['lastGongbuRaw'] = raw[:20000]
+    item['updatedAt'] = now_iso()
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'item': item, 'project': project}
 
 
 # 旨意标题最低要求
@@ -961,6 +1874,139 @@ def wake_agent(agent_id, message=''):
     threading.Thread(target=do_wake, daemon=True).start()
 
     return {'ok': True, 'message': f'{agent_id} 唤醒指令已发出，约10-30秒后生效'}
+
+
+def send_agent_message(agent_id, message, timeout_sec=180):
+    """向指定 Agent 发送控制台消息（非飞书入口）。"""
+    if not _SAFE_NAME_RE.match(agent_id):
+        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
+    if not _check_agent_workspace(agent_id):
+        return {'ok': False, 'error': f'{agent_id} 工作空间不存在，请先配置'}
+    if not _check_gateway_alive():
+        return {'ok': False, 'error': 'Gateway 未启动，请先运行 openclaw gateway start'}
+    text = str(message or '').strip()
+    if not text:
+        return {'ok': False, 'error': 'message 不能为空'}
+
+    runtime_id = agent_id
+    timeout_sec = max(60, min(600, int(timeout_sec or 180)))
+
+    def _runner():
+        try:
+            cmd = ['openclaw', 'agent', '--agent', runtime_id, '-m', text, '--timeout', str(timeout_sec)]
+            log.info(f'💬 控制台消息 -> {agent_id}: {text[:80]}')
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_sec + 20)
+            if result.returncode == 0:
+                log.info(f'✅ {agent_id} 控制台消息执行完成')
+            else:
+                err_msg = (result.stderr or result.stdout or '').strip()[:300]
+                log.warning(f'⚠️ {agent_id} 控制台消息执行失败: {err_msg}')
+        except subprocess.TimeoutExpired:
+            log.error(f'❌ {agent_id} 控制台消息超时({timeout_sec + 20}s)')
+        except Exception as e:
+            log.warning(f'⚠️ {agent_id} 控制台消息异常: {e}')
+
+    threading.Thread(target=_runner, daemon=True).start()
+    return {'ok': True, 'message': f'消息已发送到 {agent_id}，约10-30秒可见回执'}
+
+
+def _format_session_meta(session_key, meta):
+    m = meta if isinstance(meta, dict) else {}
+    status = str(m.get('status', '') or '').strip().lower()
+    if not status:
+        status = 'unknown'
+    ended_at = m.get('endedAt')
+    alive = status in {'running', 'queued', 'processing'}
+    if ended_at and status == 'running':
+        # 某些实现会遗留 running + endedAt，优先按 endedAt 视为已结束
+        alive = False
+    return {
+        'sessionKey': session_key,
+        'sessionId': str(m.get('sessionId', '') or ''),
+        'status': status,
+        'alive': alive,
+        'updatedAt': m.get('updatedAt'),
+        'startedAt': m.get('startedAt'),
+        'endedAt': ended_at,
+        'model': m.get('model'),
+        'modelProvider': m.get('modelProvider'),
+        'lastChannel': m.get('lastChannel'),
+        'subagentRole': m.get('subagentRole'),
+        'spawnDepth': m.get('spawnDepth'),
+        'label': m.get('label'),
+    }
+
+
+def _parse_session_entries(session_file: pathlib.Path, limit=120):
+    entries = []
+    if not session_file.exists():
+        return entries
+    try:
+        lines = session_file.read_text(errors='ignore').splitlines()
+    except Exception:
+        return entries
+    for ln in lines:
+        try:
+            item = json.loads(ln)
+        except Exception:
+            continue
+        parsed = _parse_activity_entry(item)
+        if not parsed:
+            continue
+        # 规范输出字段，便于前端展示
+        role = parsed.get('kind', 'unknown')
+        text = ''
+        if role == 'assistant':
+            text = parsed.get('text') or parsed.get('thinking') or ''
+            if not text and parsed.get('tools'):
+                t0 = parsed['tools'][0]
+                text = f"[tool] {t0.get('name', '')} {t0.get('input_preview', '')}"
+        elif role == 'tool_result':
+            text = f"{parsed.get('tool', 'tool')} => {parsed.get('output', '')}"
+        else:
+            text = parsed.get('text', '')
+        entries.append({
+            'at': parsed.get('at'),
+            'role': role,
+            'text': str(text or '')[:800],
+        })
+    return entries[-max(1, min(int(limit or 120), 400)):]
+
+
+def get_agent_sessions(agent_id):
+    """返回 agent 当前会话列表（含存活标记）。"""
+    sessions_dir = OCLAW_HOME / 'agents' / agent_id / 'sessions'
+    sessions_file = sessions_dir / 'sessions.json'
+    if not sessions_file.exists():
+        return {'ok': True, 'agentId': agent_id, 'sessions': [], 'aliveCount': 0}
+    try:
+        data = json.loads(sessions_file.read_text())
+    except Exception as e:
+        return {'ok': False, 'error': f'sessions.json 读取失败: {e}'}
+    if not isinstance(data, dict):
+        return {'ok': True, 'agentId': agent_id, 'sessions': [], 'aliveCount': 0}
+    sessions = [_format_session_meta(k, v) for k, v in data.items()]
+    sessions.sort(key=lambda x: int(x.get('updatedAt') or 0), reverse=True)
+    alive_count = sum(1 for s in sessions if s.get('alive'))
+    return {'ok': True, 'agentId': agent_id, 'sessions': sessions, 'aliveCount': alive_count}
+
+
+def get_agent_session_log(agent_id, session_id, limit=120):
+    sessions_dir = OCLAW_HOME / 'agents' / agent_id / 'sessions'
+    safe_sid = str(session_id or '').strip()
+    if not safe_sid:
+        return {'ok': False, 'error': 'sessionId required'}
+    if not re.fullmatch(r'[a-zA-Z0-9\-]{8,64}', safe_sid):
+        return {'ok': False, 'error': 'invalid sessionId'}
+    session_file = sessions_dir / f'{safe_sid}.jsonl'
+    entries = _parse_session_entries(session_file, limit=limit)
+    return {
+        'ok': True,
+        'agentId': agent_id,
+        'sessionId': safe_sid,
+        'exists': session_file.exists(),
+        'entries': entries,
+    }
 
 
 # ══ Agent 实时活动读取 ══
@@ -2266,9 +3312,15 @@ class Handler(BaseHTTPRequestHandler):
         return False
 
     def do_GET(self):
-        p = urlparse(self.path).path.rstrip('/')
+        parsed = urlparse(self.path)
+        p = parsed.path.rstrip('/')
+        q = parse_qs(parsed.query)
         if p in ('', '/dashboard', '/dashboard.html'):
-            self.send_file(DIST / 'index.html')
+            # 优先返回传统看板（包含省部调度扩展）；不存在时再回退到 React 构建页。
+            if LEGACY_DASHBOARD_HTML.exists():
+                self.send_file(LEGACY_DASHBOARD_HTML)
+            else:
+                self.send_file(DIST / 'index.html')
         elif p == '/healthz':
             task_data_dir = get_task_data_dir()
             checks = {'dataDir': task_data_dir.is_dir(), 'tasksReadable': (task_data_dir / 'tasks_source.json').exists()}
@@ -2300,6 +3352,16 @@ class Handler(BaseHTTPRequestHandler):
                 'keywords': [], 'custom_feeds': [],
                 'notification': {'enabled': True, 'channel': 'feishu', 'webhook': ''},
             }))
+        elif p == '/api/learning-plan':
+            self.send_json(list_learning_plans())
+        elif p == '/api/pm/projects':
+            self.send_json(pm_list_projects())
+        elif p.startswith('/api/learning-plan/'):
+            plan_id = p.replace('/api/learning-plan/', '').strip()
+            if not plan_id:
+                self.send_json({'ok': False, 'error': 'plan_id required'}, 400)
+            else:
+                self.send_json(get_learning_plan(plan_id))
         elif p == '/api/notification-channels':
             self.send_json({'ok': True, 'channels': get_channel_info()})
         elif p.startswith('/api/morning-brief/'):
@@ -2319,6 +3381,12 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(read_skill_content(parts[0], parts[1]))
             else:
                 self.send_json({'ok': False, 'error': 'Usage: /api/skill-content/{agentId}/{skillName}'}, 400)
+        elif p.startswith('/api/agent-soul/'):
+            agent_id = p.replace('/api/agent-soul/', '')
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agent_id'}, 400)
+            else:
+                self.send_json(read_agent_soul(agent_id))
         elif p.startswith('/api/task-activity/'):
             task_id = p.replace('/api/task-activity/', '')
             if not task_id:
@@ -2362,6 +3430,20 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'invalid agent_id'}, 400)
             else:
                 self.send_json({'ok': True, 'agentId': agent_id, 'activity': get_agent_activity(agent_id)})
+        elif p.startswith('/api/agent-sessions/'):
+            agent_id = p.replace('/api/agent-sessions/', '')
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agent_id'}, 400)
+            else:
+                self.send_json(get_agent_sessions(agent_id))
+        elif p == '/api/agent-session-log':
+            agent_id = (q.get('agentId', [''])[0] or '').strip()
+            session_id = (q.get('sessionId', [''])[0] or '').strip()
+            limit = (q.get('limit', ['120'])[0] or '120').strip()
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agent_id'}, 400)
+            else:
+                self.send_json(get_agent_session_log(agent_id, session_id, limit=limit))
         # ── 朝堂议政 ──
         elif p == '/api/court-discuss/list':
             self.send_json({'ok': True, 'sessions': cd_list()})
@@ -2376,8 +3458,11 @@ class Handler(BaseHTTPRequestHandler):
         elif self._serve_static(p):
             pass  # 已由 _serve_static 处理 (JS/CSS/图片等)
         else:
-            # SPA fallback：非 /api/ 路径返回 index.html
+            # SPA fallback：非 /api/ 路径返回 dashboard.html（若不存在则回退 index.html）
             if not p.startswith('/api/'):
+                if LEGACY_DASHBOARD_HTML.exists():
+                    self.send_file(LEGACY_DASHBOARD_HTML)
+                    return
                 idx = DIST / 'index.html'
                 if idx.exists():
                     self.send_file(idx)
@@ -2433,6 +3518,162 @@ class Handler(BaseHTTPRequestHandler):
             cfg_path = DATA / 'morning_brief_config.json'
             cfg_path.write_text(json.dumps(body, ensure_ascii=False, indent=2))
             self.send_json({'ok': True, 'message': '订阅配置已保存'})
+            return
+
+        if p == '/api/learning-plan/start':
+            topic = body.get('topic', '').strip()
+            if not topic:
+                self.send_json({'ok': False, 'error': 'topic required'}, 400)
+                return
+            self.send_json(start_learning_plan(topic))
+            return
+
+        if p == '/api/pm/project-create':
+            name = body.get('name', '').strip()
+            description = body.get('description', '').strip()
+            if not name:
+                self.send_json({'ok': False, 'error': 'name required'}, 400)
+                return
+            self.send_json(pm_create_project(name, description))
+            return
+
+        if p == '/api/pm/project-update':
+            project_id = body.get('projectId', '').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(pm_update_project(
+                project_id,
+                name=body.get('name', None),
+                description=body.get('description', None),
+            ))
+            return
+
+        if p == '/api/pm/project-delete':
+            project_id = body.get('projectId', '').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(pm_delete_project(project_id))
+            return
+
+        if p == '/api/pm/item-create':
+            project_id = body.get('projectId', '').strip()
+            title = body.get('title', '').strip()
+            item_type = body.get('type', 'bug').strip()
+            priority = body.get('priority', 'P2').strip()
+            description = body.get('description', '').strip()
+            folder_id = body.get('folderId', '').strip()
+            if not project_id or not title:
+                self.send_json({'ok': False, 'error': 'projectId and title required'}, 400)
+                return
+            ret = pm_create_item(project_id, title, item_type, priority, description)
+            if ret.get('ok') and folder_id:
+                ret = pm_update_item(project_id, ret.get('item', {}).get('id', ''), folder_id=folder_id)
+            self.send_json(ret)
+            return
+
+        if p == '/api/pm/item-update':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(pm_update_item(
+                project_id,
+                item_id,
+                status=body.get('status', None),
+                priority=body.get('priority', None),
+                resolution=body.get('resolution', None),
+                item_type=body.get('type', None),
+                description=body.get('description', None),
+                folder_id=body.get('folderId', None),
+            ))
+            return
+
+        if p == '/api/pm/folder-create':
+            project_id = body.get('projectId', '').strip()
+            name = body.get('name', '').strip()
+            if not project_id or not name:
+                self.send_json({'ok': False, 'error': 'projectId and name required'}, 400)
+                return
+            self.send_json(pm_create_folder(project_id, name))
+            return
+
+        if p == '/api/pm/folder-update':
+            project_id = body.get('projectId', '').strip()
+            folder_id = body.get('folderId', '').strip()
+            name = body.get('name', '').strip()
+            if not project_id or not folder_id or not name:
+                self.send_json({'ok': False, 'error': 'projectId, folderId and name required'}, 400)
+                return
+            self.send_json(pm_update_folder(project_id, folder_id, name))
+            return
+
+        if p == '/api/pm/folder-delete':
+            project_id = body.get('projectId', '').strip()
+            folder_id = body.get('folderId', '').strip()
+            if not project_id or not folder_id:
+                self.send_json({'ok': False, 'error': 'projectId and folderId required'}, 400)
+                return
+            self.send_json(pm_delete_folder(project_id, folder_id))
+            return
+
+        if p == '/api/pm/item-delete':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(pm_delete_item(project_id, item_id))
+            return
+
+        if p == '/api/pm/item-reply':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            text = body.get('text', '').strip()
+            if not project_id or not item_id or not text:
+                self.send_json({'ok': False, 'error': 'projectId, itemId and text required'}, 400)
+                return
+            self.send_json(pm_add_reply(project_id, item_id, text, role=body.get('role', 'user')))
+            return
+
+        if p == '/api/pm/gongbu-review':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            mode = body.get('mode', 'review').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(pm_gongbu_review(project_id, item_id, mode=mode))
+            return
+
+        if p == '/api/learning-plan/answer':
+            plan_id = body.get('planId', '').strip()
+            answers = body.get('answers', [])
+            if not plan_id:
+                self.send_json({'ok': False, 'error': 'planId required'}, 400)
+                return
+            self.send_json(answer_learning_plan(plan_id, answers))
+            return
+
+        if p == '/api/learning-plan/topic-chat':
+            plan_id = body.get('planId', '').strip()
+            topic_id = body.get('topicId', '').strip()
+            message = body.get('message', '').strip()
+            if not plan_id or not topic_id:
+                self.send_json({'ok': False, 'error': 'planId and topicId required'}, 400)
+                return
+            self.send_json(chat_learning_topic(plan_id, topic_id, message))
+            return
+
+        if p == '/api/learning-plan/topic-summarize':
+            plan_id = body.get('planId', '').strip()
+            topic_id = body.get('topicId', '').strip()
+            if not plan_id or not topic_id:
+                self.send_json({'ok': False, 'error': 'planId and topicId required'}, 400)
+                return
+            self.send_json(summarize_learning_topic(plan_id, topic_id))
             return
 
         if p == '/api/scheduler-scan':
@@ -2631,6 +3872,17 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(result)
             return
 
+        if p == '/api/agent-chat':
+            agent_id = body.get('agentId', '').strip()
+            message = body.get('message', '').strip()
+            timeout = body.get('timeoutSec', 180)
+            if not agent_id:
+                self.send_json({'ok': False, 'error': 'agentId required'}, 400)
+                return
+            result = send_agent_message(agent_id, message, timeout)
+            self.send_json(result)
+            return
+
         if p == '/api/set-model':
             agent_id = body.get('agentId', '').strip()
             model = body.get('model', '').strip()
@@ -2729,7 +3981,8 @@ def main():
         f'http://127.0.0.1:{args.port}', f'http://localhost:{args.port}',
     }
 
-    server = HTTPServer((args.host, args.port), Handler)
+    # 多线程模式：避免单个长请求（如礼部深度问答）阻塞整个看板 API。
+    server = ThreadingHTTPServer((args.host, args.port), Handler)
     log.info(f'三省六部看板启动 → http://{args.host}:{args.port}')
     print(f'   按 Ctrl+C 停止')
 

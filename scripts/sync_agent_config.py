@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 BASE = pathlib.Path(__file__).parent.parent
 DATA = BASE / 'data'
 OPENCLAW_CFG = pathlib.Path.home() / '.openclaw' / 'openclaw.json'
+GLOBAL_SKILLS_DIR = pathlib.Path.home() / '.agents' / 'skills'
 
 ID_LABEL = {
     'taizi':    {'label': '太子',   'role': '太子',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},
@@ -55,28 +56,60 @@ def normalize_model(model_value, fallback='unknown'):
     return fallback
 
 
-def get_skills(workspace: str):
-    skills_dir = pathlib.Path(workspace) / 'skills'
-    skills = []
+def _skill_desc(md: pathlib.Path):
+    if not md.exists():
+        return ''
     try:
-        if skills_dir.exists():
-            for d in sorted(skills_dir.iterdir()):
-                if d.is_dir():
-                    md = d / 'SKILL.md'
-                    desc = ''
-                    if md.exists():
-                        try:
-                            for line in md.read_text(encoding='utf-8', errors='ignore').splitlines():
-                                line = line.strip()
-                                if line and not line.startswith('#') and not line.startswith('---'):
-                                    desc = line[:100]
-                                    break
-                        except Exception:
-                            desc = '(读取失败)'
-                    skills.append({'name': d.name, 'path': str(md), 'exists': md.exists(), 'description': desc})
+        for line in md.read_text(encoding='utf-8', errors='ignore').splitlines():
+            line = line.strip()
+            if line and not line.startswith('#') and not line.startswith('---'):
+                return line[:100]
+    except Exception:
+        return '(读取失败)'
+    return ''
+
+
+def _collect_skills(skills_dir: pathlib.Path, scope: str):
+    out = []
+    if not skills_dir.exists():
+        return out
+    try:
+        for d in sorted(skills_dir.iterdir()):
+            if not d.is_dir():
+                continue
+            md = d / 'SKILL.md'
+            out.append({
+                'name': d.name,
+                'path': str(md),
+                'exists': md.exists(),
+                'description': _skill_desc(md),
+                'scope': scope,  # workspace | global
+            })
     except PermissionError as e:
         log.warning(f'Skills 目录访问受限: {e}')
-    return skills
+    return out
+
+
+def get_skills(workspace: str):
+    """合并 agent 专属 skills 与全局 skills。"""
+    ws_dir = pathlib.Path(workspace) / 'skills'
+    ws_skills = _collect_skills(ws_dir, 'workspace')
+    gl_skills = _collect_skills(GLOBAL_SKILLS_DIR, 'global')
+
+    # 去重：同名 skill 优先保留 workspace 版本
+    dedup = {}
+    for sk in ws_skills + gl_skills:
+        n = sk.get('name', '')
+        if not n:
+            continue
+        if n not in dedup:
+            dedup[n] = sk
+        elif dedup[n].get('scope') != 'workspace' and sk.get('scope') == 'workspace':
+            dedup[n] = sk
+
+    merged = list(dedup.values())
+    merged.sort(key=lambda x: (0 if x.get('scope') == 'workspace' else 1, x.get('name', '').lower()))
+    return merged
 
 
 def _collect_openclaw_models(cfg):

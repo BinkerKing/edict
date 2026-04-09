@@ -100,14 +100,112 @@ def _nudge_agent(agent_id: str, task_id: str, title: str, state: str, now_text: 
         f"请立即接单并按职责推进，禁止口头承诺。"
     )
     try:
-        subprocess.Popen(
+        result = subprocess.run(
             ["openclaw", "agent", "--agent", agent_id, "-m", msg, "--timeout", "240"],
             cwd=str(_BASE),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=260,
         )
+        if result.returncode == 0:
+            log.info(f'📣 已催办 {agent_id} 处理 {task_id} (state={state})')
+        else:
+            err = (result.stderr or '').strip()[:200]
+            log.warning(f'⚠️ 催办失败 {agent_id} {task_id}: rc={result.returncode} err={err}')
+    except subprocess.TimeoutExpired:
+        log.warning(f'⚠️ 催办超时 {agent_id} {task_id}')
+    except Exception as e:
+        log.warning(f'⚠️ 催办异常 {agent_id} {task_id}: {e}')
+
+
+def _is_recent_menxia_reject_back(task: dict, within_seconds: int = 300) -> bool:
+    """判断是否刚发生“门下封驳退回中书”，用于拦截滞后进展覆盖。"""
+    flow = task.get('flow_log') or []
+    if not flow:
+        return False
+    last = flow[-1]
+    if (last.get('from') != '门下省') or (last.get('to') != '中书省'):
+        return False
+    remark = str(last.get('remark') or '')
+    if '封驳' not in remark:
+        return False
+    ts = str(last.get('at') or '')
+    try:
+        dt = datetime.datetime.fromisoformat(ts.replace('Z', '+00:00'))
     except Exception:
-        pass
+        return False
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    elapsed = max(0, int((now_dt - dt).total_seconds()))
+    return elapsed <= within_seconds
+
+
+def _looks_like_waiting_menxia(text: str) -> bool:
+    s = str(text or '')
+    hints = (
+        '提交门下', '门下审议', '门下省审议',
+        '等待审批', '等待审议', '等待门下',
+    )
+    return any(h in s for h in hints)
+
+
+def _looks_like_path_token(token: str) -> bool:
+    s = str(token or '').strip()
+    if not s:
+        return False
+    if '/' in s or s.startswith('./') or s.startswith('../'):
+        return True
+    lower = s.lower()
+    exts = ('.md', '.txt', '.pdf', '.docx', '.csv', '.json', '.png', '.jpg', '.jpeg', '.svg', '.html')
+    return lower.endswith(exts)
+
+
+def _normalize_output_paths(raw: str) -> list[str]:
+    """将输出路径规范为绝对路径列表；非路径文本会被忽略。"""
+    if not raw:
+        return []
+    parts = re.split(r'[;\n|]+', str(raw))
+    out = []
+    for p in parts:
+        p = p.strip()
+        if not p or not _looks_like_path_token(p):
+            continue
+        pp = pathlib.Path(p)
+        if not pp.is_absolute():
+            pp = (_BASE / pp).resolve()
+        else:
+            pp = pp.resolve()
+        out.append(str(pp))
+    # 去重但保持顺序
+    dedup = []
+    seen = set()
+    for x in out:
+        if x in seen:
+            continue
+        seen.add(x)
+        dedup.append(x)
+    return dedup
+
+
+def _has_recent_zhongshu_submit_flow(task: dict, within_seconds: int = 300) -> bool:
+    """判断是否存在最近一次“中书省 -> 门下省”的提交流转，用于约束 Zhongshu->Menxia 合法推进。"""
+    flow = task.get('flow_log') or []
+    if not flow:
+        return False
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    for item in reversed(flow[-8:]):
+        if item.get('from') != '中书省' or item.get('to') != '门下省':
+            continue
+        remark = str(item.get('remark') or '')
+        if not any(k in remark for k in ('提交', '审议', '准奏', '方案')):
+            continue
+        ts = str(item.get('at') or '')
+        try:
+            dt = datetime.datetime.fromisoformat(ts.replace('Z', '+00:00'))
+        except Exception:
+            continue
+        elapsed = max(0, int((now_dt - dt).total_seconds()))
+        return elapsed <= within_seconds
+    return False
 
 MAX_PROGRESS_LOG = 100  # 单任务最大进展日志条数
 
@@ -274,6 +372,7 @@ def cmd_state(task_id, new_state, now_text=None):
     old_state = [None]
     rejected = [False]
     assigned_meta = {'need_nudge': False, 'title': '', 'now': ''}
+    reject_back_meta = {'need_nudge': False, 'title': '', 'now': ''}
     def modifier(tasks):
         t = find_task(tasks, task_id)
         if not t:
@@ -285,11 +384,42 @@ def cmd_state(task_id, new_state, now_text=None):
             log.warning(f'⚠️ 非法状态转换 {task_id}: {old_state[0]} → {new_state}（允许: {allowed}）')
             rejected[0] = True
             return tasks
+        # 约束：中书省进入门下审议前，必须先存在“中书省->门下省”的提交流转。
+        # 防止旧上下文/口头回复直接把状态写成 Menxia，导致执行部门错乱。
+        if old_state[0] == 'Zhongshu' and new_state == 'Menxia':
+            if not _has_recent_zhongshu_submit_flow(t):
+                log.warning(f'⚠️ 拒绝状态推进 {task_id}: Zhongshu→Menxia 缺少最近提交审议流转')
+                rejected[0] = True
+                return tasks
         t['state'] = new_state
         if new_state in STATE_ORG_MAP:
             t['org'] = STATE_ORG_MAP[new_state]
         if now_text:
             t['now'] = now_text
+        # 门下封驳退回中书：主动重置为“修订态”，避免旧进展文案覆盖产生打架感
+        if old_state[0] == 'Menxia' and new_state == 'Zhongshu':
+            if not now_text:
+                t['now'] = '门下省封驳，待中书省修订方案'
+            t['todos'] = [
+                {'id': '1', 'title': '根据门下省意见修订方案', 'status': 'in-progress'},
+                {'id': '2', 'title': '补充实施细节与交付标准', 'status': 'not-started'},
+                {'id': '3', 'title': '修订后再次提交门下省审议', 'status': 'not-started'},
+            ]
+            # 门下封驳后立即唤醒中书继续修订，避免等待通用催办超时窗口。
+            reject_back_meta['need_nudge'] = True
+            reject_back_meta['title'] = t.get('title', '')
+            reject_back_meta['now'] = t.get('now', '')
+        # 门下准奏进入尚书执行：强制切换为尚书执行态，避免沿用门下/中书旧 todo 与文案
+        if old_state[0] == 'Menxia' and new_state == 'Assigned':
+            if not now_text:
+                t['now'] = '门下省准奏，转尚书省执行'
+            t['org'] = '尚书省'
+            t['todos'] = [
+                {'id': '1', 'title': '分析派发方案', 'status': 'in-progress'},
+                {'id': '2', 'title': '派发六部执行', 'status': 'not-started'},
+                {'id': '3', 'title': '汇总执行结果', 'status': 'not-started'},
+                {'id': '4', 'title': '提交中书省审核', 'status': 'not-started'},
+            ]
         if new_state == 'Assigned':
             assigned_meta['need_nudge'] = True
             assigned_meta['title'] = t.get('title', '')
@@ -304,6 +434,8 @@ def cmd_state(task_id, new_state, now_text=None):
         log.info(f'✅ {task_id} 状态更新: {old_state[0]} → {new_state}')
         if assigned_meta['need_nudge']:
             _nudge_agent('shangshu', task_id, assigned_meta['title'], new_state, assigned_meta['now'])
+        if reject_back_meta['need_nudge']:
+            _nudge_agent('zhongshu', task_id, reject_back_meta['title'], new_state, reject_back_meta['now'])
 
 
 def cmd_flow(task_id, from_dept, to_dept, remark):
@@ -326,8 +458,9 @@ def cmd_flow(task_id, from_dept, to_dept, remark):
             "at": now_iso(), "from": from_dept, "to": to_dept, "remark": clean_remark,
             "agent": agent_id, "agentLabel": agent_label,
         })
-        # 同步更新 org，使看板能正确显示当前所属部门
-        t['org'] = to_dept
+        # 状态优先：org 以当前状态对应部门为准，避免 flow(to=中书省) 覆盖 Assigned/Doing 等执行归属。
+        cur_state = t.get('state', '')
+        t['org'] = STATE_ORG_MAP.get(cur_state, to_dept)
         t['updatedAt'] = now_iso()
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
@@ -404,20 +537,27 @@ def cmd_done(task_id, output_path='', summary=''):
         t['state'] = 'Done'
         t['org'] = '完成'
         t['block'] = '无'
-        t['output'] = output_path
+        output_paths = _normalize_output_paths(output_path)
+        t['output'] = ';'.join(output_paths) if output_paths else output_path
+        t['outputPaths'] = output_paths
         t['now'] = summary or '任务已完成'
         t.setdefault('flow_log', []).append({
             "at": now_iso(), "from": t.get('org', '执行部门'),
             "to": "皇上", "remark": f"✅ 完成：{summary or '任务已完成'}"
         })
-        # 同步设置 outputMeta，避免依赖 refresh_live_data.py 异步补充
-        if output_path:
-            p = pathlib.Path(output_path)
-            if p.exists():
-                ts = datetime.datetime.fromtimestamp(p.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                t['outputMeta'] = {"exists": True, "lastModified": ts}
-            else:
-                t['outputMeta'] = {"exists": False, "lastModified": None}
+        # 同步设置 outputMeta，包含多文件明细，避免依赖 refresh_live_data.py 异步补充
+        if output_paths:
+            files = []
+            exists_all = True
+            for ap in output_paths:
+                p = pathlib.Path(ap)
+                if p.exists():
+                    ts = datetime.datetime.fromtimestamp(p.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                    files.append({"path": ap, "exists": True, "lastModified": ts})
+                else:
+                    exists_all = False
+                    files.append({"path": ap, "exists": False, "lastModified": None})
+            t['outputMeta'] = {"existsAll": exists_all, "files": files}
         t['updatedAt'] = now_iso()
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
@@ -505,15 +645,29 @@ def cmd_progress(task_id, now_text, todos_pipe='', tokens=0, cost=0.0, elapsed=0
         if not t:
             log.error(f'任务 {task_id} 不存在')
             return tasks
+        actor = _infer_agent_id_from_runtime(t)
         if t.get('state') in _TERMINAL_STATES:
             rejected[0] = True
             reject_reason[0] = f'终态任务禁止更新进展（state={t.get("state")})'
             return tasks
+        # Assigned 阶段仅尚书省可写进展，避免门下/中书滞后回包覆盖执行态。
+        if t.get('state') == 'Assigned' and actor and actor != 'shangshu':
+            rejected[0] = True
+            reject_reason[0] = f'Assigned 阶段仅尚书省可更新进展（当前={actor}）'
+            return tasks
+        # 状态-承办一致性兜底：Assigned 必须属于尚书省。
+        if t.get('state') == 'Assigned':
+            t['org'] = '尚书省'
+        # 门下刚封驳退回后的短窗口内，拦截滞后“等待门下审批”进展，避免覆盖修订态
+        if t.get('state') == 'Zhongshu' and _is_recent_menxia_reject_back(t):
+            if _looks_like_waiting_menxia(clean):
+                rejected[0] = True
+                reject_reason[0] = '检测到封驳回退后的滞后进展文本，已拒绝覆盖当前修订态'
+                return tasks
         t['now'] = clean
         if parsed_todos is not None:
             t['todos'] = parsed_todos
             # 工作流自动对齐：尚书省在 Doing 阶段且 todos 全部完成时，进入 Review
-            actor = _infer_agent_id_from_runtime(t)
             if actor == 'shangshu' and t.get('state') == 'Doing':
                 if parsed_todos and all(td.get('status') == 'completed' for td in parsed_todos):
                     t['state'] = 'Review'

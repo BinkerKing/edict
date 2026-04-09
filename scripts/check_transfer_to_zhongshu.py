@@ -95,7 +95,7 @@ def main() -> int:
         return 0
 
     print("TRANSFER_FAIL")
-    print(f"reason=task-not-found:{task_id}")
+    print(f"reason=not-seen-in-zhongshu-session:{task_id}")
     return 1
 
 

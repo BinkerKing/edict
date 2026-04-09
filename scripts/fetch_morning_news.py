@@ -5,6 +5,8 @@
 覆盖: 政治 | 军事 | 经济 | AI大模型
 """
 import json, pathlib, datetime, subprocess, re, sys, os, logging
+from urllib.parse import quote_plus
+from email.utils import parsedate_to_datetime
 from xml.etree import ElementTree as ET
 from file_lock import atomic_json_write
 from utils import validate_url
@@ -17,19 +19,19 @@ DATA = pathlib.Path(__file__).resolve().parent.parent / 'data'
 # ── RSS 源配置 ──────────────────────────────────────────────────────────
 FEEDS = {
     '政治': [
-        ('BBC World', 'https://feeds.bbci.co.uk/news/world/rss.xml'),
-        ('Reuters World', 'https://feeds.reuters.com/reuters/worldNews'),
-        ('AP Top News', 'https://rsshub.app/apnews/topics/ap-top-news'),
+        ('NYT World', 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml'),
+        ('NYT Politics', 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml'),
+        ('Al Jazeera', 'https://www.aljazeera.com/xml/rss/all.xml'),
     ],
     '军事': [
-        ('Defense News', 'https://www.defensenews.com/rss/'),
-        ('BBC World', 'https://feeds.bbci.co.uk/news/world/rss.xml'),
-        ('Reuters', 'https://feeds.reuters.com/reuters/worldNews'),
+        ('Defense News', 'https://www.defensenews.com/arc/outboundfeeds/rss/?outputType=xml'),
+        ('Breaking Defense', 'https://breakingdefense.com/feed/'),
+        ('Military Times', 'https://www.militarytimes.com/arc/outboundfeeds/rss/'),
     ],
     '经济': [
-        ('Reuters Business', 'https://feeds.reuters.com/reuters/businessNews'),
-        ('BBC Business', 'https://feeds.bbci.co.uk/news/business/rss.xml'),
         ('CNBC', 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114'),
+        ('FT World', 'https://www.ft.com/world?format=rss'),
+        ('Economist Intl', 'https://www.economist.com/international/rss.xml'),
     ],
     'AI大模型': [
         ('Hacker News', 'https://hnrss.org/newest?q=AI+LLM+model&points=50'),
@@ -44,6 +46,33 @@ CATEGORY_KEYWORDS = {
     'AI大模型': ['ai', 'llm', 'gpt', 'claude', 'gemini', 'openai', 'anthropic', 'deepseek',
                 'machine learning', 'neural', 'model', '大模型', '人工智能', 'chatgpt'],
 }
+
+
+def _google_news_query_feed(query: str) -> str:
+    q = quote_plus(query)
+    return f'https://news.google.com/rss/search?q={q}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans'
+
+
+def _default_feeds_for_category(category: str):
+    """为任意分类提供一个“热门兜底”源，保证新增分类也能采集。"""
+    query_map = {
+        '政治': '国际 政治 热门',
+        '军事': '国际 军事 热门',
+        '经济': '全球 经济 市场 热门',
+        'AI大模型': 'AI 大模型 热门',
+    }
+    q = query_map.get(category, f'{category} 热门')
+    return [('Google News 热门', _google_news_query_feed(q))]
+
+
+def _pub_ts(pub: str):
+    """将 pubDate 转为 unix ts，失败返回 0。"""
+    if not pub:
+        return 0
+    try:
+        return int(parsedate_to_datetime(pub).timestamp())
+    except Exception:
+        return 0
 
 def curl_rss(url, timeout=10):
     """用 curl 抓取 RSS"""
@@ -135,10 +164,15 @@ def fetch_category(category, feeds, max_items=5):
                 'pub_date': item['pub_date'],
                 'image': item['image'],
                 'source': source_name,
+                '_ts': _pub_ts(item.get('pub_date', '')),
             })
             if len(results) >= max_items:
                 break
-    return results
+    # “热门”近似：按发布时间倒序，优先最新
+    results.sort(key=lambda x: x.get('_ts', 0), reverse=True)
+    for x in results:
+        x.pop('_ts', None)
+    return results[:max_items]
 
 def main():
     import argparse
@@ -176,12 +210,14 @@ def main():
     # 用户自定义关键词（全局加权）
     user_keywords = [kw.lower() for kw in config.get('keywords', [])]
 
-    # 合并自定义 RSS 源
+    # 合并自定义 RSS 源 + 新增分类兜底热门源
     custom_feeds = config.get('custom_feeds', [])
     merged_feeds = {}
-    for cat, feeds in FEEDS.items():
-        if cat in enabled_cats:
-            merged_feeds[cat] = list(feeds)
+    for cat in enabled_cats:
+        base = list(FEEDS.get(cat, []))
+        # 不管是否内置分类，都追加一个热门兜底源
+        base.extend(_default_feeds_for_category(cat))
+        merged_feeds[cat] = base
     for cf in custom_feeds:
         cat = cf.get('category', '')
         feed_url = cf.get('url', '')
