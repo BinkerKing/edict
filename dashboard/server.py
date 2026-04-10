@@ -3279,6 +3279,7 @@ _AGENT_DEPTS = [
     {'id':'libu_hr', 'label':'吏部',  'emoji':'👔', 'role':'吏部尚书', 'rank':'正二品'},
     {'id':'zaochao', 'label':'钦天监','emoji':'📰', 'role':'朝报官',   'rank':'正三品'},
 ]
+_BASE_AGENT_IDS = {x['id'] for x in _AGENT_DEPTS}
 
 
 def _check_gateway_alive():
@@ -3356,6 +3357,40 @@ def _check_agent_workspace(agent_id):
     return ws.is_dir()
 
 
+def _list_agent_dirs():
+    root = OCLAW_HOME / 'agents'
+    if not root.exists():
+        return []
+    return sorted([p.name for p in root.iterdir() if p.is_dir()])
+
+
+def _base_agent_id(agent_id):
+    aid = str(agent_id or '').strip()
+    if '__' in aid:
+        return aid.split('__', 1)[0]
+    return aid
+
+
+def _collect_related_agent_ids(agent_id):
+    """返回某个基础 agent 相关的所有 runtime agent（含自身）。
+
+    规则：
+    - 若传入是基础 agent（在 _AGENT_DEPTS 中），返回 [base + base__*]
+    - 若传入是具体 runtime agent，返回 [runtime]
+    """
+    aid = str(agent_id or '').strip()
+    if not aid:
+        return []
+    dirs = _list_agent_dirs()
+    if aid in _BASE_AGENT_IDS:
+        prefix = f'{aid}__'
+        ids = [x for x in dirs if x == aid or x.startswith(prefix)]
+        # 保证基础 agent 在首位
+        ids.sort(key=lambda x: (0 if x == aid else 1, x))
+        return ids
+    return [aid]
+
+
 def get_agents_status():
     """获取所有 Agent 的在线状态。
     返回各 Agent 的:
@@ -3369,16 +3404,28 @@ def get_agents_status():
     gateway_probe = _check_gateway_probe() if gateway_alive else False
 
     agents = []
-    seen_ids = set()
     for dept in _AGENT_DEPTS:
         aid = dept['id']
-        if aid in seen_ids:
-            continue
-        seen_ids.add(aid)
+        related_ids = _collect_related_agent_ids(aid) or [aid]
 
-        has_workspace = _check_agent_workspace(aid)
-        last_ts, sess_count, is_busy = _get_agent_session_status(aid)
-        process_alive = _check_agent_process(aid)
+        has_workspace = False
+        last_ts = 0
+        sess_count = 0
+        is_busy = False
+        process_alive = False
+        active_runtime_agents = []
+
+        for rid in related_ids:
+            has_workspace = has_workspace or _check_agent_workspace(rid)
+            r_last_ts, r_sess_count, r_is_busy = _get_agent_session_status(rid)
+            if r_last_ts > last_ts:
+                last_ts = r_last_ts
+            sess_count += int(r_sess_count or 0)
+            is_busy = is_busy or bool(r_is_busy)
+            alive = _check_agent_process(rid)
+            process_alive = process_alive or alive
+            if alive or r_sess_count:
+                active_runtime_agents.append(rid)
 
         # 状态判定
         if not has_workspace:
@@ -3428,6 +3475,8 @@ def get_agents_status():
             'sessions': sess_count,
             'hasWorkspace': has_workspace,
             'processAlive': process_alive,
+            'runtimeAgents': related_ids,
+            'activeRuntimeAgents': active_runtime_agents[:20],
         })
 
     return {
@@ -3554,7 +3603,8 @@ def _parse_session_entries(session_file: pathlib.Path, limit=120):
             item = json.loads(ln)
         except Exception:
             continue
-        parsed = _parse_activity_entry(item)
+        # 会话详情面板：尽量保留原文，避免“被截断”的阅读体验。
+        parsed = _parse_activity_entry(item, compact=False)
         if not parsed:
             continue
         # 规范输出字段，便于前端展示
@@ -3572,41 +3622,69 @@ def _parse_session_entries(session_file: pathlib.Path, limit=120):
         entries.append({
             'at': parsed.get('at'),
             'role': role,
-            'text': str(text or '')[:800],
+            # 保留较大上限，防止超长日志撑爆接口响应
+            'text': str(text or '')[:6000],
         })
     return entries[-max(1, min(int(limit or 120), 400)):]
 
 
 def get_agent_sessions(agent_id):
     """返回 agent 当前会话列表（含存活标记）。"""
-    sessions_dir = OCLAW_HOME / 'agents' / agent_id / 'sessions'
-    sessions_file = sessions_dir / 'sessions.json'
-    if not sessions_file.exists():
-        return {'ok': True, 'agentId': agent_id, 'sessions': [], 'aliveCount': 0}
-    try:
-        data = json.loads(sessions_file.read_text())
-    except Exception as e:
-        return {'ok': False, 'error': f'sessions.json 读取失败: {e}'}
-    if not isinstance(data, dict):
-        return {'ok': True, 'agentId': agent_id, 'sessions': [], 'aliveCount': 0}
-    sessions = [_format_session_meta(k, v) for k, v in data.items()]
+    related_ids = _collect_related_agent_ids(agent_id)
+    if not related_ids:
+        related_ids = [agent_id]
+    sessions = []
+    for rid in related_ids:
+        sessions_dir = OCLAW_HOME / 'agents' / rid / 'sessions'
+        sessions_file = sessions_dir / 'sessions.json'
+        if not sessions_file.exists():
+            continue
+        try:
+            data = json.loads(sessions_file.read_text())
+        except Exception as e:
+            return {'ok': False, 'error': f'sessions.json 读取失败({rid}): {e}'}
+        if not isinstance(data, dict):
+            continue
+        for k, v in data.items():
+            row = _format_session_meta(k, v)
+            row['agentId'] = rid
+            sessions.append(row)
     sessions.sort(key=lambda x: int(x.get('updatedAt') or 0), reverse=True)
     alive_count = sum(1 for s in sessions if s.get('alive'))
-    return {'ok': True, 'agentId': agent_id, 'sessions': sessions, 'aliveCount': alive_count}
+    return {
+        'ok': True,
+        'agentId': agent_id,
+        'relatedAgentIds': related_ids,
+        'sessions': sessions,
+        'aliveCount': alive_count,
+    }
 
 
 def get_agent_session_log(agent_id, session_id, limit=120):
-    sessions_dir = OCLAW_HOME / 'agents' / agent_id / 'sessions'
     safe_sid = str(session_id or '').strip()
     if not safe_sid:
         return {'ok': False, 'error': 'sessionId required'}
     if not re.fullmatch(r'[a-zA-Z0-9\-]{8,64}', safe_sid):
         return {'ok': False, 'error': 'invalid sessionId'}
-    session_file = sessions_dir / f'{safe_sid}.jsonl'
+    related_ids = _collect_related_agent_ids(agent_id)
+    if not related_ids:
+        related_ids = [agent_id]
+    session_file = None
+    actual_agent_id = agent_id
+    for rid in related_ids:
+        candidate = OCLAW_HOME / 'agents' / rid / 'sessions' / f'{safe_sid}.jsonl'
+        if candidate.exists():
+            session_file = candidate
+            actual_agent_id = rid
+            break
+    if session_file is None:
+        # 回退到传入 agent 目录，保持兼容
+        session_file = OCLAW_HOME / 'agents' / agent_id / 'sessions' / f'{safe_sid}.jsonl'
     entries = _parse_session_entries(session_file, limit=limit)
     return {
         'ok': True,
-        'agentId': agent_id,
+        'agentId': actual_agent_id,
+        'requestedAgentId': agent_id,
         'sessionId': safe_sid,
         'exists': session_file.exists(),
         'entries': entries,
@@ -4016,7 +4094,7 @@ def _collect_message_text(msg):
     return ''.join(parts)
 
 
-def _parse_activity_entry(item):
+def _parse_activity_entry(item, compact=True):
     """将 session jsonl 的 message 统一解析成看板活动条目。"""
     msg = item.get('message') or {}
     role = str(msg.get('role', '')).strip().lower()
@@ -4030,7 +4108,7 @@ def _parse_activity_entry(item):
             if c.get('type') == 'text' and c.get('text') and not text:
                 text = str(c.get('text', '')).strip()
             elif c.get('type') == 'thinking' and c.get('thinking') and not thinking:
-                thinking = str(c.get('thinking', '')).strip()[:200]
+                thinking = str(c.get('thinking', '')).strip()
             elif c.get('type') == 'tool_use':
                 tool_calls.append({
                     'name': c.get('name', ''),
@@ -4040,9 +4118,9 @@ def _parse_activity_entry(item):
             return None
         entry = {'at': ts, 'kind': 'assistant'}
         if text:
-            entry['text'] = text[:300]
+            entry['text'] = text[:300] if compact else text
         if thinking:
-            entry['thinking'] = thinking
+            entry['thinking'] = thinking[:200] if compact else thinking
         if tool_calls:
             entry['tools'] = tool_calls
         return entry
@@ -4055,13 +4133,13 @@ def _parse_activity_entry(item):
         output = ''
         for c in msg.get('content', []) or []:
             if c.get('type') == 'text' and c.get('text'):
-                output = str(c.get('text', '')).strip()[:200]
+                output = str(c.get('text', '')).strip()
                 break
         if not output:
             for key in ('output', 'stdout', 'stderr', 'message'):
                 val = details.get(key)
                 if isinstance(val, str) and val.strip():
-                    output = val.strip()[:200]
+                    output = val.strip()
                     break
 
         entry = {
@@ -4069,7 +4147,7 @@ def _parse_activity_entry(item):
             'kind': 'tool_result',
             'tool': msg.get('toolName', msg.get('name', '')),
             'exitCode': code,
-            'output': output,
+            'output': output[:200] if compact else output,
         }
         duration_ms = details.get('durationMs')
         if isinstance(duration_ms, (int, float)):
@@ -4084,7 +4162,7 @@ def _parse_activity_entry(item):
                 break
         if not text:
             return None
-        return {'at': ts, 'kind': 'user', 'text': text[:200]}
+        return {'at': ts, 'kind': 'user', 'text': text[:200] if compact else text}
 
     return None
 
@@ -4093,12 +4171,18 @@ def get_agent_activity(agent_id, limit=30, task_id=None):
     """从 Agent 的 session jsonl 读取最近活动。
     如果 task_id 不为空，只返回提及该 task_id 的相关条目。
     """
-    sessions_dir = OCLAW_HOME / 'agents' / agent_id / 'sessions'
-    if not sessions_dir.exists():
-        return []
+    related_ids = _collect_related_agent_ids(agent_id)
+    if not related_ids:
+        related_ids = [agent_id]
 
+    jsonl_files = []
+    for rid in related_ids:
+        sessions_dir = OCLAW_HOME / 'agents' / rid / 'sessions'
+        if not sessions_dir.exists():
+            continue
+        jsonl_files.extend(list(sessions_dir.glob('*.jsonl')))
     # 扫描所有 jsonl（按修改时间倒序），优先最新
-    jsonl_files = sorted(sessions_dir.glob('*.jsonl'), key=lambda f: f.stat().st_mtime, reverse=True)
+    jsonl_files = sorted(jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True)
     if not jsonl_files:
         return []
 

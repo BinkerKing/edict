@@ -1766,6 +1766,7 @@ function roleTag(role){
 let _asAgentId = '';
 let _asLabel = '';
 let _asSelectedSessionId = '';
+let _asSelectedSessionAgentId = '';
 
 function closeAgentSessionModal(e){
   if(e && e.target !== document.getElementById('agent-session-bg') && !e.target.classList.contains('modal-close')) return;
@@ -1824,8 +1825,9 @@ async function loadAgentSessions(agentId){
     left.innerHTML = `
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px">存活会话 ${alive.length} / 总会话 ${all.length}</div>
       ${list.map(s=>`
-        <div class="asess-item ${_asSelectedSessionId===s.sessionId?'active':''}" onclick="selectAgentSession('${agentId}','${s.sessionId}')">
+        <div class="asess-item ${_asSelectedSessionId===s.sessionId?'active':''}" onclick="selectAgentSession('${s.agentId||agentId}','${s.sessionId}')">
           <div style="font-size:12px;font-weight:700">${esc((s.sessionKey||'').replace(/^agent:[^:]+:/,''))}</div>
+          <div class="asess-meta">agent: ${esc(s.agentId||agentId)}</div>
           <div class="asess-meta">sessionId: ${esc(s.sessionId||'-')}</div>
           <div class="asess-meta">status: ${esc(s.status||'-')} ${s.alive?'🟢':''}</div>
           <div class="asess-meta">updated: ${esc(String(s.updatedAt||''))}</div>
@@ -1834,9 +1836,11 @@ async function loadAgentSessions(agentId){
     `;
     const sidInList = _asSelectedSessionId && list.some(s=>s.sessionId===_asSelectedSessionId);
     const sid = (sidInList ? _asSelectedSessionId : '') || (list[0] && list[0].sessionId) || '';
+    const sidAgent = (sidInList ? ((list.find(s=>s.sessionId===sid)||{}).agentId||agentId) : '') || (list[0] && (list[0].agentId||agentId)) || agentId;
     if(sid){
       _asSelectedSessionId = sid;
-      await loadAgentSessionLog(agentId, sid);
+      _asSelectedSessionAgentId = sidAgent;
+      await loadAgentSessionLog(_asSelectedSessionAgentId, sid);
       left.querySelectorAll('.asess-item').forEach(el=>{
         if(el.innerHTML.includes(sid)) el.classList.add('active');
       });
@@ -1850,9 +1854,10 @@ async function loadAgentSessions(agentId){
 
 async function selectAgentSession(agentId, sessionId){
   _asSelectedSessionId = sessionId;
+  _asSelectedSessionAgentId = agentId || _asAgentId;
   document.querySelectorAll('#asess-left .asess-item').forEach(el=>el.classList.remove('active'));
-  await loadAgentSessionLog(agentId, sessionId);
-  await loadAgentSessions(agentId);
+  await loadAgentSessionLog(_asSelectedSessionAgentId, sessionId);
+  await loadAgentSessions(_asAgentId);
 }
 
 async function loadAgentSessionLog(agentId, sessionId){
@@ -1921,7 +1926,8 @@ async function refreshSessionAfterSend(){
     if(!_asSelectedSessionId && snap.list && snap.list[0]){
       _asSelectedSessionId = snap.list[0].sessionId || '';
     }
-    if(_asSelectedSessionId) await loadAgentSessionLog(_asAgentId, _asSelectedSessionId);
+    const logAgentId = _asSelectedSessionAgentId || _asAgentId;
+    if(_asSelectedSessionId) await loadAgentSessionLog(logAgentId, _asSelectedSessionId);
   }
 }
 
@@ -1935,12 +1941,14 @@ async function sendAgentSessionMessage(){
   btn.disabled = true;
   btn.textContent = '发送中...';
   try{
-    const r = await postJ(API + '/agent-chat', {agentId: _asAgentId, message, timeoutSec: 180});
+    const targetAgentId = _asSelectedSessionAgentId || _asAgentId;
+    const r = await postJ(API + '/agent-chat', {agentId: targetAgentId, message, timeoutSec: 180});
     if(r && r.ok){
       toast(r.message || '已发送','ok');
       appendLocalUserMessage(message);
       input.value = '';
       _asSelectedSessionId = '';
+      _asSelectedSessionAgentId = '';
       await refreshSessionAfterSend();
     }else{
       toast((r&&r.error)||'发送失败','err');
@@ -4710,13 +4718,20 @@ function openSessionDetail(jsonStr){
 }
 
 function extractAgent(t){
-  const m = (t.id||'').match(/^OC-(\w+)-/);
-  if(m) return m[1];
-  // MC-* or other prefixes: check sourceMeta
   const sm = t.sourceMeta||{};
   if(sm.agentId){
+    const aid = String(sm.agentId||'');
+    return aid.includes('__') ? aid.split('__')[0] : aid;
+  }
+  const m = (t.id||'').match(/^OC-([^-\s]+)-/);
+  if(m){
+    const aid = String(m[1]||'');
+    return aid.includes('__') ? aid.split('__')[0] : aid;
+  }
+  // MC-* or other prefixes: check sourceMeta
+  if(sm.agentId){
     // "mc-gateway-xxx" → try to match known agents
-    const known = ['taizi','zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','zaochao'];
+    const known = ['taizi','zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','libu_hr','zaochao'];
     for(const k of known){ if(sm.agentId.includes(k)) return k; }
   }
   return (t.org||'').replace(/省|部/g,'').toLowerCase();

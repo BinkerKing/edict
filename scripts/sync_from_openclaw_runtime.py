@@ -41,6 +41,7 @@ def state_from_session(age_ms, aborted):
 
 
 def detect_official(agent_id):
+    base_id = str(agent_id or '').split('__', 1)[0]
     mapping = {
         'main':    ('储君', '太子'),        # legacy id for taizi
         'taizi':   ('储君', '太子'),
@@ -55,7 +56,7 @@ def detect_official(agent_id):
         'libu_hr': ('吏部尚书', '吏部'),
         'zaochao': ('钦天监', '钦天监'),
     }
-    return mapping.get(agent_id, ('尚书令', '尚书省'))
+    return mapping.get(base_id, ('尚书令', '尚书省'))
 
 
 def load_activity(session_file, limit=12):
@@ -163,9 +164,9 @@ def build_task(agent_id, session_key, row, now_ms):
     title_label = (row.get('origin') or {}).get('label') or session_key
     # 清洗会话标题：agent:xxx:cron:uuid → 定时任务, agent:xxx:subagent:uuid → 子任务
     import re
-    if re.match(r'agent:\w+:cron:', title_label):
+    if re.match(r'agent:[\w-]+:cron:', title_label):
         title = f"{org}定时任务"
-    elif re.match(r'agent:\w+:subagent:', title_label):
+    elif re.match(r'agent:[\w-]+:subagent:', title_label):
         title = f"{org}子任务"
     elif title_label == session_key or len(title_label) > 40:
         title = f"{org}会话"
