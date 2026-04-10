@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11 02:07:01",
+  "generatedAt": "2026-04-11 02:09:02",
   "taskSource": "tasks_source.json",
   "officials": [
     {
@@ -238,8 +238,8 @@
       "last_active": "2026-04-11 01:34",
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 31分钟",
-        "ageSec": 1864
+        "label": "🔴 已停滞 33分钟",
+        "ageSec": 1985
       },
       "tasks_done": 0,
       "tasks_active": 3,
@@ -879,7 +879,7 @@
         "sessionKey": "agent:gongbu__pm__version-generate__bd197492:main",
         "sessionId": "8e805ac2-7f02-4420-9fdd-17f56f87989a",
         "updatedAt": 1775843481403,
-        "ageMs": 939259,
+        "ageMs": 1060515,
         "systemSent": false,
         "abortedLastRun": false,
         "inputTokens": null,
@@ -892,8 +892,8 @@
       },
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 15分钟",
-        "ageSec": 939
+        "label": "🔴 已停滞 17分钟",
+        "ageSec": 1060
       }
     },
     {
@@ -929,7 +929,7 @@
         "sessionKey": "agent:gongbu__pm__gongbu-review-review__9707bc4c:main",
         "sessionId": "cc4380e2-6cdc-4765-91cb-989c39b60f75",
         "updatedAt": 1775843401197,
-        "ageMs": 1019465,
+        "ageMs": 1140721,
         "systemSent": false,
         "abortedLastRun": false,
         "inputTokens": null,
@@ -942,8 +942,8 @@
       },
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 16分钟",
-        "ageSec": 1019
+        "label": "🔴 已停滞 19分钟",
+        "ageSec": 1141
       }
     },
     {
@@ -979,7 +979,7 @@
         "sessionKey": "agent:gongbu_iso_test:main",
         "sessionId": "b25076d9-b46f-4b92-808f-3f1dff4636dd",
         "updatedAt": 1775842977558,
-        "ageMs": 1443104,
+        "ageMs": 1564360,
         "systemSent": false,
         "abortedLastRun": false,
         "inputTokens": null,
@@ -992,8 +992,8 @@
       },
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 24分钟",
-        "ageSec": 1443
+        "label": "🔴 已停滞 26分钟",
+        "ageSec": 1564
       }
     },
     {
@@ -1049,7 +1049,7 @@
         "sessionKey": "agent:gongbu:main",
         "sessionId": "1fbaca5d-64bd-47d1-be3a-c9c14efc3c27",
         "updatedAt": 1775842496388,
-        "ageMs": 1924274,
+        "ageMs": 2045530,
         "systemSent": false,
         "abortedLastRun": false,
         "inputTokens": null,
@@ -1062,8 +1062,8 @@
       },
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 32分钟",
-        "ageSec": 1924
+        "label": "🔴 已停滞 34分钟",
+        "ageSec": 2045
       }
     }
   ],
@@ -1085,8 +1085,8 @@
   },
   "syncStatus": {
     "ok": true,
-    "lastSyncAt": "2026-04-11 02:07:00",
-    "durationMs": 14,
+    "lastSyncAt": "2026-04-11 02:09:01",
+    "durationMs": 15,
     "source": "openclaw_runtime_sessions",
     "recordCount": 5,
     "scannedSessionFiles": 6,
@@ -1095,7 +1095,7 @@
   },
   "health": {
     "syncOk": true,
-    "syncLatencyMs": 14,
+    "syncLatencyMs": 15,
     "missingFieldCount": 0
   }
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11 02:07:01",
+  "generatedAt": "2026-04-11 02:09:02",
   "officials": [
     {
       "id": "zhongshu",
@@ -237,8 +237,8 @@
       "last_active": "2026-04-11 01:34",
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 31分钟",
-        "ageSec": 1864
+        "label": "🔴 已停滞 33分钟",
+        "ageSec": 1985
       },
       "tasks_done": 0,
       "tasks_active": 3,
