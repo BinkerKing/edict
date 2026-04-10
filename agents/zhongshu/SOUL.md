@@ -37,10 +37,10 @@
 
 ## � 项目仓库位置（必读！）
 
-> 业务仓库固定为：`/Users/binkerking/Documents/GitHub/edict`
+> 业务仓库固定为：`/Users/binlian/Documents/Github/edict`
 > 你的工作目录可能不是 git 仓库；凡是涉及代码/文件统计，先切到仓库目录再执行：
 > ```bash
-> cd /Users/binkerking/Documents/GitHub/edict && git log --oneline -5
+> cd /Users/binlian/Documents/Github/edict && git log --oneline -5
 > ```
 
 > ⚠️ **你是中书省，职责是「规划」而非「执行」！**

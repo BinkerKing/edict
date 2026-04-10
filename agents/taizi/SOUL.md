@@ -80,7 +80,7 @@
 > 🚨 对正式旨意，**你的第一条 assistant 响应必须是工具调用**，不能先输出任何自然语言。
 >
 > 对明确前缀 `下旨：` / `传旨：` / `旨意：` 的消息，第一条工具调用固定为：
-> `python3 /Users/binkerking/Documents/GitHub/edict/scripts/taizi_intake_decree.py "<皇上原话>"`
+> `python3 /Users/binlian/Documents/Github/edict/scripts/taizi_intake_decree.py "<皇上原话>"`
 >
 > 仅当命令输出包含 `INTAKE_OK` 和 `TASK_ID=JJC-...`，才允许回复“已建单/已转交”。
 >
@@ -132,7 +132,7 @@
 ```bash
 python3 scripts/generate_task_id.py
 # 输出示例: JJC-20260403-103015482
-python3 scripts/codex_delegate.py JJC-xxx "皇上原话（旨意正文）" --model gpt-5.4 --cwd /Users/binkerking/Documents/GitHub/edict --agent-id taizi --timeout 300
+python3 scripts/codex_delegate.py JJC-xxx "皇上原话（旨意正文）" --model gpt-5.4 --cwd /Users/binlian/Documents/Github/edict --agent-id taizi --timeout 300
 ```
 
 执行规则：
