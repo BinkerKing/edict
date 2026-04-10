@@ -636,6 +636,7 @@
     .ls-layout{display:grid;grid-template-columns:260px 1fr;gap:14px}
     .ls-left,.ls-right{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
     .ls-lhdr,.ls-rhdr{padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;font-weight:700}
+    .ls-rhdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .ls-list{padding:8px;max-height:66vh;overflow:auto}
     .ls-item{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);cursor:pointer;margin-bottom:7px}
     .ls-item:last-child{margin-bottom:0}
@@ -659,7 +660,12 @@
     .ls-mermaid{white-space:pre-wrap;font-size:11px;line-height:1.5;background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px;color:#c7d4f5}
     .ls-mermaid-wrap{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto}
     .ls-mermaid-diagram{min-height:120px}
-    .ls-mermaid-tools{display:flex;justify-content:flex-end;margin-top:6px}
+    .ls-mermaid-tools{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+    .ls-del-btn{
+      height:24px;padding:0 10px;border-radius:7px;border:1px solid #ff5d734f;background:#ff5d731f;
+      color:#ff7d8f;font-size:11px;font-weight:700;cursor:pointer
+    }
+    .ls-del-btn:hover{background:#ff5d7333;border-color:#ff5d7382}
     .ls-catalog{display:flex;flex-direction:column;gap:8px}
     .ls-topic-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);cursor:pointer}
     .ls-topic-item:hover{border-color:var(--acc)}
@@ -794,6 +800,9 @@
     .pm-tag.st-in_progress{background:#193142;border-color:#2f5e7a;color:#8cd8ff}
     .pm-tag.st-blocked{background:#4b1b22;border-color:#8f3041;color:#ff9aae}
     .pm-tag.st-done{background:#1d3127;border-color:#336049;color:#8fddb6}
+    .pm-tag.vs-draft{background:#3f3218;border-color:#6d5730;color:#f0d28f}
+    .pm-tag.vs-local{background:#1f2541;border-color:#3b4d8d;color:#9db7ff}
+    .pm-tag.vs-github{background:#1d3127;border-color:#336049;color:#8fddb6}
     .pm-detail{max-height:58vh;overflow:auto}
     .pm-kv{font-size:11px;line-height:1.7;margin-bottom:8px}
     .pm-sub{font-size:11px;font-weight:700;margin:10px 0 6px}
@@ -810,7 +819,7 @@
     .pm-actions.pm-actions-inline .btn{font-size:11px;padding:4px 8px}
     .pm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
     .pm-head .tt{font-size:13px;font-weight:800;line-height:1.4}
-    .pm-trash{width:28px;height:28px;border-radius:8px;border:1px solid #ff527044;background:#ff527018;color:#ff6f84;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .pm-trash{width:24px;height:24px;border-radius:7px;border:1px solid #ff527044;background:#ff527018;color:#ff6f84;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px}
     .pm-trash:hover{background:#ff52702a;border-color:#ff527077}
     .pm-state-wrap{position:relative;display:inline-block}
     .pm-state-btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
@@ -821,9 +830,109 @@
     .pm-text{width:100%;min-height:70px;resize:vertical;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;outline:none}
     .pm-text:focus{border-color:var(--acc)}
     .pm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .pm-create-form{display:flex;flex-direction:column;gap:8px}
+    .pm-create-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pm-create-meta .pm-input{width:auto;flex:0 0 auto}
+    .pm-create-folder{min-width:12ch;max-width:22ch}
+    .pm-create-type{min-width:7ch}
+    .pm-create-priority{min-width:6ch}
+    .pm-create-desc-row{display:flex;gap:8px;align-items:stretch}
+    .pm-create-desc-row .pm-text{flex:1;min-height:120px}
+    .pm-create-plus{
+      width:34px;
+      min-height:120px;
+      border:1px solid #3e5e92;
+      background:linear-gradient(180deg,#1a2d4f,#152640);
+      color:#cfe1ff;
+      border-radius:8px;
+      font-size:20px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      flex:0 0 auto;
+      transition:all .15s ease;
+    }
+    .pm-create-plus:hover{
+      border-color:#5f89cc;
+      background:linear-gradient(180deg,#203962,#1a2f52);
+      color:#e7f0ff;
+    }
+    .pm-create-strip{grid-column:1/-1}
     .pm-q{font-size:11px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#0f1628;margin-bottom:6px}
     .pm-plan{font-size:11px;line-height:1.6;padding-left:16px}
     .pm-empty{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+    .pm-design-list{display:flex;flex-direction:column;gap:8px}
+    .pm-design-item{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#0f1628;cursor:pointer}
+    .pm-design-item.active{border-color:var(--acc);background:#0a1228}
+    .pm-design-item .t{font-size:11px;font-weight:800;color:#dce8ff}
+    .pm-design-item .m{font-size:10px;color:var(--muted);margin-top:4px}
+    .pm-design-editor{width:100%;min-height:360px;resize:vertical;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font-size:12px;line-height:1.7;outline:none}
+    .pm-design-editor:focus{border-color:var(--acc)}
+    .pm-sug-add{display:flex;gap:8px;align-items:flex-start;margin-top:8px}
+    .pm-sug-add .pm-text{min-height:72px}
+    .pm-sug-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:10px;
+      max-height:260px;
+      overflow-y:auto;
+      border:1px solid #1f2a44;
+      border-radius:8px;
+      background:#0f1628;
+      padding:8px;
+    }
+    .pm-sug-item{border:1px solid #22324f;border-radius:8px;background:#101a2f;padding:8px}
+    .pm-sug-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .pm-sug-meta{font-size:10px;color:var(--muted);margin-top:5px}
+    .pm-sug-text{font-size:12px;line-height:1.65;color:#dce7ff;white-space:pre-wrap;margin-top:6px}
+    .pm-sug-status{font-size:11px;padding:3px 7px;border-radius:999px;border:1px solid var(--line);background:#1d2d4b;color:#9fc2ff}
+    .pm-sug-status.pending{background:#3f3218;border-color:#6d5730;color:#f0d28f}
+    .pm-sug-status.adopted{background:#1d3127;border-color:#336049;color:#8fddb6}
+    .pm-sug-actions{display:flex;gap:6px}
+    .pm-add-btn{
+      border:1px solid #3e5e92;
+      background:linear-gradient(180deg,#1a2d4f,#152640);
+      color:#cfe1ff;
+      border-radius:8px;
+      width:34px;
+      min-height:72px;
+      padding:0;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all .15s ease;
+      flex:0 0 auto;
+    }
+    .pm-add-btn:hover{
+      border-color:#5f89cc;
+      background:linear-gradient(180deg,#203962,#1a2f52);
+      color:#e7f0ff;
+    }
+    .btn-generating{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(110deg,#21406f,#3e73c4,#21406f) !important;
+      background-size:220% 100% !important;
+      animation:pmBtnFlow 1.1s linear infinite, pmBtnGlow 1.2s ease-in-out infinite;
+      border-color:#6fa3ff !important;
+      color:#ecf4ff !important;
+      pointer-events:none;
+      opacity:.95;
+    }
+    @keyframes pmBtnFlow{
+      0%{background-position:0% 50%}
+      100%{background-position:220% 50%}
+    }
+    @keyframes pmBtnGlow{
+      0%,100%{box-shadow:0 0 0 rgba(96,164,255,0)}
+      50%{box-shadow:0 0 12px rgba(96,164,255,.5)}
+    }
     @media(max-width:1100px){.pm-right-body{grid-template-columns:1fr}.pm-layout{grid-template-columns:1fr}}
 
     /* MISC */
@@ -944,7 +1053,7 @@
     <div class="tab" data-tab="templates">📜 旨库</div>
     <div class="tab" data-tab="morning">📰 天下要闻</div>
     <div class="tab" data-tab="learning">📚 学习系统</div>
-    <div class="tab" data-tab="pm">🗂 项目管理</div>
+    <div class="tab" data-tab="pm">🗂 项目开发</div>
   </div>
 
   <!-- ══ 旨意看板 ══ -->
@@ -1136,17 +1245,19 @@
         <div class="ls-list" id="ls-list"></div>
       </div>
       <div class="ls-right">
-        <div class="ls-rhdr">计划详情</div>
+        <div class="ls-rhdr">
+          <span>计划详情</span>
+        </div>
         <div class="ls-main" id="ls-main"><div class="ls-empty">先输入学习主题并生成第一份礼部10问</div></div>
       </div>
     </div>
   </div>
 
-  <!-- ══ 项目管理 ══ -->
+  <!-- ══ 项目开发 ══ -->
   <div class="panel" id="panel-pm">
     <div class="mb-hdr">
       <div style="flex:1;min-width:0">
-        <div class="mb-title">🗂 项目管理 · 工部治理台</div>
+        <div class="mb-title">🗂 项目开发 · 工部治理台</div>
         <div class="mb-sub">记录 BUG/需求/优化，工部评审并推动流转。</div>
       </div>
       <button class="btn btn-g" onclick="openPmCreateProjectModal()" style="font-size:12px;padding:7px 12px;white-space:nowrap">＋ 创建项目</button>
@@ -2597,20 +2708,39 @@ let pmProjects = [];
 let selectedPmProjectId = '';
 let selectedPmItemId = '';
 let selectedPmFolderId = '';
+let selectedPmVersionId = '';
 let _pmLoading = false;
-let pmProjectEditOpen = false;
 let pmStatusMenuOpen = false;
 let pmTypeMenuOpen = false;
 let pmPriorityMenuOpen = false;
 let pmIssueCreateOpen = true;
 let pmEditingFolderId = '';
 let pmEditingFolderName = '';
+let pmEditingProjectName = false;
+let pmEditingProjectNameValue = '';
 var pmPendingConfirmAction = null;
 let pmRenderBusy = false;
 const pmProjectFoldersOpen = {};
 const pmCollapsedFolders = {};
+let pmDesignGenerating = false;
 
 const PM_TYPE_LABEL = {bug:'BUG', req:'需求', opt:'优化'};
+const PM_DESIGN_FOLDER_ID = 'FLD-DESIGN';
+const PM_VERSION_FOLDER_ID = 'FLD-VERSION';
+const PM_DESIGN_SECTION_LABEL = {
+  requirements: '需求说明（PRD）',
+  architecture: '架构设计',
+  function: '功能设计（FSD）',
+};
+const PM_VERSION_STATUS_LABEL = {
+  draft: '未提交',
+  local: '已本地提交',
+  github: '已提交GITHUB',
+};
+const PM_SUGGESTION_STATUS_LABEL = {
+  pending: '未采纳',
+  adopted: '已采纳',
+};
 const PM_STATUS_LABEL = {
   open:'待处理',
   clarify:'待澄清',
@@ -2625,6 +2755,7 @@ const PM_STATUS_CLASS = {
   blocked:'st-Blocked',
   done:'st-Done',
 };
+let pmDesignSection = 'requirements';
 
 function pmFmt(ts){
   if(!ts) return '-';
@@ -2641,6 +2772,38 @@ function pmGetFolders(project){
   return [{id:'FLD-DEFAULT', name:'默认文件夹'}];
 }
 
+function pmIsDesignFolder(folderId){
+  return String(folderId||'') === PM_DESIGN_FOLDER_ID;
+}
+
+function pmIsVersionFolder(folderId){
+  return String(folderId||'') === PM_VERSION_FOLDER_ID;
+}
+
+function pmIsSystemFolder(folderId){
+  return pmIsDesignFolder(folderId) || pmIsVersionFolder(folderId);
+}
+
+function pmGetProjectDesign(project){
+  const d = (project && project.design && typeof project.design==='object') ? project.design : {};
+  const brief = (d.brief && typeof d.brief==='object') ? d.brief : {content:'', updatedAt:'', updatedBy:''};
+  const sec = (d.sections && typeof d.sections==='object') ? d.sections : {};
+  return {
+    brief,
+    sections: {
+      requirements: sec.requirements || {content:'', updatedAt:'', updatedBy:''},
+      architecture: sec.architecture || {content:'', updatedAt:'', updatedBy:''},
+      function: sec.function || {content:'', updatedAt:'', updatedBy:''},
+    }
+  };
+}
+
+function pmGetProjectVersions(project){
+  const arr = Array.isArray((project||{}).versions) ? project.versions.slice() : [];
+  arr.sort((a,b)=> (String(b.updatedAt||'')).localeCompare(String(a.updatedAt||'')));
+  return arr;
+}
+
 function pmIssueStatusClass(status){
   const s = String(status||'').trim();
   return s ? `st-${s}` : '';
@@ -2654,6 +2817,18 @@ function pmIssueTypeClass(type){
 function pmIssuePriorityClass(priority){
   const p = String(priority||'').trim().toLowerCase();
   return p ? `pri-${p}` : '';
+}
+
+function pmSuggestionStatusClass(status){
+  const s = String(status||'').trim().toLowerCase();
+  return s==='adopted' ? 'adopted' : 'pending';
+}
+
+function pmVersionStatusClass(status){
+  const s = String(status||'').trim().toLowerCase();
+  if(s==='local') return 'vs-local';
+  if(s==='github') return 'vs-github';
+  return 'vs-draft';
 }
 
 function pmFolderKey(projectId, folderId){
@@ -2690,11 +2865,13 @@ async function loadPm(preferLatest=false){
       selectedPmProjectId = pmProjects[0] ? pmProjects[0].id : '';
       selectedPmItemId = '';
       selectedPmFolderId = '';
+      selectedPmVersionId = '';
     }
     const project = _getSelectedPmProject();
     const folders = pmGetFolders(project);
     if(project && selectedPmFolderId && !folders.some(f=>f.id===selectedPmFolderId)){
       selectedPmFolderId = '';
+      selectedPmVersionId = '';
     }
     if(project && !selectedPmFolderId){
       selectedPmFolderId = (folders[0] && folders[0].id) || '';
@@ -2711,6 +2888,13 @@ async function loadPm(preferLatest=false){
     if(project && !selectedPmItemId){
       const first = (project.items||[]).find(i=>(i.folderId||selectedPmFolderId)===selectedPmFolderId);
       if(first) selectedPmItemId = first.id;
+    }
+    if(project && pmIsVersionFolder(selectedPmFolderId)){
+      const versions = pmGetProjectVersions(project);
+      if(selectedPmVersionId && !versions.some(v=>v.id===selectedPmVersionId)) selectedPmVersionId = '';
+      if(!selectedPmVersionId && versions.length) selectedPmVersionId = versions[0].id;
+    }else{
+      selectedPmVersionId = '';
     }
     renderPm();
   }catch(e){
@@ -2733,6 +2917,7 @@ function renderPm(){
 
   if(!pmProjects.length){
     selectedPmFolderId = '';
+    selectedPmVersionId = '';
     listEl.innerHTML = '<div class="pm-empty">暂无项目</div>';
     titleEl.textContent = '未选择项目';
     titleEl.classList.remove('pm-title-row');
@@ -2757,14 +2942,16 @@ function renderPm(){
       ${showFolders ? folders.map(f=>{
         const cnt = items.filter(i=>(i.folderId||folders[0].id)===f.id).length;
         const isEditing = pmEditingFolderId===f.id;
+        const isDesign = pmIsDesignFolder(f.id);
+        const isVersion = pmIsVersionFolder(f.id);
         return `<div class="pm-folder-row ${selectedPmFolderId===f.id?'active':''}" ${isEditing?'':`onclick="pmSelectFolder('${p.id}','${f.id}')"`}>
           <div class="pm-folder-head">
             ${isEditing
               ? `<input class="pm-folder-input" value="${esc(pmEditingFolderName||f.name||'')}" onmousedown="event.stopPropagation()" onclick="event.stopPropagation()" oninput="pmEditingFolderName=this.value" onkeydown="pmFolderEditKey(event,'${f.id}',this.value)" onblur="pmApplyRenameFolderDeferred('${f.id}',this.value)" autofocus>`
               : `<div class="n">📁 ${esc(f.name)}</div>`}
-            <button class="pm-icon-btn" data-project-id="${esc(p.id)}" data-folder-id="${esc(f.id)}" onclick="pmHandleRenameFolderClick(event,this)">✎</button>
+            ${pmIsSystemFolder(f.id) ? '' : `<button class="pm-icon-btn" data-project-id="${esc(p.id)}" data-folder-id="${esc(f.id)}" onclick="pmHandleRenameFolderClick(event,this)">✎</button>`}
           </div>
-          <div class="c">${cnt} 条问题</div>
+          <div class="c">${isDesign ? '固定设计文档' : (isVersion ? `${pmGetProjectVersions(p).length} 个版本` : `${cnt} 条问题`)}</div>
         </div>`;
       }).join('') : ''}
     </div>`;
@@ -2784,6 +2971,10 @@ function renderPm(){
   const items = Array.isArray(project.items) ? project.items : [];
   const folders = pmGetFolders(project);
   const selectedFolder = _getSelectedPmFolder(project);
+  const isDesignFolder = pmIsDesignFolder((selectedFolder&&selectedFolder.id)||'');
+  const isVersionFolder = pmIsVersionFolder((selectedFolder&&selectedFolder.id)||'');
+  const design = pmGetProjectDesign(project);
+  if(!PM_DESIGN_SECTION_LABEL[pmDesignSection]) pmDesignSection = 'requirements';
   const selectedItem = _getSelectedPmItem(project);
   const folderItems = items.filter(i=>(i.folderId||folders[0].id)===(selectedFolder?selectedFolder.id:folders[0].id));
   titleEl.classList.remove('clickable');
@@ -2791,55 +2982,55 @@ function renderPm(){
   titleEl.innerHTML = `
     <span class="pm-hdr-title">${esc(project.name||project.id)} · ${esc((selectedFolder&&selectedFolder.name)||'默认文件夹')}</span>
     <span class="pm-hdr-actions">
-      <button class="pm-mini pm-mini-danger" onclick="event.stopPropagation();pmDeleteFolder()">删除文件夹</button>
+      ${pmIsSystemFolder((selectedFolder&&selectedFolder.id)||'') ? '' : `<button class="pm-mini pm-mini-danger" onclick="event.stopPropagation();pmDeleteFolder()">删除文件夹</button>`}
+      ${isVersionFolder ? `<button class="pm-mini" onclick="event.stopPropagation();pmGenerateVersion()">更新版本</button>` : ''}
       <button class="pm-mini" onclick="event.stopPropagation();pmPromptCreateFolder()">＋文件夹</button>
-      <button class="pm-mini" onclick="event.stopPropagation();togglePmIssueCreate()">${pmIssueCreateOpen?'收起新增':'新增问题'}</button>
-      <button class="pm-mini" onclick="event.stopPropagation();togglePmProjectEdit()">${pmProjectEditOpen?'收起编辑':'编辑项目'}</button>
+      ${pmIsSystemFolder((selectedFolder&&selectedFolder.id)||'') ? '' : `<button class="pm-mini" onclick="event.stopPropagation();togglePmIssueCreate()">${pmIssueCreateOpen?'收起新增':'新增问题'}</button>`}
     </span>
   `;
   titleEl.onclick = null;
 
+  if(isDesignFolder){
+    right.innerHTML = pmRenderDesignPanel(project, design);
+    return;
+  }
+  if(isVersionFolder){
+    right.innerHTML = pmRenderVersionPanel(project);
+    return;
+  }
+
   right.innerHTML = `
+    ${pmIssueCreateOpen ? `
+      <div class="pm-box pm-create-strip">
+        <div class="pm-sub">新增记录</div>
+        <div class="pm-create-form">
+          <input id="pm-item-title" class="pm-input" style="width:100%" placeholder="标题（如：登录页空白）">
+          <div class="pm-create-meta">
+            <select id="pm-item-folder" class="pm-input pm-create-folder">
+              ${folders.filter(f=>!pmIsSystemFolder(f.id)).map(f=>`<option value="${esc(f.id)}" ${selectedFolder&&selectedFolder.id===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}
+            </select>
+            <select id="pm-item-type" class="pm-input pm-create-type">
+              <option value="bug">BUG</option>
+              <option value="req">需求</option>
+              <option value="opt">优化</option>
+            </select>
+            <select id="pm-item-priority" class="pm-input pm-create-priority">
+              <option value="P0">P0</option>
+              <option value="P1">P1</option>
+              <option value="P2" selected>P2</option>
+              <option value="P3">P3</option>
+            </select>
+          </div>
+          <div class="pm-create-desc-row">
+            <textarea id="pm-item-desc" class="pm-text" placeholder="描述现象、复现步骤、期望行为"></textarea>
+            <button class="pm-create-plus" title="创建" onclick="pmCreateItem()">＋</button>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+
     <div class="pm-box">
-      <div class="pm-fold ${pmProjectEditOpen?'open':''}">
-        <div class="pm-sub">项目设置</div>
-        <input id="pm-edit-name" class="pm-input" style="width:100%;margin-bottom:8px" value="${esc(project.name||'')}" placeholder="项目名称">
-        <textarea id="pm-edit-desc" class="pm-text" style="min-height:62px" placeholder="项目说明">${esc(project.description||'')}</textarea>
-        <div class="pm-actions" style="margin-bottom:10px">
-          <button class="btn btn-g" style="font-size:12px;padding:8px 12px" onclick="pmSaveProject()">💾 保存项目信息</button>
-          <button class="btn btn-p" style="font-size:12px;padding:8px 12px;background:#ff527022;border:1px solid #ff527044;color:#ff7a8f" onclick="pmDeleteProject()">🗑 删除项目</button>
-        </div>
-      </div>
-      ${pmProjectEditOpen ? '<div class="pm-section-divider"></div>' : ''}
-
-      ${pmIssueCreateOpen ? '<div class="pm-sub">新增记录</div>' : ''}
-      <div class="pm-fold ${pmIssueCreateOpen?'open':''}" style="margin-bottom:10px">
-        <input id="pm-item-title" class="pm-input" style="width:100%;margin-bottom:8px" placeholder="标题（如：登录页空白）">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-          <select id="pm-item-folder" class="pm-input" style="min-width:120px">
-            ${folders.map(f=>`<option value="${esc(f.id)}" ${selectedFolder&&selectedFolder.id===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}
-          </select>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-          <select id="pm-item-type" class="pm-input" style="min-width:90px">
-            <option value="bug">BUG</option>
-            <option value="req">需求</option>
-            <option value="opt">优化</option>
-          </select>
-          <select id="pm-item-priority" class="pm-input" style="min-width:90px">
-            <option value="P0">P0</option>
-            <option value="P1">P1</option>
-            <option value="P2" selected>P2</option>
-            <option value="P3">P3</option>
-          </select>
-        </div>
-        <textarea id="pm-item-desc" class="pm-text" placeholder="描述现象、复现步骤、期望行为"></textarea>
-        <div class="pm-actions">
-          <button class="btn btn-p" style="font-size:12px;padding:8px 12px" onclick="pmCreateItem()">＋ 创建</button>
-        </div>
-      </div>
-
-      ${pmIssueCreateOpen ? '<div class="pm-section-divider"></div>' : '<div style="height:8px"></div>'}
+      <div style="height:8px"></div>
       <div class="pm-issues">
         ${folderItems.length ? folderItems.map(i=>`
           <div class="pm-issue ${i.id===selectedPmItemId?'active':''} ${i.status==='done'?'is-done':''}" onclick="pmSelectItem('${i.id}')">
@@ -2848,6 +3039,7 @@ function renderPm(){
               <span class="pm-tag ${pmIssueTypeClass(i.type)}">${esc(PM_TYPE_LABEL[i.type]||i.type||'-')}</span>
               <span class="pm-tag ${pmIssuePriorityClass(i.priority)}">${esc(i.priority||'-')}</span>
               <span class="pm-tag ${pmIssueStatusClass(i.status)}">${esc(PM_STATUS_LABEL[i.status]||i.status||'-')}</span>
+              <span class="pm-tag">版本 ${esc(i.versionTag||'未编号')}</span>
             </div>
           </div>
         `).join('') : '<div class="pm-empty">该文件夹暂无问题</div>'}
@@ -2868,7 +3060,11 @@ function renderPm(){
 }
 
 function pmRenderItemDetail(project, item){
-  const qa = Array.isArray(item.qa) ? item.qa : [];
+  const qa = (Array.isArray(item.qa) ? item.qa : []).slice().sort((a,b)=>{
+    const ta = Date.parse((a&&a.at)||'') || 0;
+    const tb = Date.parse((b&&b.at)||'') || 0;
+    return tb - ta;
+  });
   const questions = Array.isArray(item.questions) ? item.questions : [];
   const plan = Array.isArray(item.plan) ? item.plan : [];
   const statusOpts = ['open','clarify','in_progress','blocked','done'];
@@ -2919,6 +3115,7 @@ function pmRenderItemDetail(project, item){
           </span>` : ''}
       </span>
       <span class="pm-tag">${esc(item.id||'-')}</span>
+      <span class="pm-tag">版本 ${esc(item.versionTag||'未编号')}</span>
       <span class="pm-tag">更新 ${esc(pmFmt(item.updatedAt))}</span>
     </div>
     <div class="pm-sub" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
@@ -2957,12 +3154,142 @@ function pmRenderItemDetail(project, item){
   `;
 }
 
+function pmRenderDesignPanel(project, design){
+  const sec = (design && design.sections) ? design.sections : {};
+  const brief = (design && design.brief) ? design.brief : {content:'', updatedAt:'', updatedBy:''};
+  const cur = sec[pmDesignSection] || {content:'', updatedAt:'', updatedBy:'', suggestions:[]};
+  const suggestions = Array.isArray(cur.suggestions) ? cur.suggestions : [];
+  return `
+    <div class="pm-box">
+      <div class="pm-sub">项目名称</div>
+      ${pmEditingProjectName
+        ? `<input class="pm-input" style="width:100%;margin-bottom:8px" value="${esc(pmEditingProjectNameValue||project.name||'')}" oninput="pmEditingProjectNameValue=this.value" onkeydown="pmProjectNameKey(event,this.value)" onblur="pmApplyRenameProjectDeferred(this.value)" autofocus>`
+        : `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+            <div class="pm-kv" style="margin:0">${esc(project.name||project.id)}</div>
+            <button class="pm-icon-btn" onclick="pmStartRenameProject()">✎</button>
+          </div>`}
+
+      <div class="pm-sub">一句话描述（PRD 方向）</div>
+      <textarea id="pm-design-brief" class="pm-text" style="min-height:90px" placeholder="例如：把三省六部总控台打造成可长期项目管理的 AI 管家系统，强调可视化、可追踪、可干预。">${esc(brief.content||'')}</textarea>
+      <div class="pm-actions pm-actions-sm" style="justify-content:flex-end;margin-bottom:10px">
+        <button class="btn btn-g" onclick="pmSaveDesignBrief()">保存方向描述</button>
+      </div>
+      <div class="pm-kv" style="margin-bottom:10px">方向来源：${esc(brief.updatedBy||'-')} · 更新时间：${esc(pmFmt(brief.updatedAt||''))}</div>
+      <div class="pm-section-divider"></div>
+      <div class="pm-sub">项目设计目录</div>
+      <div class="pm-design-list">
+        ${Object.keys(PM_DESIGN_SECTION_LABEL).map(k=>{
+          const d = sec[k] || {};
+          const has = String(d.content||'').trim().length>0;
+          return `<div class="pm-design-item ${pmDesignSection===k?'active':''}" onclick="pmSelectDesignSection('${k}')">
+            <div class="t">${esc(PM_DESIGN_SECTION_LABEL[k])}</div>
+            <div class="m">${has?'已有内容':'待生成'} · 更新 ${esc(pmFmt(d.updatedAt||''))}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="pm-box pm-detail">
+      <div class="pm-head">
+        <div class="tt">${esc(PM_DESIGN_SECTION_LABEL[pmDesignSection]||pmDesignSection)}</div>
+        <div class="pm-actions pm-actions-sm pm-actions-inline">
+          <button class="btn btn-g" onclick="pmSaveDesignSection()">保存</button>
+          <button class="btn btn-p ${pmDesignGenerating?'btn-generating':''}" onclick="pmGenerateDesignSection()">${pmDesignGenerating?'生成中…':'工部生成'}</button>
+        </div>
+      </div>
+      <div class="pm-kv">来源：${esc(cur.updatedBy||'-')} · 更新时间：${esc(pmFmt(cur.updatedAt||''))}</div>
+      <textarea id="pm-design-content" class="pm-design-editor" placeholder="在此填写或由工部生成设计文档（支持 Markdown / Mermaid）">${esc(cur.content||'')}</textarea>
+      <div class="pm-section-divider"></div>
+      <div class="pm-sub">整改建议</div>
+      <div class="pm-sug-list">
+        ${suggestions.length ? suggestions.map(s=>`
+          <div class="pm-sug-item">
+            <div class="pm-sug-top">
+              <span class="pm-sug-status ${pmSuggestionStatusClass(s.status)}">${esc(PM_SUGGESTION_STATUS_LABEL[s.status]||s.status||'未采纳')}</span>
+              <div class="pm-sug-actions">
+                <select class="pm-input" style="min-width:90px;padding:4px 8px;font-size:11px" onchange="pmUpdateDesignSuggestionStatus('${esc(s.id)}', this.value)">
+                  <option value="pending" ${s.status==='pending'?'selected':''}>未采纳</option>
+                  <option value="adopted" ${s.status==='adopted'?'selected':''}>已采纳</option>
+                </select>
+                <button class="pm-icon-btn" onclick="pmEditDesignSuggestion('${esc(s.id)}')">编辑</button>
+                <button class="pm-icon-btn" style="color:#ff9bb0;border-color:#6a2a3d;background:#3a1a26" onclick="pmDeleteDesignSuggestion('${esc(s.id)}')">删除</button>
+              </div>
+            </div>
+            <textarea id="pm-suggestion-${esc(s.id)}" class="pm-text" style="min-height:72px;margin-top:6px">${esc(s.text||'')}</textarea>
+            <div class="pm-sug-meta">创建 ${esc(pmFmt(s.createdAt||''))} · 更新 ${esc(pmFmt(s.updatedAt||''))}</div>
+          </div>
+        `).join('') : '<div class="pm-gov-empty">暂无整改建议</div>'}
+      </div>
+      <div class="pm-sug-add">
+        <textarea id="pm-design-suggestion-new" class="pm-text" placeholder="输入针对当前文档的整改建议，保存为记录"></textarea>
+        <button class="pm-add-btn" title="新增建议" onclick="pmCreateDesignSuggestion()">＋</button>
+      </div>
+    </div>
+  `;
+}
+
+function pmRenderVersionPanel(project){
+  const versions = pmGetProjectVersions(project);
+  const current = versions.find(v=>v.id===selectedPmVersionId) || versions[0] || null;
+  if(current && !selectedPmVersionId) selectedPmVersionId = current.id;
+  const currentSystemVersion = current ? (current.systemVersion || current.version || '') : '';
+  const currentGithubVersion = current ? (current.githubVersion || '') : '';
+  return `
+    <div class="pm-box">
+      <div class="pm-sub">版本清单</div>
+      <div class="pm-issues">
+        ${versions.length ? versions.map(v=>`
+          <div class="pm-issue ${current&&current.id===v.id?'active':''}" onclick="pmSelectVersion('${esc(v.id)}')">
+            <div class="t">${esc(v.systemVersion||v.version||'（未生成系统版本号）')}</div>
+            <div class="m">
+              <span class="pm-tag ${pmVersionStatusClass(v.status)}">${esc(PM_VERSION_STATUS_LABEL[v.status]||'未提交')}</span>
+              <span class="pm-tag">${esc(v.githubVersion ? `GitHub:${v.githubVersion}` : 'GitHub:未回写')}</span>
+              <span class="pm-tag">${esc(v.issueIds&&v.issueIds.length ? `${v.issueIds.length}条` : '0条')}</span>
+              <span class="pm-tag">更新 ${esc(pmFmt(v.updatedAt||v.createdAt||''))}</span>
+            </div>
+          </div>
+        `).join('') : '<div class="pm-empty">暂无版本记录，点击右上角“更新版本”生成</div>'}
+      </div>
+    </div>
+    <div class="pm-box pm-detail">
+      ${current ? `
+        <div class="pm-head">
+          <div class="tt">${esc(currentSystemVersion||'（未生成系统版本号）')}</div>
+        </div>
+        <div class="pm-kv">
+          <span class="pm-tag ${pmVersionStatusClass(current.status)}">${esc(PM_VERSION_STATUS_LABEL[current.status]||'未提交')}</span>
+          <span class="pm-tag">来源 ${esc(current.createdBy||'-')}</span>
+          <span class="pm-tag">更新 ${esc(pmFmt(current.updatedAt||current.createdAt||''))}</span>
+          <span class="pm-tag">纳入 ${esc((current.issueIds||[]).length)} 条</span>
+        </div>
+        <div class="pm-sub" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span>版本信息</span>
+          <button class="btn btn-g" style="font-size:11px;padding:4px 10px" onclick="pmSaveVersionMeta()">保存</button>
+        </div>
+        <div class="pm-create-meta" style="margin-bottom:8px">
+          <input id="pm-version-system" class="pm-input" style="min-width:220px" placeholder="系统版本号（自动）" value="${esc(currentSystemVersion)}" readonly>
+          <input id="pm-version-github" class="pm-input" style="min-width:220px" placeholder="GitHub版本号（例如 v1.2.0）" value="${esc(currentGithubVersion)}">
+          <select id="pm-version-status" class="pm-input" style="min-width:170px">
+            <option value="draft" ${String(current.status||'draft')==='draft'?'selected':''}>未提交</option>
+            <option value="local" ${String(current.status||'draft')==='local'?'selected':''}>已本地提交</option>
+            <option value="github" ${String(current.status||'draft')==='github'?'selected':''}>已提交GITHUB</option>
+          </select>
+        </div>
+        ${current.summary ? `<div class="pm-kv">${esc(current.summary)}</div>` : ''}
+        <textarea class="pm-design-editor" readonly>${esc(current.content||'')}</textarea>
+      ` : '<div class="pm-empty">请选择左侧版本查看更改清单</div>'}
+    </div>
+  `;
+}
+
 function pmSelectProject(projectId){
   selectedPmProjectId = projectId;
   selectedPmItemId = '';
   selectedPmFolderId = '';
+  selectedPmVersionId = '';
   pmIssueCreateOpen = false;
-  pmProjectEditOpen = false;
+  pmEditingProjectName = false;
+  pmEditingProjectNameValue = '';
   pmStatusMenuOpen = false;
   pmTypeMenuOpen = false;
   pmPriorityMenuOpen = false;
@@ -2992,6 +3319,23 @@ function pmSelectFolder(projectId, folderId){
   selectedPmProjectId = projectId;
   pmProjectFoldersOpen[projectId] = true;
   selectedPmFolderId = folderId;
+  selectedPmVersionId = '';
+  if(pmIsDesignFolder(folderId)){
+    selectedPmItemId = '';
+    pmIssueCreateOpen = false;
+    pmDesignSection = 'requirements';
+    renderPm();
+    return;
+  }
+  if(pmIsVersionFolder(folderId)){
+    selectedPmItemId = '';
+    pmIssueCreateOpen = false;
+    const p = _getSelectedPmProject();
+    const versions = pmGetProjectVersions(p);
+    selectedPmVersionId = versions.length ? versions[0].id : '';
+    renderPm();
+    return;
+  }
   pmIssueCreateOpen = false;
   const p = _getSelectedPmProject();
   const items = (p&&Array.isArray(p.items)) ? p.items : [];
@@ -3000,9 +3344,229 @@ function pmSelectFolder(projectId, folderId){
   renderPm();
 }
 
-function togglePmProjectEdit(){
-  pmProjectEditOpen = !pmProjectEditOpen;
+function pmSelectVersion(versionId){
+  selectedPmVersionId = versionId;
   renderPm();
+}
+
+function pmSelectDesignSection(section){
+  if(!PM_DESIGN_SECTION_LABEL[section]) return;
+  pmDesignSection = section;
+  renderPm();
+}
+
+function pmStartRenameProject(){
+  const project = _getSelectedPmProject();
+  if(!project) return;
+  pmEditingProjectName = true;
+  pmEditingProjectNameValue = String(project.name||'');
+  renderPm();
+}
+
+function pmProjectNameKey(e, value){
+  if(!e) return;
+  if(e.key==='Enter'){
+    e.preventDefault();
+    pmApplyRenameProject(value);
+  }else if(e.key==='Escape'){
+    e.preventDefault();
+    pmEditingProjectName = false;
+    pmEditingProjectNameValue = '';
+    renderPm();
+  }
+}
+
+function pmApplyRenameProjectDeferred(value){
+  setTimeout(()=>pmApplyRenameProject(value), 0);
+}
+
+async function pmApplyRenameProject(valueFromInput){
+  if(pmRenderBusy){
+    pmApplyRenameProjectDeferred(valueFromInput);
+    return;
+  }
+  const project = _getSelectedPmProject();
+  if(!project){ pmEditingProjectName=false; pmEditingProjectNameValue=''; return; }
+  const next = String(valueFromInput ?? pmEditingProjectNameValue ?? '').trim();
+  if(!next){
+    toast('项目名称不能为空','err');
+    return;
+  }
+  if(next===String(project.name||'')){
+    pmEditingProjectName = false;
+    pmEditingProjectNameValue = '';
+    renderPm();
+    return;
+  }
+  try{
+    const r = await postJ(API+'/pm/project-update', {projectId: project.id, name: next, description: project.description||''});
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    pmEditingProjectName = false;
+    pmEditingProjectNameValue = '';
+    await loadPm();
+    toast('项目名称已更新','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function pmSaveDesignBrief(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  const el = document.getElementById('pm-design-brief');
+  const content = el ? (el.value||'').trim() : '';
+  try{
+    const r = await postJ(API+'/pm/design-update', {projectId: project.id, section: 'brief', content, updatedBy: 'user'});
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    await loadPm();
+    toast('方向描述已保存','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function pmSaveDesignSection(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  const el = document.getElementById('pm-design-content');
+  const content = el ? (el.value||'') : '';
+  try{
+    const r = await postJ(API+'/pm/design-update', {projectId: project.id, section: pmDesignSection, content, updatedBy: 'user'});
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    await loadPm();
+    toast('设计文档已保存','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function pmGenerateDesignSection(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  if(pmDesignGenerating) return;
+  pmDesignGenerating = true;
+  renderPm();
+  toast('工部生成中，请稍候…');
+  try{
+    const r = await postJ(API+'/pm/design-generate', {projectId: project.id, section: pmDesignSection});
+    if(!r.ok){ toast(r.error||'生成失败','err'); return; }
+    await loadPm();
+    toast('工部设计文档已生成','ok');
+  }catch(e){
+    toast('生成失败: '+e.message,'err');
+  }finally{
+    pmDesignGenerating = false;
+    renderPm();
+  }
+}
+
+async function pmGenerateVersion(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsVersionFolder(folder.id)){ toast('请先进入版本控制目录','err'); return; }
+  try{
+    toast('工部正在汇总版本清单…');
+    const r = await postJ(API+'/pm/version-generate', {projectId: project.id});
+    if(!r.ok){ toast(r.error||'生成失败','err'); return; }
+    await loadPm();
+    selectedPmVersionId = (r.version||{}).id || selectedPmVersionId;
+    renderPm();
+    toast(r.mode==='updated' ? '已更新最新未提交版本日志' : '已创建新的未提交版本日志','ok');
+  }catch(e){
+    toast('生成失败: '+e.message,'err');
+  }
+}
+
+async function pmSaveVersionMeta(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsVersionFolder(folder.id)){ toast('请先进入版本控制目录','err'); return; }
+  if(!selectedPmVersionId){ toast('请先选择版本记录','err'); return; }
+  const versionEl = document.getElementById('pm-version-github');
+  const statusEl = document.getElementById('pm-version-status');
+  const githubVersion = versionEl ? String(versionEl.value||'').trim() : '';
+  const status = statusEl ? String(statusEl.value||'draft') : 'draft';
+  try{
+    const r = await postJ(API+'/pm/version-update', {projectId: project.id, versionId: selectedPmVersionId, githubVersion, status});
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    await loadPm();
+    renderPm();
+    toast('版本信息已保存','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function pmCreateDesignSuggestion(){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  const el = document.getElementById('pm-design-suggestion-new');
+  const text = el ? (el.value||'').trim() : '';
+  if(!text){ toast('请输入整改建议内容','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/design-suggestion-create', {projectId: project.id, section: pmDesignSection, text});
+    if(!r.ok){ toast(r.error||'新增失败','err'); return; }
+    if(el) el.value = '';
+    await loadPm();
+    toast('整改建议已新增','ok');
+  }catch(e){
+    toast('新增失败: '+e.message,'err');
+  }
+}
+
+async function pmEditDesignSuggestion(suggestionId){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  const el = document.getElementById(`pm-suggestion-${suggestionId}`);
+  const text = el ? (el.value||'').trim() : '';
+  if(!text){ toast('整改建议不能为空','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/design-suggestion-update', {projectId: project.id, section: pmDesignSection, suggestionId, text});
+    if(!r.ok){ toast(r.error||'更新失败','err'); return; }
+    await loadPm();
+    toast('整改建议已更新','ok');
+  }catch(e){
+    toast('更新失败: '+e.message,'err');
+  }
+}
+
+async function pmUpdateDesignSuggestionStatus(suggestionId, status){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/design-suggestion-update', {projectId: project.id, section: pmDesignSection, suggestionId, status});
+    if(!r.ok){ toast(r.error||'状态更新失败','err'); return; }
+    await loadPm();
+    toast('建议状态已更新','ok');
+  }catch(e){
+    toast('状态更新失败: '+e.message,'err');
+  }
+}
+
+async function pmDeleteDesignSuggestion(suggestionId){
+  const project = _getSelectedPmProject();
+  const folder = _getSelectedPmFolder(project);
+  if(!project || !folder || !pmIsDesignFolder(folder.id)){ toast('请先进入项目设计目录','err'); return; }
+  pmOpenConfirmDialog(
+    '确认删除整改建议',
+    '删除后不可恢复，是否继续？',
+    async ()=>{
+      try{
+        const r = await postJ(API+'/pm/design-suggestion-delete', {projectId: project.id, section: pmDesignSection, suggestionId});
+        if(!r.ok){ toast(r.error||'删除失败','err'); return; }
+        await loadPm();
+        toast('整改建议已删除','ok');
+      }catch(e){
+        toast('删除失败: '+e.message,'err');
+      }
+    }
+  );
 }
 
 function togglePmIssueCreate(){
@@ -3012,6 +3576,7 @@ function togglePmIssueCreate(){
 
 function pmSelectItem(itemId){
   selectedPmItemId = itemId;
+  selectedPmVersionId = '';
   pmStatusMenuOpen = false;
   pmTypeMenuOpen = false;
   pmPriorityMenuOpen = false;
@@ -3084,7 +3649,7 @@ async function pmRunConfirmDialog(){
 
 function openPmCreateProjectModal(){
   document.getElementById('modal-body').innerHTML = `
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">项目管理</div>
+    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">项目开发</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:14px">＋ 创建项目</div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <input id="pm-modal-project-name" class="pm-input" style="width:100%" placeholder="项目名称">
@@ -3125,7 +3690,8 @@ async function pmCreateProject(){
     if(mDescEl) mDescEl.value = '';
     selectedPmProjectId = (r.project||{}).id || '';
     selectedPmItemId = '';
-    pmProjectEditOpen = false;
+    pmEditingProjectName = false;
+    pmEditingProjectNameValue = '';
     pmStatusMenuOpen = false;
     pmTypeMenuOpen = false;
     pmPriorityMenuOpen = false;
@@ -3139,24 +3705,6 @@ async function pmCreateProject(){
 
 function pmCreateProjectFromModal(){
   pmCreateProject();
-}
-
-async function pmSaveProject(){
-  const project = _getSelectedPmProject();
-  if(!project){ toast('请先选择项目','err'); return; }
-  const nameEl = document.getElementById('pm-edit-name');
-  const descEl = document.getElementById('pm-edit-desc');
-  const name = nameEl ? (nameEl.value||'').trim() : '';
-  const description = descEl ? (descEl.value||'').trim() : '';
-  if(!name){ toast('项目名称不能为空','err'); return; }
-  try{
-    const r = await postJ(API+'/pm/project-update', {projectId: project.id, name, description});
-    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
-    await loadPm();
-    toast('项目信息已保存','ok');
-  }catch(e){
-    toast('保存失败: '+e.message,'err');
-  }
 }
 
 async function pmDeleteProject(){
@@ -3253,6 +3801,7 @@ async function pmDeleteFolder(){
   const project = _getSelectedPmProject();
   const folder = _getSelectedPmFolder(project);
   if(!project || !folder){ toast('请先选择文件夹','err'); return; }
+  if(pmIsSystemFolder(folder.id)){ toast('系统目录不可删除','err'); return; }
   const folders = pmGetFolders(project);
   if((folders||[]).length<=1){
     toast('至少保留一个文件夹，无法删除','err');
@@ -4214,6 +4763,7 @@ function renderLearningDetail(plan){
         <div id="ls-mermaid-view" class="ls-mermaid-diagram"></div>
       </div>
       <div class="ls-mermaid-tools">
+        <button class="ls-del-btn" onclick="deleteSelectedLearningPlan()">删除</button>
         <button class="dc-mini-btn" onclick="toggleLearningMermaidSource()">显示/隐藏源码</button>
       </div>
       <pre id="ls-mermaid-src" class="ls-mermaid" style="display:none">${esc(map||'')}</pre>
@@ -4666,7 +5216,9 @@ function openLearningTopicModal(planId, topicId){
   currentTopicId = topicId;
   const chat = (((plan.topicChats||{})[String(topicId)])||[]);
   document.getElementById('modal-body').innerHTML = `
-    <div style="font-size:20px;font-weight:800;margin-bottom:6px">📘 ${esc(topic.title||'学习主题')}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+      <div style="font-size:20px;font-weight:800">📘 ${esc(topic.title||'学习主题')}</div>
+    </div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${esc(plan.topic||'')}</div>
     <div class="lq-wrap">
       <div class="lq-left">
@@ -4698,6 +5250,37 @@ function openLearningTopicModal(planId, topicId){
     const box = document.getElementById('lq-chat');
     if(box) box.scrollTop = box.scrollHeight;
   }, 20);
+}
+
+async function deleteSelectedLearningPlan(){
+  const plan = learningPlans.find(x=>x.id===selectedLearningId);
+  if(!plan){ toast('请先选择学习主题','err'); return; }
+  pmOpenConfirmDialog(
+    '确认删除学习主题',
+    `将删除「${plan.topic||plan.id}」及其目录内容，删除后不可恢复，是否继续？`,
+    async ()=>{
+      try{
+        const res = await postJ(API+'/learning-plan/delete', {planId: plan.id});
+        if(!res.ok){ toast(res.error||'删除失败','err'); return; }
+        delete learningAnswerDrafts[plan.id];
+        saveLearningDrafts();
+        if(!Object.keys(topicNotesStore).length) loadTopicNotesStore();
+        const prefix = `${plan.id}::`;
+        Object.keys(topicNotesStore).forEach(k=>{
+          if(k.startsWith(prefix)) delete topicNotesStore[k];
+        });
+        saveTopicNotesStore();
+        if(currentTopicPlanId === plan.id){
+          closeModal();
+        }
+        await loadLearningPlans();
+        renderLearningPlans();
+        toast('学习主题已删除','ok');
+      }catch(e){
+        toast('删除失败，请稍后重试','err');
+      }
+    }
+  );
 }
 
 async function sendLearningTopicMessage(){

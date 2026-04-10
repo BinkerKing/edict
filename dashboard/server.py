@@ -56,6 +56,13 @@ SCRIPTS = BASE.parent / 'scripts'
 _ACTIVE_TASK_DATA_DIR = None
 LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
 PM_FILE = DATA / 'project_management.json'
+PM_DESIGN_FOLDER_ID = 'FLD-DESIGN'
+PM_DESIGN_FOLDER_NAME = '项目设计'
+PM_VERSION_FOLDER_ID = 'FLD-VERSION'
+PM_VERSION_FOLDER_NAME = '版本控制'
+PM_DESIGN_SECTIONS = ('requirements', 'architecture', 'function')
+PM_SUGGESTION_STATUS = {'pending', 'adopted'}
+PM_VERSION_STATUS = {'draft', 'local', 'github'}
 
 # 静态资源 MIME 类型
 _MIME_TYPES = {
@@ -1137,6 +1144,41 @@ def summarize_learning_topic(plan_id, topic_id):
     return {'ok': True, 'summary': summary, 'plan': plan}
 
 
+def delete_learning_topic(plan_id, topic_id):
+    data = _load_learning_plans()
+    plans = data.get('plans', [])
+    plan = next((p for p in plans if p.get('id') == plan_id), None)
+    if not plan:
+        return {'ok': False, 'error': f'学习计划 {plan_id} 不存在'}
+    if plan.get('status') != 'planned':
+        return {'ok': False, 'error': '该计划尚未生成目录与学习内容'}
+    result = plan.get('result') or {}
+    curriculum = result.get('curriculum', []) if isinstance(result, dict) else []
+    idx = next((i for i, t in enumerate(curriculum) if str(t.get('id')) == str(topic_id)), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'主题 {topic_id} 不存在'}
+    removed = curriculum.pop(idx)
+    result['curriculum'] = curriculum
+    plan['result'] = result
+    topic_chats = plan.get('topicChats') or {}
+    topic_chats.pop(str(topic_id), None)
+    plan['topicChats'] = topic_chats
+    plan['updatedAt'] = now_iso()
+    _save_learning_plans(data)
+    return {'ok': True, 'plan': plan, 'topic': removed}
+
+def delete_learning_plan(plan_id):
+    data = _load_learning_plans()
+    plans = data.get('plans', [])
+    idx = next((i for i, p in enumerate(plans) if p.get('id') == plan_id), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'学习计划 {plan_id} 不存在'}
+    removed = plans.pop(idx)
+    data['plans'] = plans
+    _save_learning_plans(data)
+    return {'ok': True, 'deletedPlanId': plan_id, 'plan': removed}
+
+
 def _load_pm_data():
     data = atomic_json_read(PM_FILE, {'projects': []})
     if not isinstance(data, dict):
@@ -1183,14 +1225,165 @@ def _ensure_pm_project_folders(project):
             continue
         seen.add(fid)
         normalized.append({'id': fid, 'name': name[:120]})
-    if not normalized:
-        normalized = [{'id': 'FLD-DEFAULT', 'name': '默认文件夹'}]
+    if not any(f.get('id') == PM_DESIGN_FOLDER_ID for f in normalized):
+        normalized.insert(0, {'id': PM_DESIGN_FOLDER_ID, 'name': PM_DESIGN_FOLDER_NAME})
+    if not any(f.get('id') == PM_VERSION_FOLDER_ID for f in normalized):
+        normalized.insert(1, {'id': PM_VERSION_FOLDER_ID, 'name': PM_VERSION_FOLDER_NAME})
+    normalized = [
+        {'id': PM_DESIGN_FOLDER_ID, 'name': PM_DESIGN_FOLDER_NAME},
+        {'id': PM_VERSION_FOLDER_ID, 'name': PM_VERSION_FOLDER_NAME},
+    ] + [f for f in normalized if f.get('id') not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}]
+    non_system = [f for f in normalized if f.get('id') not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}]
+    if not non_system:
+        normalized.append({'id': 'FLD-DEFAULT', 'name': '默认文件夹'})
     project['folders'] = normalized
     valid_ids = {f['id'] for f in normalized}
+    issue_folder_id = next(
+        (f['id'] for f in normalized if f['id'] not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}),
+        normalized[0]['id']
+    )
     for item in (project.get('items') or []):
         fid = str(item.get('folderId') or '').strip()
-        if fid not in valid_ids:
-            item['folderId'] = normalized[0]['id']
+        if fid not in valid_ids or fid in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}:
+            item['folderId'] = issue_folder_id
+
+
+def _ensure_pm_project_design(project):
+    if not isinstance(project, dict):
+        return
+    now = now_iso()
+    design = project.get('design')
+    if not isinstance(design, dict):
+        design = {}
+    brief = design.get('brief')
+    if not isinstance(brief, dict):
+        brief = {}
+    brief.setdefault('content', '')
+    brief.setdefault('updatedAt', now)
+    brief.setdefault('updatedBy', '')
+    design['brief'] = brief
+    sections = design.get('sections')
+    if not isinstance(sections, dict):
+        sections = {}
+    for sec in PM_DESIGN_SECTIONS:
+        item = sections.get(sec)
+        if not isinstance(item, dict):
+            item = {}
+        item.setdefault('content', '')
+        item.setdefault('updatedAt', now)
+        item.setdefault('updatedBy', '')
+        raw_suggestions = item.get('suggestions')
+        if not isinstance(raw_suggestions, list):
+            raw_suggestions = []
+        normalized_suggestions = []
+        for s in raw_suggestions:
+            if not isinstance(s, dict):
+                continue
+            sid = str(s.get('id') or '').strip() or _new_pm_id('DGN')
+            text = str(s.get('text') or '').strip()
+            if not text:
+                continue
+            st = str(s.get('status') or 'pending').strip().lower()
+            if st not in PM_SUGGESTION_STATUS:
+                st = 'pending'
+            normalized_suggestions.append({
+                'id': sid,
+                'text': text[:4000],
+                'status': st,
+                'createdAt': str(s.get('createdAt') or now),
+                'updatedAt': str(s.get('updatedAt') or now),
+            })
+        item['suggestions'] = normalized_suggestions
+        sections[sec] = item
+    design['sections'] = sections
+    project['design'] = design
+
+
+def _ensure_pm_project_versions(project):
+    if not isinstance(project, dict):
+        return
+    raw = project.get('versions')
+    if not isinstance(raw, list):
+        raw = []
+    normalized = []
+    for v in raw:
+        if not isinstance(v, dict):
+            continue
+        vid = str(v.get('id') or '').strip() or _new_pm_id('VER')
+        system_tag = str(v.get('systemVersion') or v.get('version') or '').strip()
+        github_tag = str(v.get('githubVersion') or '').strip()
+        st = str(v.get('status') or '').strip().lower()
+        if st not in PM_VERSION_STATUS:
+            st = 'draft'
+        normalized.append({
+            'id': vid,
+            'systemVersion': system_tag[:40],
+            'githubVersion': github_tag[:80],
+            'status': st,
+            'summary': str(v.get('summary') or '').strip()[:400],
+            'content': str(v.get('content') or '').strip()[:20000],
+            'issueIds': [str(x).strip() for x in (v.get('issueIds') or []) if str(x).strip()][:500],
+            'createdAt': str(v.get('createdAt') or now_iso()),
+            'updatedAt': str(v.get('updatedAt') or now_iso()),
+            'createdBy': str(v.get('createdBy') or 'gongbu')[:30],
+        })
+    normalized.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
+    project['versions'] = normalized
+
+
+def _next_pm_version_tag(project):
+    now = datetime.datetime.now()
+    prefix = f"v{now:%Y.%m.%d}"
+    existed = {str(x.get('version') or '') for x in (project.get('versions') or [])}
+    seq = 1
+    while True:
+        tag = f"{prefix}.{seq}"
+        if tag not in existed:
+            return tag
+        seq += 1
+
+
+def pm_update_version(project_id, version_id, version=None, status=None):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_versions(project)
+    vid = str(version_id or '').strip()
+    if not vid:
+        return {'ok': False, 'error': 'versionId required'}
+    versions = project.get('versions') or []
+    target = next((x for x in versions if str(x.get('id') or '').strip() == vid), None)
+    if not target:
+        return {'ok': False, 'error': f'版本记录 {version_id} 不存在'}
+
+    changed = False
+    github_version = version
+    if isinstance(version, dict):
+        github_version = None
+    if github_version is not None:
+        target['githubVersion'] = str(github_version or '').strip()[:80]
+        changed = True
+    if status is not None:
+        st = str(status or '').strip().lower()
+        if st not in PM_VERSION_STATUS:
+            return {'ok': False, 'error': f'不支持的版本状态: {status}'}
+        target['status'] = st
+        changed = True
+    if changed:
+        now = now_iso()
+        target['updatedAt'] = now
+        project['updatedAt'] = now
+        # 问题单的“版本编号”固定使用系统版本号，不跟随 GitHub 版本号变动
+        item_tag = str(target.get('systemVersion') or '').strip()
+        for it in (project.get('items') or []):
+            if str(it.get('versionRefId') or '') == str(target.get('id') or '') and str(it.get('status') or '').lower() == 'done':
+                it['versionTag'] = item_tag
+                it['updatedAt'] = now
+        _save_pm_data(data)
+    return {'ok': True, 'project': project, 'version': target}
 
 
 def pm_list_projects():
@@ -1198,6 +1391,8 @@ def pm_list_projects():
     projects = data.get('projects', [])
     for p in projects:
         _ensure_pm_project_folders(p)
+        _ensure_pm_project_design(p)
+        _ensure_pm_project_versions(p)
     projects_sorted = sorted(projects, key=lambda x: x.get('updatedAt', ''), reverse=True)
     _save_pm_data(data)
     return {'ok': True, 'projects': projects_sorted}
@@ -1213,8 +1408,21 @@ def pm_create_project(name, description=''):
         'name': name[:120],
         'description': str(description or '').strip()[:2000],
         'owner': 'gongbu',
-        'folders': [{'id': 'FLD-DEFAULT', 'name': '默认文件夹'}],
+        'folders': [
+            {'id': PM_DESIGN_FOLDER_ID, 'name': PM_DESIGN_FOLDER_NAME},
+            {'id': PM_VERSION_FOLDER_ID, 'name': PM_VERSION_FOLDER_NAME},
+            {'id': 'FLD-DEFAULT', 'name': '默认文件夹'},
+        ],
+        'design': {
+            'brief': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
+            'sections': {
+                'requirements': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
+                'architecture': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
+                'function': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
+            }
+        },
         'items': [],
+        'versions': [],
         'createdAt': now_iso(),
         'updatedAt': now_iso(),
     }
@@ -1265,6 +1473,7 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
     if not project:
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
     _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
     title = str(title or '').strip()
     if not title:
         return {'ok': False, 'error': '标题不能为空'}
@@ -1280,7 +1489,10 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
         'type': item_type,
         'priority': priority,
         'status': 'open',
-        'folderId': project['folders'][0]['id'],
+        'folderId': next(
+            (f['id'] for f in project['folders'] if f['id'] not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}),
+            project['folders'][0]['id']
+        ),
         'description': str(description or '').strip()[:6000],
         'owner': 'gongbu',
         'qa': [],
@@ -1302,6 +1514,7 @@ def pm_update_item(project_id, item_id, status=None, priority=None, resolution=N
     if not project:
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
     _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
     item = _find_item(project, item_id)
     if not item:
         return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
@@ -1322,7 +1535,7 @@ def pm_update_item(project_id, item_id, status=None, priority=None, resolution=N
     if folder_id is not None:
         fid = str(folder_id or '').strip()
         valid_ids = {f.get('id') for f in (project.get('folders') or [])}
-        if fid in valid_ids:
+        if fid in valid_ids and fid not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}:
             item['folderId'] = fid
     if resolution is not None:
         item['resolution'] = str(resolution or '').strip()[:8000]
@@ -1354,9 +1567,12 @@ def pm_create_folder(project_id, name):
     if not project:
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
     _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
     nm = str(name or '').strip()
     if not nm:
         return {'ok': False, 'error': '文件夹名称不能为空'}
+    if nm in {PM_DESIGN_FOLDER_NAME, PM_VERSION_FOLDER_NAME}:
+        return {'ok': False, 'error': f'文件夹名称 {nm} 为系统保留'}
     if any(str(f.get('name') or '').strip() == nm for f in (project.get('folders') or [])):
         return {'ok': False, 'error': '文件夹名称已存在'}
     folder = {'id': _new_pm_id('FLD'), 'name': nm[:120]}
@@ -1372,13 +1588,18 @@ def pm_update_folder(project_id, folder_id, name):
     if not project:
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
     _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
     fid = str(folder_id or '').strip()
+    if fid in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}:
+        return {'ok': False, 'error': '系统目录不可修改'}
     folder = next((f for f in (project.get('folders') or []) if f.get('id') == fid), None)
     if not folder:
         return {'ok': False, 'error': f'文件夹 {folder_id} 不存在'}
     nm = str(name or '').strip()
     if not nm:
         return {'ok': False, 'error': '文件夹名称不能为空'}
+    if nm in {PM_DESIGN_FOLDER_NAME, PM_VERSION_FOLDER_NAME}:
+        return {'ok': False, 'error': f'文件夹名称 {nm} 为系统保留'}
     if any((f.get('id') != fid and str(f.get('name') or '').strip() == nm) for f in (project.get('folders') or [])):
         return {'ok': False, 'error': '文件夹名称已存在'}
     folder['name'] = nm[:120]
@@ -1393,7 +1614,10 @@ def pm_delete_folder(project_id, folder_id):
     if not project:
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
     _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
     fid = str(folder_id or '').strip()
+    if fid in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}:
+        return {'ok': False, 'error': '系统目录不可删除'}
     folders = project.get('folders') or []
     folder = next((f for f in folders if f.get('id') == fid), None)
     if not folder:
@@ -1408,6 +1632,302 @@ def pm_delete_folder(project_id, folder_id):
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
     return {'ok': True, 'folder': folder, 'project': project}
+
+
+def pm_update_design(project_id, section, content, updated_by='user'):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    sec = str(section or '').strip().lower()
+    if sec == 'brief':
+        node = project['design']['brief']
+        node['content'] = str(content or '')[:2000]
+        node['updatedAt'] = now_iso()
+        node['updatedBy'] = str(updated_by or 'user')[:30]
+        project['updatedAt'] = now_iso()
+        _save_pm_data(data)
+        return {'ok': True, 'project': project, 'section': sec, 'design': node}
+    if sec not in PM_DESIGN_SECTIONS:
+        return {'ok': False, 'error': f'不支持的设计章节: {section}'}
+    node = project['design']['sections'][sec]
+    node['content'] = str(content or '')[:30000]
+    node['updatedAt'] = now_iso()
+    node['updatedBy'] = str(updated_by or 'user')[:30]
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'project': project, 'section': sec, 'design': node}
+
+
+def pm_create_design_suggestion(project_id, section, text):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    sec = str(section or '').strip().lower()
+    if sec not in PM_DESIGN_SECTIONS:
+        return {'ok': False, 'error': f'不支持的设计章节: {section}'}
+    msg = str(text or '').strip()
+    if not msg:
+        return {'ok': False, 'error': '整改建议不能为空'}
+    node = project['design']['sections'][sec]
+    now = now_iso()
+    item = {
+        'id': _new_pm_id('DGN'),
+        'text': msg[:4000],
+        'status': 'pending',
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    node.setdefault('suggestions', []).insert(0, item)
+    node['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_pm_data(data)
+    return {'ok': True, 'project': project, 'section': sec, 'suggestion': item, 'design': node}
+
+
+def pm_update_design_suggestion(project_id, section, suggestion_id, text=None, status=None):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    sec = str(section or '').strip().lower()
+    if sec not in PM_DESIGN_SECTIONS:
+        return {'ok': False, 'error': f'不支持的设计章节: {section}'}
+    sid = str(suggestion_id or '').strip()
+    if not sid:
+        return {'ok': False, 'error': 'suggestionId required'}
+    node = project['design']['sections'][sec]
+    suggestions = node.get('suggestions') or []
+    target = next((x for x in suggestions if str(x.get('id')) == sid), None)
+    if not target:
+        return {'ok': False, 'error': f'整改建议 {sid} 不存在'}
+    changed = False
+    if text is not None:
+        msg = str(text or '').strip()
+        if not msg:
+            return {'ok': False, 'error': '整改建议不能为空'}
+        target['text'] = msg[:4000]
+        changed = True
+    if status is not None:
+        st = str(status or '').strip().lower()
+        if st not in PM_SUGGESTION_STATUS:
+            return {'ok': False, 'error': f'不支持的状态: {status}'}
+        target['status'] = st
+        changed = True
+    if changed:
+        now = now_iso()
+        target['updatedAt'] = now
+        node['updatedAt'] = now
+        project['updatedAt'] = now
+        _save_pm_data(data)
+    return {'ok': True, 'project': project, 'section': sec, 'suggestion': target, 'design': node}
+
+
+def pm_delete_design_suggestion(project_id, section, suggestion_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    sec = str(section or '').strip().lower()
+    if sec not in PM_DESIGN_SECTIONS:
+        return {'ok': False, 'error': f'不支持的设计章节: {section}'}
+    sid = str(suggestion_id or '').strip()
+    if not sid:
+        return {'ok': False, 'error': 'suggestionId required'}
+    node = project['design']['sections'][sec]
+    suggestions = node.get('suggestions') or []
+    idx = next((i for i, x in enumerate(suggestions) if str(x.get('id')) == sid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'整改建议 {sid} 不存在'}
+    removed = suggestions.pop(idx)
+    now = now_iso()
+    node['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_pm_data(data)
+    return {'ok': True, 'project': project, 'section': sec, 'suggestion': removed, 'design': node}
+
+
+def pm_generate_design(project_id, section):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    sec = str(section or '').strip().lower()
+    if sec not in PM_DESIGN_SECTIONS:
+        return {'ok': False, 'error': f'不支持的设计章节: {section}'}
+
+    titles = {
+        'requirements': '需求说明（PRD）',
+        'architecture': '架构设计（含流程图）',
+        'function': '功能设计（FSD）',
+    }
+    hints = {
+        'requirements': '请输出结构化 PRD，至少包含背景/目标、用户与场景、功能范围、非功能需求、里程碑与验收标准。',
+        'architecture': '请输出顶层架构设计，包含 Mermaid 流程图/结构图代码块，以及关键模块职责、数据流、边界与风险。',
+        'function': '请基于 PRD 输出 FSD，包含功能拆解、流程、接口与字段、状态机/异常、测试要点。',
+    }
+    latest_items = project.get('items') or []
+    latest_txt = '\n'.join([f"- [{it.get('status')}] {it.get('title')}" for it in latest_items[:20]])
+    brief_text = str((((project.get('design') or {}).get('brief') or {}).get('content') or '')).strip()
+    node = project['design']['sections'][sec]
+    current_content = str(node.get('content') or '').strip()
+    suggestions = node.get('suggestions') or []
+    pending_suggestions = [s for s in suggestions if str(s.get('status') or '').lower() == 'pending']
+    pending_txt = '\n'.join([f"- {s.get('text')}" for s in pending_suggestions])
+    rewrite_keywords = ('重新编写', '重写', '推倒重写', '从零编写', '全量重写', '完全重写')
+    rewrite_requested = any(any(k in str(s.get('text') or '') for k in rewrite_keywords) for s in pending_suggestions)
+    generate_mode = 'rewrite' if rewrite_requested else 'incremental'
+    mode_rule = (
+        "本次为【全量重写模式】：存在“重新编写/重写”类明确要求，请重构整篇文档，但仍需覆盖待采纳整改建议。"
+        if rewrite_requested else
+        "本次为【增量修订模式】：必须先理解当前已有文档，再在其基础上做小步修改；禁止无故整篇重写。"
+    )
+    prompt = (
+        "你是工部尚书，负责项目设计文档产出。\n"
+        f"项目名称：{project.get('name')}\n"
+        f"项目说明：{project.get('description')}\n"
+        f"用户给定的一句话方向：{brief_text or '（未提供）'}\n"
+        f"目标章节：{titles[sec]}\n"
+        f"生成模式：{generate_mode}\n"
+        f"{mode_rule}\n"
+        f"问题清单参考（节选）：\n{latest_txt or '- 暂无'}\n\n"
+        f"当前已有文档（请先学习后再修改）：\n{current_content[:12000] or '- 当前为空'}\n\n"
+        f"待采纳整改建议（必须逐条落实）：\n{pending_txt or '- 暂无'}\n\n"
+        f"{hints[sec]}\n"
+        "输出要求：仅输出 Markdown 正文，不要输出解释。"
+    )
+    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': ai.get('error', '工部生成失败')}
+    content = str(ai.get('raw') or '').strip()
+    if not content:
+        return {'ok': False, 'error': '工部未返回有效内容'}
+
+    node['content'] = content[:30000]
+    now = now_iso()
+    node['updatedAt'] = now
+    node['updatedBy'] = 'gongbu'
+    for s in pending_suggestions:
+        s['status'] = 'adopted'
+        s['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_pm_data(data)
+    return {'ok': True, 'project': project, 'section': sec, 'design': node}
+
+
+def pm_generate_version(project_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_versions(project)
+
+    versions = project.get('versions') or []
+    latest = versions[0] if versions else None
+    latest_is_draft = bool(latest and str(latest.get('status') or '').lower() == 'draft')
+    existing_issue_ids = set()
+    if latest_is_draft:
+        existing_issue_ids = {str(x).strip() for x in (latest.get('issueIds') or []) if str(x).strip()}
+
+    done_items = []
+    for it in (project.get('items') or []):
+        if str(it.get('status') or '').lower() != 'done':
+            continue
+        # 以“版本编号（versionTag）是否为空”为准；空即纳入本次版本并回填
+        if str(it.get('versionTag') or '').strip():
+            continue
+        done_items.append(it)
+
+    item_map = {str(it.get('id') or '').strip(): it for it in (project.get('items') or []) if str(it.get('id') or '').strip()}
+    final_ids = []
+    for iid in existing_issue_ids:
+        if iid in item_map:
+            final_ids.append(iid)
+    for it in done_items:
+        iid = str(it.get('id') or '').strip()
+        if iid and iid not in final_ids:
+            final_ids.append(iid)
+    if not final_ids:
+        return {'ok': False, 'error': '暂无可汇总的问题（已完成且未标记版本）'}
+    final_items = [item_map[iid] for iid in final_ids if iid in item_map][:180]
+
+    brief = str((((project.get('design') or {}).get('brief') or {}).get('content') or '')).strip()
+    issue_txt = []
+    for it in final_items:
+        issue_txt.append(
+            f"- [{it.get('type','-').upper()}|{it.get('priority','-')}] {it.get('title','')}\n"
+            f"  描述: {str(it.get('description') or '').strip()[:300]}\n"
+            f"  结论: {str(it.get('resolution') or '').strip()[:300]}"
+        )
+    prompt = (
+        "你是工部尚书，负责输出版本更改清单。\n"
+        "请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n"
+        "要求：\n"
+        "1) 输出 Markdown。\n"
+        "2) 优先按类别分组（BUG修复/需求交付/优化改进）。\n"
+        "3) 每条 1-2 句，突出用户可感知变化。\n"
+        "4) 不要编造未提供的内容。\n\n"
+        f"项目名称：{project.get('name','')}\n"
+        f"项目方向：{brief or '（未提供）'}\n"
+        "待汇总的问题：\n"
+        + '\n'.join(issue_txt)
+    )
+    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': ai.get('error', '工部版本汇总失败')}
+    content = str(ai.get('raw') or '').strip()
+    if not content:
+        return {'ok': False, 'error': '工部未返回有效更改清单'}
+
+    now = now_iso()
+    if latest_is_draft:
+        ver = latest
+        if not str(ver.get('systemVersion') or '').strip():
+            ver['systemVersion'] = _next_pm_version_tag(project)
+        ver.setdefault('githubVersion', '')
+        ver['summary'] = f"本次纳入 {len(final_items)} 项已完成问题"
+        ver['content'] = content[:20000]
+        ver['issueIds'] = [str(it.get('id') or '').strip() for it in final_items if str(it.get('id') or '').strip()]
+        ver['updatedAt'] = now
+        mode = 'updated'
+    else:
+        ver = {
+            'id': _new_pm_id('VER'),
+            'systemVersion': _next_pm_version_tag(project),
+            'githubVersion': '',
+            'status': 'draft',
+            'summary': f"本次纳入 {len(final_items)} 项已完成问题",
+            'content': content[:20000],
+            'issueIds': [str(it.get('id') or '').strip() for it in final_items if str(it.get('id') or '').strip()],
+            'createdAt': now,
+            'updatedAt': now,
+            'createdBy': 'gongbu',
+        }
+        project.setdefault('versions', []).insert(0, ver)
+        mode = 'created'
+    # 点击“更新版本”后，统一给无版本编号的问题打上当前系统版本号
+    item_tag = str(ver.get('systemVersion') or '').strip()
+    for it in final_items:
+        it['versionRefId'] = ver['id']
+        it['versionTag'] = item_tag
+        it['versionedAt'] = now
+        it['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_pm_data(data)
+    return {'ok': True, 'project': project, 'version': ver, 'mode': mode}
 
 
 def pm_add_reply(project_id, item_id, text, role='user'):
@@ -3619,6 +4139,82 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(pm_delete_folder(project_id, folder_id))
             return
 
+        if p == '/api/pm/design-update':
+            project_id = body.get('projectId', '').strip()
+            section = body.get('section', '').strip()
+            if not project_id or not section:
+                self.send_json({'ok': False, 'error': 'projectId and section required'}, 400)
+                return
+            self.send_json(pm_update_design(project_id, section, body.get('content', ''), updated_by=body.get('updatedBy', 'user')))
+            return
+
+        if p == '/api/pm/design-generate':
+            project_id = body.get('projectId', '').strip()
+            section = body.get('section', '').strip()
+            if not project_id or not section:
+                self.send_json({'ok': False, 'error': 'projectId and section required'}, 400)
+                return
+            self.send_json(pm_generate_design(project_id, section))
+            return
+
+        if p == '/api/pm/version-generate':
+            project_id = body.get('projectId', '').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(pm_generate_version(project_id))
+            return
+
+        if p == '/api/pm/version-update':
+            project_id = body.get('projectId', '').strip()
+            version_id = body.get('versionId', '').strip()
+            if not project_id or not version_id:
+                self.send_json({'ok': False, 'error': 'projectId and versionId required'}, 400)
+                return
+            self.send_json(pm_update_version(
+                project_id,
+                version_id,
+                version=body.get('githubVersion', body.get('version', None)),
+                status=body.get('status', None),
+            ))
+            return
+
+        if p == '/api/pm/design-suggestion-create':
+            project_id = body.get('projectId', '').strip()
+            section = body.get('section', '').strip()
+            text = body.get('text', '').strip()
+            if not project_id or not section or not text:
+                self.send_json({'ok': False, 'error': 'projectId, section and text required'}, 400)
+                return
+            self.send_json(pm_create_design_suggestion(project_id, section, text))
+            return
+
+        if p == '/api/pm/design-suggestion-update':
+            project_id = body.get('projectId', '').strip()
+            section = body.get('section', '').strip()
+            suggestion_id = body.get('suggestionId', '').strip()
+            if not project_id or not section or not suggestion_id:
+                self.send_json({'ok': False, 'error': 'projectId, section and suggestionId required'}, 400)
+                return
+            self.send_json(pm_update_design_suggestion(
+                project_id,
+                section,
+                suggestion_id,
+                text=body.get('text', None),
+                status=body.get('status', None),
+            ))
+            return
+
+        if p == '/api/pm/design-suggestion-delete':
+            project_id = body.get('projectId', '').strip()
+            section = body.get('section', '').strip()
+            suggestion_id = body.get('suggestionId', '').strip()
+            if not project_id or not section or not suggestion_id:
+                self.send_json({'ok': False, 'error': 'projectId, section and suggestionId required'}, 400)
+                return
+            self.send_json(pm_delete_design_suggestion(project_id, section, suggestion_id))
+            return
+
         if p == '/api/pm/item-delete':
             project_id = body.get('projectId', '').strip()
             item_id = body.get('itemId', '').strip()
@@ -3674,6 +4270,23 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'planId and topicId required'}, 400)
                 return
             self.send_json(summarize_learning_topic(plan_id, topic_id))
+            return
+
+        if p == '/api/learning-plan/topic-delete':
+            plan_id = body.get('planId', '').strip()
+            topic_id = body.get('topicId', '').strip()
+            if not plan_id or not topic_id:
+                self.send_json({'ok': False, 'error': 'planId and topicId required'}, 400)
+                return
+            self.send_json(delete_learning_topic(plan_id, topic_id))
+            return
+
+        if p == '/api/learning-plan/delete':
+            plan_id = body.get('planId', '').strip()
+            if not plan_id:
+                self.send_json({'ok': False, 'error': 'planId required'}, 400)
+                return
+            self.send_json(delete_learning_plan(plan_id))
             return
 
         if p == '/api/scheduler-scan':
