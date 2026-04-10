@@ -7,6 +7,25 @@
       "owner": "gongbu",
       "items": [
         {
+          "id": "ISS-20260411015057054",
+          "title": "鲁班阁-测试问题",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260410103926513",
+          "description": "",
+          "owner": "gongbu",
+          "qa": [],
+          "plan": [],
+          "questions": [],
+          "resolution": "",
+          "createdAt": "2026-04-10T17:50:57.054117Z",
+          "updatedAt": "2026-04-10T17:51:21.467458Z",
+          "versionRefId": "VER-20260411013244420",
+          "versionTag": "v2026.04.11.1",
+          "versionedAt": "2026-04-10T17:51:21.467458Z"
+        },
+        {
           "id": "ISS-20260410142728055",
           "title": "将作监-项目跟进中增加项目计划模块",
           "type": "req",
@@ -30,17 +49,22 @@
               "role": "gongbu",
               "text": "项目计划模块已按需求完成开发并实现功能\n\n",
               "at": "2026-04-10T12:47:24.866107Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "项目计划模块已按需求完成开发并实现功能\n\n",
+              "at": "2026-04-10T17:50:01.299300Z"
             }
           ],
           "plan": [],
           "questions": [],
-          "resolution": "已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\"编辑计划\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。",
+          "resolution": "已按需求完成项目计划模块开发，实现了计划周期展示、当前时间节点标记、任务条可视化功能，以及右上角编辑按钮弹出类Excel表格编辑器，填写后可同步更新看板展示",
           "createdAt": "2026-04-10T06:27:28.055682Z",
-          "updatedAt": "2026-04-10T13:15:34.657780Z",
+          "updatedAt": "2026-04-10T17:50:01.299333Z",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
           "versionedAt": "2026-04-10T13:14:05.633672Z",
-          "lastGongbuRaw": "{\n  \"summary\":\"项目计划模块已按需求完成开发并实现功能\",\n  \"status\":\"done\",\n  \"questions\":[],\n  \"plan\":[],\n  \"resolution\":\"已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\\\"编辑计划\\\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。\"\n}"
+          "lastGongbuRaw": "{\n  \"summary\": \"项目计划模块已按需求完成开发并实现功能\",\n  \"status\": \"done\",\n  \"questions\": [],\n  \"plan\": [],\n  \"resolution\": \"已按需求完成项目计划模块开发，实现了计划周期展示、当前时间节点标记、任务条可视化功能，以及右上角编辑按钮弹出类Excel表格编辑器，填写后可同步更新看板展示\"\n}"
         },
         {
           "id": "ISS-20260410142244470",
@@ -141,19 +165,27 @@
               "role": "codex",
               "text": "Codex 跟进：已完成修复并验证。复审接口在出现上下文溢出时会自动降级为结构化结果，不再阻断流程。请刷新鲁班阁查看最新状态。",
               "at": "2026-04-10T03:48:10.360128Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "问题涉及版本号绑定逻辑错误，当前修复方案正确但需确认版本号映射关系\n\n确认版本号映射规则\n验证修复后的版本号绑定逻辑\n测试版本号显示是否符合预期",
+              "at": "2026-04-10T17:30:23.899833Z"
             }
           ],
           "plan": [
-            "收到补充后重新生成执行计划",
-            "分步实现并回填修复结论"
+            "确认版本号映射规则",
+            "验证修复后的版本号绑定逻辑",
+            "测试版本号显示是否符合预期"
           ],
           "questions": [
-            "请补充该问题的期望结果与验收标准（2-3条即可）。"
+            "系统自动生成的版本号具体指什么？是systemVersion还是其他自定义版本号？",
+            "githubVersion和systemVersion的具体映射关系是什么？",
+            "当前修复是否已经正确处理了版本号绑定逻辑？"
           ],
           "resolution": "已修复工部复审的 Context overflow 卡死：新增 overflow 识别、极简重试与结构化降级兜底；即使模型溢出也会返回可继续流转的评审结果，不再只写入报错原文。",
           "createdAt": "2026-04-10T02:49:30.476598Z",
-          "updatedAt": "2026-04-10T13:15:34.657780Z",
-          "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+          "updatedAt": "2026-04-10T17:31:03.980820Z",
+          "lastGongbuRaw": "{\n  \"summary\": \"问题涉及版本号绑定逻辑错误，当前修复方案正确但需确认版本号映射关系\",\n  \"status\": \"clarify\",\n  \"questions\": [\"系统自动生成的版本号具体指什么？是systemVersion还是其他自定义版本号？\", \"githubVersion和systemVersion的具体映射关系是什么？\", \"当前修复是否已经正确处理了版本号绑定逻辑？\"],\n  \"plan\": [\"确认版本号映射规则\", \"验证修复后的版本号绑定逻辑\", \"测试版本号显示是否符合预期\"],\n  \"resolution\": \"\"\n}",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
           "versionedAt": "2026-04-10T13:14:05.633672Z"
@@ -737,7 +769,7 @@
         }
       ],
       "createdAt": "2026-04-09T06:53:32.293091Z",
-      "updatedAt": "2026-04-10T13:15:34.657780Z",
+      "updatedAt": "2026-04-10T17:51:21.467458Z",
       "folders": [
         {
           "id": "FLD-DESIGN",
@@ -789,6 +821,20 @@
       },
       "versions": [
         {
+          "id": "VER-20260411013244420",
+          "systemVersion": "v2026.04.11.1",
+          "githubVersion": "",
+          "status": "draft",
+          "summary": "本次纳入 1 项已完成问题",
+          "content": "# 三省六部总控台 - 版本更新日志\n\n## BUG修复\n- **鲁班阁-测试问题**: 修复了鲁班阁模块中的测试相关问题，提升系统稳定性\n\n---\n*版本更新范围：基于已完成的问题清单生成*",
+          "issueIds": [
+            "ISS-20260411015057054"
+          ],
+          "createdAt": "2026-04-10T17:32:44.420245Z",
+          "updatedAt": "2026-04-10T17:51:21.467458Z",
+          "createdBy": "gongbu"
+        },
+        {
           "id": "VER-20260410200620770",
           "systemVersion": "v2026.04.10.2",
           "githubVersion": "31a7f80",
@@ -836,8 +882,8 @@
         }
       ],
       "runtime": {
-        "gongbuSessionId": "pm-gongbu-PRJ-20260409145332293-88552795",
-        "updatedAt": "2026-04-10T13:18:23.041190Z"
+        "gongbuSessionId": "pm-gongbu-PRJ-20260409145332293-25b9c701",
+        "updatedAt": "2026-04-10T18:03:43.639156Z"
       }
     }
   ]

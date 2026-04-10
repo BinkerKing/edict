@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-08 11:30:04",
+  "generatedAt": "2026-04-11 02:07:01",
   "officials": [
     {
       "id": "zhongshu",
@@ -9,16 +9,16 @@
       "rank": "正一品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 1,
+      "sessions": 0,
       "tokens_in": 0,
       "tokens_out": 0,
       "cache_read": 0,
       "cache_write": 0,
       "tokens_total": 0,
-      "messages": 11,
+      "messages": 0,
       "cost_usd": 0.0,
       "cost_cny": 0.0,
-      "last_active": "2026-04-07 11:04",
+      "last_active": null,
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -34,7 +34,7 @@
           "state": "Done"
         }
       ],
-      "merit_score": 13,
+      "merit_score": 12,
       "merit_rank": 1
     },
     {
@@ -45,16 +45,16 @@
       "rank": "正一品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 1,
+      "sessions": 0,
       "tokens_in": 0,
       "tokens_out": 0,
       "cache_read": 0,
       "cache_write": 0,
       "tokens_total": 0,
-      "messages": 15,
+      "messages": 0,
       "cost_usd": 0.0,
       "cost_cny": 0.0,
-      "last_active": "2026-04-07 11:10",
+      "last_active": null,
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -70,7 +70,7 @@
           "state": "Done"
         }
       ],
-      "merit_score": 9,
+      "merit_score": 8,
       "merit_rank": 2
     },
     {
@@ -81,23 +81,23 @@
       "rank": "正一品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 3,
+      "sessions": 0,
       "tokens_in": 0,
       "tokens_out": 0,
       "cache_read": 0,
       "cache_write": 0,
       "tokens_total": 0,
-      "messages": 39,
+      "messages": 0,
       "cost_usd": 0.0,
       "cost_cny": 0.0,
-      "last_active": "2026-04-07 11:13",
+      "last_active": null,
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
         "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 0,
+      "tasks_active": 1,
       "flow_participations": 3,
       "participated_edicts": [
         {
@@ -106,7 +106,7 @@
           "state": "Done"
         }
       ],
-      "merit_score": 9,
+      "merit_score": 6,
       "merit_rank": 3
     },
     {
@@ -117,16 +117,16 @@
       "rank": "储君",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 1,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
-      "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 3,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": "2026-04-07 10:29",
+      "sessions": 2,
+      "tokens_in": 40782,
+      "tokens_out": 956,
+      "cache_read": 20273,
+      "cache_write": 163,
+      "tokens_total": 41738,
+      "messages": 0,
+      "cost_usd": 0.1434,
+      "cost_cny": 1.04,
+      "last_active": "2026-04-10 23:50",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -142,7 +142,7 @@
           "state": "Done"
         }
       ],
-      "merit_score": 3,
+      "merit_score": 4,
       "merit_rank": 4
     },
     {
@@ -218,6 +218,36 @@
       "merit_rank": 6
     },
     {
+      "id": "gongbu",
+      "label": "工部",
+      "role": "工部尚书",
+      "emoji": "🔧",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 1,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 3,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": "2026-04-11 01:34",
+      "heartbeat": {
+        "status": "stalled",
+        "label": "🔴 已停滞 31分钟",
+        "ageSec": 1864
+      },
+      "tasks_done": 0,
+      "tasks_active": 3,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 1,
+      "merit_rank": 7
+    },
+    {
       "id": "bingbu",
       "label": "兵部",
       "role": "兵部尚书",
@@ -245,43 +275,13 @@
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 0,
-      "merit_rank": 7
+      "merit_rank": 8
     },
     {
       "id": "xingbu",
       "label": "刑部",
       "role": "刑部尚书",
       "emoji": "⚖️",
-      "rank": "正二品",
-      "model": "bailian-cn/qwen3-coder-plus",
-      "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
-      "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
-      "heartbeat": {
-        "status": "idle",
-        "label": "⚪ 待命",
-        "ageSec": null
-      },
-      "tasks_done": 0,
-      "tasks_active": 0,
-      "flow_participations": 0,
-      "participated_edicts": [],
-      "merit_score": 0,
-      "merit_rank": 8
-    },
-    {
-      "id": "gongbu",
-      "label": "工部",
-      "role": "工部尚书",
-      "emoji": "🔧",
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
@@ -369,10 +369,10 @@
     }
   ],
   "totals": {
-    "tokens_total": 0,
-    "cache_total": 0,
-    "cost_usd": 0.0,
-    "cost_cny": 0.0,
+    "tokens_total": 41738,
+    "cache_total": 20436,
+    "cost_usd": 0.14,
+    "cost_cny": 1.04,
     "tasks_done": 0
   },
   "top_official": "中书省"
