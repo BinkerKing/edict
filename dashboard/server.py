@@ -11,7 +11,7 @@ Endpoints:
   GET  /api/model-change-log   → data/model_change_log.json
   GET  /api/last-result        → data/last_model_change_result.json
 """
-import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time
+import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time, uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from urllib.request import Request, urlopen
@@ -56,6 +56,7 @@ SCRIPTS = BASE.parent / 'scripts'
 _ACTIVE_TASK_DATA_DIR = None
 LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
 PM_FILE = DATA / 'project_management.json'
+JZG_FILE = DATA / 'jiangzuojian.json'
 PM_DESIGN_FOLDER_ID = 'FLD-DESIGN'
 PM_DESIGN_FOLDER_NAME = '项目设计'
 PM_VERSION_FOLDER_ID = 'FLD-VERSION'
@@ -63,6 +64,32 @@ PM_VERSION_FOLDER_NAME = '版本控制'
 PM_DESIGN_SECTIONS = ('requirements', 'architecture', 'function')
 PM_SUGGESTION_STATUS = {'pending', 'adopted'}
 PM_VERSION_STATUS = {'draft', 'local', 'github'}
+JZG_FOLLOWUP_FOLDER_ID = 'JZG-FOLLOWUP'
+JZG_FOLLOWUP_FOLDER_NAME = '项目跟进'
+JZG_STRATEGY_FOLDER_ID = 'JZG-STRATEGY'
+JZG_STRATEGY_FOLDER_NAME = '策议司'
+JZG_BOARD_FOLDER_ID = 'JZG-BOARD'
+JZG_BOARD_FOLDER_NAME = '智能看板'
+JZG_DEFAULT_DAILY_TEMPLATE = (
+    "【将作监日报】{date}\n"
+    "项目：{project_name}\n\n"
+    "一、当日完成\n"
+    "{done_items}\n\n"
+    "二、当前未完成\n"
+    "{todo_items}\n\n"
+    "三、风险与建议\n"
+    "- （由吏部补充）\n"
+)
+JZG_DEFAULT_WEEKLY_TEMPLATE = (
+    "【将作监周报】{start_date} ~ {end_date}\n"
+    "项目：{project_name}\n\n"
+    "一、本周完成\n"
+    "{done_items}\n\n"
+    "二、当前未完成\n"
+    "{todo_items}\n\n"
+    "三、下周计划与提醒\n"
+    "- （由吏部补充）\n"
+)
 
 # 静态资源 MIME 类型
 _MIME_TYPES = {
@@ -708,7 +735,7 @@ def _extract_json_payload(text: str):
     return None
 
 
-def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420):
+def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420, session_id: str = ''):
     if not _SAFE_NAME_RE.match(agent_id):
         return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
     if not _check_agent_workspace(agent_id):
@@ -716,13 +743,58 @@ def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420):
     if not _check_gateway_alive():
         return {'ok': False, 'error': 'Gateway 未启动'}
     timeout_sec = max(120, min(900, int(timeout_sec or 420)))
-    cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', message, '--timeout', str(timeout_sec)]
+    cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', message, '--timeout', str(timeout_sec), '--json']
+    sid = str(session_id or '').strip()
+    if sid:
+        cmd.extend(['--session-id', sid])
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_sec + 30)
-        raw = ((result.stdout or '') + '\n' + (result.stderr or '')).strip()
+        stdout = (result.stdout or '').strip()
+        stderr = (result.stderr or '').strip()
         if result.returncode != 0:
-            return {'ok': False, 'error': (result.stderr or result.stdout or '执行失败').strip()[:500], 'raw': raw[:2000]}
-        return {'ok': True, 'raw': raw}
+            raw = (stdout + ('\n' + stderr if stderr else '')).strip()
+            # 有些 provider 在返回正文时仍带非零退出码，优先尝试提取结构化 payload
+            parsed = _extract_json_payload(raw)
+            if isinstance(parsed, dict):
+                payloads = (((parsed.get('result') or {}).get('payloads')) or [])
+                texts = []
+                for p in payloads:
+                    t = str((p or {}).get('text') or '').strip()
+                    if t:
+                        texts.append(t)
+                if texts:
+                    return {'ok': True, 'raw': '\n'.join(texts).strip()}
+            return {'ok': False, 'error': (stderr or stdout or '执行失败').strip()[:500], 'raw': raw[:2000]}
+        # 优先解析 --json 结构，避免 stdout 混入其他日志导致解析失败
+        try:
+            obj = json.loads(stdout or '{}')
+            payloads = (((obj.get('result') or {}).get('payloads')) or [])
+            texts = []
+            for p in payloads:
+                t = str((p or {}).get('text') or '').strip()
+                if t:
+                    texts.append(t)
+            raw = '\n'.join(texts).strip()
+            if raw:
+                return {'ok': True, 'raw': raw}
+            status = str(obj.get('status') or '').strip().lower()
+            summary = str(obj.get('summary') or '').strip()
+            # 部分 provider 会把正文落在 summary 且 status 非 ok，这里按正文兼容
+            if summary:
+                low = summary.lower()
+                bad = ('error' in low) or ('failed' in low) or ('timeout' in low) or _looks_like_context_overflow(summary)
+                if not bad:
+                    return {'ok': True, 'raw': summary}
+            if status and status != 'ok':
+                err = str(obj.get('error') or obj.get('summary') or '执行失败').strip()
+                return {'ok': False, 'error': err[:500], 'raw': stdout[:2000]}
+            # 兜底取 summary，避免空文本
+            if summary:
+                return {'ok': True, 'raw': summary}
+            return {'ok': False, 'error': '模型未返回有效文本', 'raw': stdout[:2000]}
+        except Exception:
+            raw = (stdout + ('\n' + stderr if stderr else '')).strip()
+            return {'ok': True, 'raw': raw}
     except subprocess.TimeoutExpired:
         return {'ok': False, 'error': f'礼部响应超时（>{timeout_sec}s）'}
     except Exception as e:
@@ -1331,16 +1403,90 @@ def _ensure_pm_project_versions(project):
     project['versions'] = normalized
 
 
+def _ensure_pm_project_runtime(project):
+    if not isinstance(project, dict):
+        return
+    rt = project.get('runtime')
+    if not isinstance(rt, dict):
+        rt = {}
+    sid = str(rt.get('gongbuSessionId') or '').strip()
+    if not sid:
+        pid = str(project.get('id') or 'unknown')
+        sid = f"pm-gongbu-{pid}-{uuid.uuid4().hex[:8]}"
+    rt['gongbuSessionId'] = sid
+    rt['updatedAt'] = now_iso()
+    project['runtime'] = rt
+
+
+def _get_pm_gongbu_session_id(project):
+    _ensure_pm_project_runtime(project)
+    rt = project.get('runtime') or {}
+    return str(rt.get('gongbuSessionId') or '').strip()
+
+
+def _reset_pm_gongbu_session_id(project):
+    _ensure_pm_project_runtime(project)
+    rt = project.get('runtime') or {}
+    pid = str(project.get('id') or 'unknown')
+    sid = f"pm-gongbu-{pid}-{uuid.uuid4().hex[:8]}"
+    rt['gongbuSessionId'] = sid
+    rt['updatedAt'] = now_iso()
+    project['runtime'] = rt
+    return sid
+
+
 def _next_pm_version_tag(project):
     now = datetime.datetime.now()
     prefix = f"v{now:%Y.%m.%d}"
-    existed = {str(x.get('version') or '') for x in (project.get('versions') or [])}
+    existed = set()
+    for x in (project.get('versions') or []):
+        for key in ('systemVersion', 'version'):
+            tag = str((x or {}).get(key) or '').strip()
+            if tag:
+                existed.add(tag)
     seq = 1
     while True:
         tag = f"{prefix}.{seq}"
         if tag not in existed:
             return tag
         seq += 1
+
+
+def _build_pm_version_fallback_markdown(items):
+    groups = {
+        'BUG修复': [],
+        '需求交付': [],
+        '优化改进': [],
+    }
+    for it in (items or []):
+        tp = str(it.get('type') or '').strip().lower()
+        if tp in {'bug', '缺陷'}:
+            bucket = 'BUG修复'
+        elif tp in {'opt', '优化'}:
+            bucket = '优化改进'
+        else:
+            bucket = '需求交付'
+        title = str(it.get('title') or '未命名事项').strip()[:120]
+        resolution = str(it.get('resolution') or '').strip().replace('\n', ' ')
+        if not resolution:
+            resolution = str(it.get('description') or '').strip().replace('\n', ' ')
+        resolution = resolution[:140]
+        groups[bucket].append((title, resolution))
+
+    lines = ['# 版本更新日志（系统兜底生成）', '']
+    for sec in ('BUG修复', '需求交付', '优化改进'):
+        lines.append(f'## {sec}')
+        rows = groups.get(sec) or []
+        if not rows:
+            lines.append('- 本次无')
+        else:
+            for title, desc in rows:
+                if desc:
+                    lines.append(f'- **{title}**：{desc}')
+                else:
+                    lines.append(f'- **{title}**')
+        lines.append('')
+    return '\n'.join(lines).strip()
 
 
 def pm_update_version(project_id, version_id, version=None, status=None):
@@ -1351,6 +1497,7 @@ def pm_update_version(project_id, version_id, version=None, status=None):
     _ensure_pm_project_folders(project)
     _ensure_pm_project_design(project)
     _ensure_pm_project_versions(project)
+    _ensure_pm_project_runtime(project)
     vid = str(version_id or '').strip()
     if not vid:
         return {'ok': False, 'error': 'versionId required'}
@@ -1393,6 +1540,7 @@ def pm_list_projects():
         _ensure_pm_project_folders(p)
         _ensure_pm_project_design(p)
         _ensure_pm_project_versions(p)
+        _ensure_pm_project_runtime(p)
     projects_sorted = sorted(projects, key=lambda x: x.get('updatedAt', ''), reverse=True)
     _save_pm_data(data)
     return {'ok': True, 'projects': projects_sorted}
@@ -1423,9 +1571,14 @@ def pm_create_project(name, description=''):
         },
         'items': [],
         'versions': [],
+        'runtime': {
+            'gongbuSessionId': '',
+            'updatedAt': now_iso(),
+        },
         'createdAt': now_iso(),
         'updatedAt': now_iso(),
     }
+    _ensure_pm_project_runtime(proj)
     data['projects'].insert(0, proj)
     _save_pm_data(data)
     return {'ok': True, 'project': proj}
@@ -1763,6 +1916,7 @@ def pm_generate_design(project_id, section):
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
     _ensure_pm_project_folders(project)
     _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
     sec = str(section or '').strip().lower()
     if sec not in PM_DESIGN_SECTIONS:
         return {'ok': False, 'error': f'不支持的设计章节: {section}'}
@@ -1807,7 +1961,7 @@ def pm_generate_design(project_id, section):
         f"{hints[sec]}\n"
         "输出要求：仅输出 Markdown 正文，不要输出解释。"
     )
-    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300)
+    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300, session_id=_get_pm_gongbu_session_id(project))
     if not ai.get('ok'):
         return {'ok': False, 'error': ai.get('error', '工部生成失败')}
     content = str(ai.get('raw') or '').strip()
@@ -1834,6 +1988,7 @@ def pm_generate_version(project_id):
     _ensure_pm_project_folders(project)
     _ensure_pm_project_design(project)
     _ensure_pm_project_versions(project)
+    _ensure_pm_project_runtime(project)
 
     versions = project.get('versions') or []
     latest = versions[0] if versions else None
@@ -1861,17 +2016,27 @@ def pm_generate_version(project_id):
         if iid and iid not in final_ids:
             final_ids.append(iid)
     if not final_ids:
-        return {'ok': False, 'error': '暂无可汇总的问题（已完成且未标记版本）'}
+        # 自愈：若当前草稿版本日志是 overflow 文本，则允许基于该草稿已纳入的问题重建日志
+        if latest_is_draft and _looks_like_context_overflow((latest or {}).get('content') or ''):
+            reuse_ids = [str(x).strip() for x in ((latest or {}).get('issueIds') or []) if str(x).strip()]
+            final_ids = [iid for iid in reuse_ids if iid in item_map]
+            if not final_ids:
+                return {'ok': False, 'error': '暂无可汇总的问题（已完成且未标记版本）'}
+        else:
+            return {'ok': False, 'error': '暂无可汇总的问题（已完成且未标记版本）'}
     final_items = [item_map[iid] for iid in final_ids if iid in item_map][:180]
 
     brief = str((((project.get('design') or {}).get('brief') or {}).get('content') or '')).strip()
     issue_txt = []
     for it in final_items:
+        desc = str(it.get('description') or '').strip().replace('\n', ' ')
+        reso = str(it.get('resolution') or '').strip().replace('\n', ' ')
         issue_txt.append(
             f"- [{it.get('type','-').upper()}|{it.get('priority','-')}] {it.get('title','')}\n"
-            f"  描述: {str(it.get('description') or '').strip()[:300]}\n"
-            f"  结论: {str(it.get('resolution') or '').strip()[:300]}"
+            f"  描述: {desc[:160]}\n"
+            f"  结论: {reso[:160]}"
         )
+    issue_txt = issue_txt[:120]
     prompt = (
         "你是工部尚书，负责输出版本更改清单。\n"
         "请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n"
@@ -1885,17 +2050,56 @@ def pm_generate_version(project_id):
         "待汇总的问题：\n"
         + '\n'.join(issue_txt)
     )
-    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300)
+    # 版本生成为“单次任务”，不复用历史会话，避免上下文累积
+    version_sid = _reset_pm_gongbu_session_id(project)
+    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300, session_id=version_sid)
+    if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
+        ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
+    if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
+        # 出现上下文溢出后，先重置会话再做轻量重试，避免旧会话继续污染
+        version_sid = _reset_pm_gongbu_session_id(project)
+        mini_prompt = (
+            "你是工部尚书，负责输出版本更改清单。\n"
+            "请严格输出 Markdown，并按以下三段：\n"
+            "## BUG修复\n## 需求交付\n## 优化改进\n"
+            "每条 1 句，禁止编造。\n\n"
+            f"项目: {project.get('name','')}\n"
+            f"纳入问题数: {len(final_items)}\n"
+            "问题摘要:\n" + '\n'.join(
+                f"- [{str(it.get('type') or '').upper()}|{str(it.get('priority') or '')}] "
+                f"{str(it.get('title') or '')[:120]}"
+                for it in final_items[:80]
+            )
+        )
+        ai = _run_agent_sync('gongbu', mini_prompt, timeout_sec=240, session_id=version_sid + '-version-retry')
+        if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
+            ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
     if not ai.get('ok'):
-        return {'ok': False, 'error': ai.get('error', '工部版本汇总失败')}
-    content = str(ai.get('raw') or '').strip()
-    if not content:
-        return {'ok': False, 'error': '工部未返回有效更改清单'}
+        err_text = str(ai.get('error') or '').strip()
+        # provider 兼容：非零退出但正文在 error 字段里时，按正文继续
+        if err_text and ('## ' in err_text or '- ' in err_text):
+            content = err_text
+        else:
+            return {'ok': False, 'error': f"工部版本汇总失败: {str(ai.get('error') or '未知错误')[:220]}"}
+    else:
+        content = str(ai.get('raw') or '').strip()
+    if (not content) or _looks_like_context_overflow(content):
+        return {'ok': False, 'error': '工部版本汇总失败: 模型返回无效内容（疑似上下文过长）'}
 
     now = now_iso()
     if latest_is_draft:
         ver = latest
-        if not str(ver.get('systemVersion') or '').strip():
+        # 若草稿版本号为空或与其他版本重复，自动重排为下一个可用版本号
+        cur_tag = str(ver.get('systemVersion') or '').strip()
+        dup = False
+        if cur_tag:
+            for vv in (project.get('versions') or []):
+                if vv is ver:
+                    continue
+                if str(vv.get('systemVersion') or vv.get('version') or '').strip() == cur_tag:
+                    dup = True
+                    break
+        if (not cur_tag) or dup:
             ver['systemVersion'] = _next_pm_version_tag(project)
         ver.setdefault('githubVersion', '')
         ver['summary'] = f"本次纳入 {len(final_items)} 项已完成问题"
@@ -1953,6 +2157,13 @@ def pm_add_reply(project_id, item_id, text, role='user'):
 
 def _build_pm_gongbu_prompt(project, item, mode='review'):
     qas = item.get('qa') or []
+
+    def _clip_text(t, limit=500):
+        s = str(t or '').strip()
+        if len(s) <= limit:
+            return s
+        return s[:limit] + f"...(截断{len(s)-limit}字)"
+
     def _qa_role_label(x):
         role = str((x or {}).get('role') or '').strip().lower()
         if role == 'user':
@@ -1960,7 +2171,20 @@ def _build_pm_gongbu_prompt(project, item, mode='review'):
         if role == 'codex':
             return 'Codex'
         return '工部'
-    qtxt = '\n'.join([f"{_qa_role_label(x)}: {x.get('text','')}" for x in qas[-12:]])
+
+    # 动态裁剪历史问答：严格限长，优先保留最新内容
+    qtxt_lines = []
+    qtxt_budget = 1200
+    for x in reversed(qas[-8:]):
+        line = f"{_qa_role_label(x)}: {_clip_text(x.get('text',''), 180)}"
+        if sum(len(i) + 1 for i in qtxt_lines) + len(line) > qtxt_budget:
+            break
+        qtxt_lines.append(line)
+    qtxt_lines.reverse()
+    qtxt = '\n'.join(qtxt_lines)
+
+    desc = _clip_text(item.get('description', ''), 900)
+    resolution = _clip_text(item.get('resolution', ''), 500)
     return (
         "你是工部尚书，负责软件项目的问题治理、流程优化和推进提醒。\n"
         "请根据项目问题单进行评审或继续推进。\n"
@@ -1983,9 +2207,32 @@ def _build_pm_gongbu_prompt(project, item, mode='review'):
         f"类型: {item.get('type','')}\n"
         f"优先级: {item.get('priority','')}\n"
         f"标题: {item.get('title','')}\n"
-        f"描述: {item.get('description','')}\n"
+        f"描述: {desc}\n"
+        f"当前修复结论: {resolution}\n"
         f"历史问答:\n{qtxt}\n"
     )
+
+
+def _looks_like_context_overflow(text):
+    s = str(text or '').strip().lower()
+    if not s:
+        return False
+    # 仅匹配“明确报错”场景，避免把正常业务文本里的术语误判为溢出
+    if 'prompt too large for the model' in s:
+        return True
+    if s.startswith('context overflow'):
+        return True
+    if s.startswith('error: context overflow'):
+        return True
+    if 'maximum context length' in s:
+        return True
+    if 'token limit exceeded' in s:
+        return True
+    if ('/reset' in s) and ('context' in s or 'prompt' in s):
+        return True
+    if '上下文溢出' in s or '上下文过长' in s:
+        return True
+    return False
 
 
 def pm_gongbu_review(project_id, item_id, mode='review'):
@@ -1997,18 +2244,47 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
     if not item:
         return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
 
+    _ensure_pm_project_runtime(project)
     prompt = _build_pm_gongbu_prompt(project, item, mode=mode)
-    ai = _run_agent_sync('gongbu', prompt, timeout_sec=480)
+    # 复审使用“单次新会话 + 结构化看板上下文”，避免长会话导致溢出
+    review_sid = _reset_pm_gongbu_session_id(project)
+    ai = _run_agent_sync('gongbu', prompt, timeout_sec=480, session_id=review_sid)
+    if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
+        ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
+
+    # 自动降载重试：出现上下文溢出时，用极简上下文再试一次
+    if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
+        review_sid = _reset_pm_gongbu_session_id(project)
+        mini_prompt = (
+            "你是工部尚书。请只输出 JSON。\n"
+            "{\n"
+            "  \"summary\":\"一句话结论\",\n"
+            "  \"status\":\"clarify|in_progress|done|blocked\",\n"
+            "  \"questions\":[\"问题1\"],\n"
+            "  \"plan\":[\"步骤1\"],\n"
+            "  \"resolution\":\"完成结论或空\"\n"
+            "}\n"
+            f"模式: {mode}\n"
+            f"项目: {project.get('name','')}\n"
+            f"问题单ID: {item.get('id','')}\n"
+            f"类型: {item.get('type','')}\n"
+            f"优先级: {item.get('priority','')}\n"
+            f"标题: {str(item.get('title',''))[:200]}\n"
+            f"描述: {str(item.get('description',''))[:900]}\n"
+            f"最近用户补充: {str(((item.get('qa') or [])[-1].get('text') if (item.get('qa') or []) else '') or '')[:500]}\n"
+        )
+        ai = _run_agent_sync('gongbu', mini_prompt, timeout_sec=240, session_id=review_sid + '-retry')
+        if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
+            ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
+
     if not ai.get('ok'):
-        return {'ok': False, 'error': ai.get('error', '工部评审失败')}
+        return {'ok': False, 'error': f"工部复审失败: {str(ai.get('error') or '未知错误')[:220]}"}
     raw = str(ai.get('raw') or '').strip()
     parsed = _extract_json_payload(raw)
     if not isinstance(parsed, dict):
-        item.setdefault('qa', []).append({'role': 'gongbu', 'text': raw[:9000], 'at': now_iso()})
-        item['updatedAt'] = now_iso()
-        project['updatedAt'] = now_iso()
-        _save_pm_data(data)
-        return {'ok': True, 'item': item, 'project': project, 'warning': '工部返回非结构化结果，已记录原文'}
+        if _looks_like_context_overflow(raw):
+            return {'ok': False, 'error': '工部复审失败: 输出仍发生上下文溢出'}
+        return {'ok': False, 'error': f"工部复审失败: 输出非JSON（{raw[:120]}）"}
 
     status = str(parsed.get('status') or '').strip().lower()
     if status not in {'clarify', 'in_progress', 'done', 'blocked'}:
@@ -2033,6 +2309,644 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
     return {'ok': True, 'item': item, 'project': project}
+
+
+def _load_jzg_data():
+    data = atomic_json_read(JZG_FILE, {'projects': []})
+    if not isinstance(data, dict):
+        return {'projects': []}
+    if not isinstance(data.get('projects'), list):
+        data['projects'] = []
+    return data
+
+
+def _save_jzg_data(data):
+    if not isinstance(data, dict):
+        data = {'projects': []}
+    if not isinstance(data.get('projects'), list):
+        data['projects'] = []
+    atomic_json_write(JZG_FILE, data)
+
+
+def _ensure_jzg_project(project):
+    if not isinstance(project, dict):
+        return
+    now = now_iso()
+    project.setdefault('id', _new_pm_id('JZG'))
+    project.setdefault('name', '未命名项目')
+    project.setdefault('description', '')
+    project.setdefault('owner', 'libu_hr')
+    project['folders'] = [
+        {'id': JZG_FOLLOWUP_FOLDER_ID, 'name': JZG_FOLLOWUP_FOLDER_NAME},
+        {'id': JZG_STRATEGY_FOLDER_ID, 'name': JZG_STRATEGY_FOLDER_NAME},
+        {'id': JZG_BOARD_FOLDER_ID, 'name': JZG_BOARD_FOLDER_NAME},
+    ]
+    followups = project.get('followups')
+    if not isinstance(followups, dict):
+        followups = {}
+    if not isinstance(followups.get('items'), list):
+        followups['items'] = []
+    for item in (followups.get('items') or []):
+        if not isinstance(item, dict):
+            continue
+        item.setdefault('completedAt', '')
+        item.setdefault('description', '')
+        item.setdefault('memo', '')
+        item.setdefault('priority', 'P2')
+        item.setdefault('category', '通用')
+        item.setdefault('dueDate', '')
+    if not isinstance(followups.get('daily'), list):
+        followups['daily'] = []
+    if not isinstance(followups.get('dailyReports'), list):
+        followups['dailyReports'] = []
+    for rep in (followups.get('dailyReports') or []):
+        if not isinstance(rep, dict):
+            continue
+        rep.setdefault('id', _new_pm_id('JDR'))
+        rep.setdefault('date', '')
+        rep.setdefault('report', '')
+        rep.setdefault('createdAt', now)
+    tpl = followups.get('reportTemplates')
+    if not isinstance(tpl, dict):
+        tpl = {}
+    tpl.setdefault('daily', JZG_DEFAULT_DAILY_TEMPLATE)
+    tpl.setdefault('weekly', JZG_DEFAULT_WEEKLY_TEMPLATE)
+    followups['reportTemplates'] = tpl
+    if not isinstance(followups.get('plan'), dict):
+        followups['plan'] = {}
+    plan = followups.get('plan') or {}
+    if not isinstance(plan.get('rows'), list):
+        plan['rows'] = [
+            {'name': '需求梳理', 'start': '', 'end': '', 'owner': '', 'progress': 0},
+            {'name': '方案设计', 'start': '', 'end': '', 'owner': '', 'progress': 0},
+            {'name': '开发实现', 'start': '', 'end': '', 'owner': '', 'progress': 0},
+            {'name': '测试验收', 'start': '', 'end': '', 'owner': '', 'progress': 0},
+            {'name': '上线发布', 'start': '', 'end': '', 'owner': '', 'progress': 0},
+        ]
+    plan.setdefault('updatedAt', now)
+    followups['plan'] = plan
+    followups.setdefault('updatedAt', now)
+    project['followups'] = followups
+
+    strategy = project.get('strategy')
+    if not isinstance(strategy, dict):
+        strategy = {}
+    if not isinstance(strategy.get('topics'), list):
+        strategy['topics'] = []
+    strategy.setdefault('updatedAt', now)
+    project['strategy'] = strategy
+
+    board = project.get('board')
+    if not isinstance(board, dict):
+        board = {}
+    if not isinstance(board.get('reminders'), list):
+        board['reminders'] = []
+    board.setdefault('updatedAt', now)
+    project['board'] = board
+    project.setdefault('createdAt', now)
+    project.setdefault('updatedAt', now)
+
+
+def _jzg_find_project(data, project_id):
+    return next((p for p in (data.get('projects') or []) if str(p.get('id') or '') == str(project_id or '')), None)
+
+
+def jzg_list_projects():
+    data = _load_jzg_data()
+    projects = data.get('projects') or []
+    for p in projects:
+        _ensure_jzg_project(p)
+    projects = sorted(projects, key=lambda x: str(x.get('updatedAt') or ''), reverse=True)
+    data['projects'] = projects
+    _save_jzg_data(data)
+    return {'ok': True, 'projects': projects}
+
+
+def jzg_create_project(name, description=''):
+    nm = str(name or '').strip()
+    if not nm:
+        return {'ok': False, 'error': '项目名称不能为空'}
+    data = _load_jzg_data()
+    proj = {
+        'id': _new_pm_id('JZG'),
+        'name': nm[:120],
+        'description': str(description or '').strip()[:2000],
+        'owner': 'libu_hr',
+        'followups': {'items': [], 'plan': {'rows': [], 'updatedAt': now_iso()}, 'updatedAt': now_iso()},
+        'strategy': {'topics': [], 'updatedAt': now_iso()},
+        'board': {'reminders': [], 'updatedAt': now_iso()},
+        'createdAt': now_iso(),
+        'updatedAt': now_iso(),
+    }
+    _ensure_jzg_project(proj)
+    data.setdefault('projects', []).insert(0, proj)
+    _save_jzg_data(data)
+    return {'ok': True, 'project': proj}
+
+
+def jzg_add_followup(project_id, title):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    t = str(title or '').strip()
+    if not t:
+        return {'ok': False, 'error': '跟进项标题不能为空'}
+    now = now_iso()
+    item = {
+        'id': _new_pm_id('JTG'),
+        'title': t[:240],
+        'status': 'todo',
+        'completedAt': '',
+        'description': '',
+        'memo': '',
+        'priority': 'P2',
+        'category': '通用',
+        'dueDate': '',
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    project['followups']['items'].insert(0, item)
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': item}
+
+
+def jzg_toggle_followup(project_id, item_id, status):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    sid = str(item_id or '').strip()
+    item = next((x for x in (project['followups'].get('items') or []) if str(x.get('id') or '') == sid), None)
+    if not item:
+        return {'ok': False, 'error': f'跟进项 {item_id} 不存在'}
+    st = str(status or '').strip().lower()
+    if st not in {'todo', 'done'}:
+        st = 'todo'
+    now = now_iso()
+    item['status'] = st
+    item['completedAt'] = now if st == 'done' else ''
+    item['updatedAt'] = now
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': item}
+
+
+def jzg_update_followup(project_id, item_id, title=None, description=None, memo=None, priority=None, category=None, due_date=None, status=None):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    sid = str(item_id or '').strip()
+    item = next((x for x in (project['followups'].get('items') or []) if str(x.get('id') or '') == sid), None)
+    if not item:
+        return {'ok': False, 'error': f'跟进项 {item_id} 不存在'}
+    if title is not None:
+        t = str(title or '').strip()
+        if not t:
+            return {'ok': False, 'error': 'title 不能为空'}
+        item['title'] = t[:240]
+    if description is not None:
+        item['description'] = str(description or '').strip()[:8000]
+    if memo is not None:
+        item['memo'] = str(memo or '').strip()[:8000]
+    if priority is not None:
+        p = str(priority or '').strip().upper()
+        if p not in {'P0', 'P1', 'P2', 'P3'}:
+            return {'ok': False, 'error': f'不支持的优先级: {priority}'}
+        item['priority'] = p
+    if category is not None:
+        item['category'] = str(category or '').strip()[:80] or '通用'
+    if due_date is not None:
+        item['dueDate'] = str(due_date or '').strip()[:10]
+    if status is not None:
+        st = str(status or '').strip().lower()
+        if st not in {'todo', 'done'}:
+            return {'ok': False, 'error': f'不支持的状态: {status}'}
+        item['status'] = st
+        item['completedAt'] = now_iso() if st == 'done' else ''
+    now = now_iso()
+    item['updatedAt'] = now
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': item}
+
+
+def jzg_delete_followup(project_id, item_id):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    sid = str(item_id or '').strip()
+    items = project['followups'].get('items') or []
+    idx = next((i for i, x in enumerate(items) if str((x or {}).get('id') or '') == sid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'跟进项 {item_id} 不存在'}
+    removed = items.pop(idx)
+    now = now_iso()
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': removed}
+
+
+def jzg_archive_daily_report(project_id, date, report):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    dt = str(date or '').strip()[:10]
+    txt = str(report or '').strip()
+    if not dt:
+        return {'ok': False, 'error': 'date required'}
+    if not txt:
+        return {'ok': False, 'error': 'report required'}
+    now = now_iso()
+    rec = {
+        'id': _new_pm_id('JDR'),
+        'date': dt,
+        'report': txt[:30000],
+        'createdAt': now,
+    }
+    project['followups']['dailyReports'].insert(0, rec)
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'record': rec}
+
+
+def jzg_update_daily_report(project_id, record_id, report, date=None):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    rid = str(record_id or '').strip()
+    if not rid:
+        return {'ok': False, 'error': 'recordId required'}
+    txt = str(report or '').strip()
+    if not txt:
+        return {'ok': False, 'error': 'report required'}
+    recs = project['followups'].get('dailyReports') or []
+    target = next((r for r in recs if str((r or {}).get('id') or '') == rid), None)
+    if not target:
+        return {'ok': False, 'error': f'留档记录 {record_id} 不存在'}
+    target['report'] = txt[:30000]
+    if date is not None:
+        target['date'] = str(date or '').strip()[:10]
+    target['updatedAt'] = now_iso()
+    now = now_iso()
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'record': target}
+
+
+def jzg_update_report_template(project_id, mode, template):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    md = str(mode or '').strip().lower()
+    if md not in {'daily', 'weekly'}:
+        return {'ok': False, 'error': f'不支持的模版类型: {mode}'}
+    text = str(template or '').strip()
+    if not text:
+        text = JZG_DEFAULT_DAILY_TEMPLATE if md == 'daily' else JZG_DEFAULT_WEEKLY_TEMPLATE
+    now = now_iso()
+    project['followups']['reportTemplates'][md] = text[:12000]
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {
+        'ok': True,
+        'project': project,
+        'mode': md,
+        'template': project['followups']['reportTemplates'][md],
+    }
+
+
+def jzg_generate_report_template(project_id, mode='daily', requirement='', current_template=''):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    md = str(mode or '').strip().lower()
+    if md not in {'daily', 'weekly'}:
+        return {'ok': False, 'error': f'不支持的模版类型: {mode}'}
+    req = str(requirement or '').strip()
+    if not req:
+        return {'ok': False, 'error': 'requirement required'}
+
+    default_tpl = JZG_DEFAULT_DAILY_TEMPLATE if md == 'daily' else JZG_DEFAULT_WEEKLY_TEMPLATE
+    existing_tpl = str((((project.get('followups') or {}).get('reportTemplates') or {}).get(md) or '')).strip()
+    base_tpl = str(current_template or '').strip() or existing_tpl or default_tpl
+    vars_hint = (
+        "{project_name}, {date}, {done_items}, {todo_items}"
+        if md == 'daily' else
+        "{project_name}, {start_date}, {end_date}, {done_items}, {todo_items}"
+    )
+    prompt = (
+        "你是吏部尚书，负责为将作监输出可复用的报告模版。\n"
+        "请根据用户要求，生成一份“可填充变量”的中文报告模版。\n"
+        "要求：\n"
+        "1) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
+        "2) JSON 格式固定为：{\"template\":\"...\"}\n"
+        "3) 必须保留并合理使用变量占位符，允许调整结构和措辞。\n"
+        f"4) 本次可用变量：{vars_hint}\n\n"
+        f"模版类型：{'日报' if md == 'daily' else '周报'}\n"
+        f"项目名称：{project.get('name') or project.get('id') or '未命名项目'}\n"
+        f"用户要求：{req}\n\n"
+        "当前模版（参考）：\n"
+        f"{base_tpl[:12000]}\n"
+    )
+    ai = _run_agent_sync('libu', prompt, timeout_sec=300)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': ai.get('error', '吏部生成模版失败')}
+    raw = str(ai.get('raw') or '').strip()
+    payload = _extract_json_payload(raw)
+    template = ''
+    if isinstance(payload, dict):
+        template = str(payload.get('template') or '').strip()
+    if not template:
+        template = raw
+    if not template:
+        return {'ok': False, 'error': '吏部未返回有效模版内容'}
+    return {'ok': True, 'mode': md, 'template': template[:12000]}
+
+
+def _jzg_render_items_for_prompt(items):
+    out = []
+    for idx, it in enumerate(items, 1):
+        title = str((it or {}).get('title') or (it or {}).get('id') or '').strip()
+        done_at = str((it or {}).get('completedAt') or '').replace('T', ' ').strip()
+        if done_at:
+            out.append(f"{idx}. {title}（完成时间：{done_at[:16]}）")
+        else:
+            out.append(f"{idx}. {title}")
+    return '\n'.join(out) if out else '1. 无'
+
+
+def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='', end_date='', template=''):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    md = str(mode or '').strip().lower()
+    if md not in {'daily', 'weekly'}:
+        return {'ok': False, 'error': f'不支持的报告类型: {mode}'}
+    if md == 'daily':
+        dt = str(date or '').strip()
+        if not dt:
+            return {'ok': False, 'error': 'date required'}
+        start = dt
+        end = dt
+    else:
+        start = str(start_date or '').strip()
+        end = str(end_date or '').strip()
+        if not start or not end:
+            return {'ok': False, 'error': 'startDate and endDate required'}
+        if start > end:
+            return {'ok': False, 'error': 'startDate must be <= endDate'}
+
+    followups = ((project.get('followups') or {}).get('items') or [])
+
+    def _done_at(it):
+        v = str((it or {}).get('completedAt') or '').strip()
+        if v:
+            return v
+        if str((it or {}).get('status') or '').strip().lower() == 'done':
+            return str((it or {}).get('updatedAt') or '').strip()
+        return ''
+
+    done_items = []
+    todo_items = []
+    for it in followups:
+        if not isinstance(it, dict):
+            continue
+        st = str(it.get('status') or '').strip().lower()
+        if st == 'done':
+            d = _done_at(it)[:10]
+            if d and start <= d <= end:
+                done_items.append(it)
+        else:
+            todo_items.append(it)
+
+    tpl = str(template or '').strip()
+    if not tpl:
+        tpl = str((((project.get('followups') or {}).get('reportTemplates') or {}).get(md) or '')).strip()
+    if not tpl:
+        tpl = JZG_DEFAULT_DAILY_TEMPLATE if md == 'daily' else JZG_DEFAULT_WEEKLY_TEMPLATE
+
+    project_name = str(project.get('name') or project.get('id') or '未命名项目')
+    done_text = _jzg_render_items_for_prompt(done_items)
+    todo_text = _jzg_render_items_for_prompt(todo_items)
+    range_label = start if md == 'daily' else f'{start} ~ {end}'
+
+    prompt = (
+        "你是吏部尚书，擅长把任务清单整理成正式日报/周报。\n"
+        "请严格参考“模版格式”，并基于已完成/未完成任务生成一版表达清晰、可直接发送的中文报告。\n"
+        "要求：\n"
+        "1) 必须遵循模版结构，不要丢段落标题。\n"
+        "2) 可润色措辞，但不要编造不存在的任务。\n"
+        "3) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
+        "4) JSON 格式固定为：{\"report\":\"...\"}\n\n"
+        f"报告类型：{'日报' if md == 'daily' else '周报'}\n"
+        f"项目名称：{project_name}\n"
+        f"统计区间：{range_label}\n\n"
+        "模版：\n"
+        f"{tpl[:12000]}\n\n"
+        "本次已完成任务：\n"
+        f"{done_text}\n\n"
+        "当前未完成任务：\n"
+        f"{todo_text}\n"
+    )
+    ai = _run_agent_sync('libu', prompt, timeout_sec=300)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': ai.get('error', '吏部生成失败')}
+    raw = str(ai.get('raw') or '').strip()
+    payload = _extract_json_payload(raw)
+    report = ''
+    if isinstance(payload, dict):
+        report = str(payload.get('report') or '').strip()
+    if not report:
+        report = raw
+    if not report:
+        return {'ok': False, 'error': '吏部未返回有效日报内容'}
+    return {
+        'ok': True,
+        'mode': md,
+        'projectId': project_id,
+        'startDate': start,
+        'endDate': end,
+        'report': report[:30000],
+    }
+
+
+def jzg_add_daily_note(project_id, text):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    msg = str(text or '').strip()
+    if not msg:
+        return {'ok': False, 'error': '记录内容不能为空'}
+    now = now_iso()
+    note = {'id': _new_pm_id('JDN'), 'text': msg[:4000], 'at': now}
+    project['followups']['daily'].insert(0, note)
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'note': note}
+
+
+def _normalize_jzg_plan_rows(rows):
+    out = []
+    if not isinstance(rows, list):
+        return out
+    for r in rows[:80]:
+        if not isinstance(r, dict):
+            continue
+        name = str(r.get('name') or '').strip()
+        if not name:
+            continue
+        start = str(r.get('start') or '').strip()[:10]
+        end = str(r.get('end') or '').strip()[:10]
+        owner = str(r.get('owner') or '').strip()[:60]
+        try:
+            progress = int(r.get('progress') or 0)
+        except Exception:
+            progress = 0
+        progress = max(0, min(100, progress))
+        out.append({'name': name[:200], 'start': start, 'end': end, 'owner': owner, 'progress': progress})
+    return out
+
+
+def jzg_update_plan(project_id, rows):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    normalized = _normalize_jzg_plan_rows(rows)
+    if not normalized:
+        return {'ok': False, 'error': '计划表至少保留一行有效数据'}
+    now = now_iso()
+    project['followups']['plan'] = {
+        'rows': normalized,
+        'updatedAt': now,
+    }
+    project['followups']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'plan': project['followups']['plan']}
+
+
+def jzg_create_strategy_topic(project_id, title, context=''):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    t = str(title or '').strip()
+    if not t:
+        return {'ok': False, 'error': '主题标题不能为空'}
+    now = now_iso()
+    topic = {
+        'id': _new_pm_id('JTP'),
+        'title': t[:240],
+        'context': str(context or '').strip()[:10000],
+        'qa': [],
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    project['strategy']['topics'].insert(0, topic)
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'topic': topic}
+
+
+def jzg_add_strategy_message(project_id, topic_id, message, role='user'):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    tid = str(topic_id or '').strip()
+    topic = next((x for x in (project['strategy'].get('topics') or []) if str(x.get('id') or '') == tid), None)
+    if not topic:
+        return {'ok': False, 'error': f'主题 {topic_id} 不存在'}
+    msg = str(message or '').strip()
+    if not msg:
+        return {'ok': False, 'error': '消息不能为空'}
+    r = str(role or 'user').strip().lower()
+    if r not in {'user', 'codex', 'libu_hr'}:
+        r = 'user'
+    now = now_iso()
+    topic.setdefault('qa', []).append({'role': r, 'text': msg[:8000], 'at': now})
+    topic['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'topic': topic}
+
+
+def jzg_add_reminder(project_id, title, schedule=''):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    t = str(title or '').strip()
+    if not t:
+        return {'ok': False, 'error': '提醒标题不能为空'}
+    now = now_iso()
+    reminder = {
+        'id': _new_pm_id('JRM'),
+        'title': t[:240],
+        'schedule': str(schedule or '').strip()[:200],
+        'enabled': True,
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    project['board']['reminders'].insert(0, reminder)
+    project['board']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'reminder': reminder}
+
+
+def jzg_toggle_reminder(project_id, reminder_id, enabled):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_jzg_project(project)
+    rid = str(reminder_id or '').strip()
+    reminder = next((x for x in (project['board'].get('reminders') or []) if str(x.get('id') or '') == rid), None)
+    if not reminder:
+        return {'ok': False, 'error': f'提醒 {reminder_id} 不存在'}
+    now = now_iso()
+    reminder['enabled'] = bool(enabled)
+    reminder['updatedAt'] = now
+    project['board']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'reminder': reminder}
 
 
 # 旨意标题最低要求
@@ -3876,6 +4790,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(list_learning_plans())
         elif p == '/api/pm/projects':
             self.send_json(pm_list_projects())
+        elif p == '/api/jzg/projects':
+            self.send_json(jzg_list_projects())
         elif p.startswith('/api/learning-plan/'):
             plan_id = p.replace('/api/learning-plan/', '').strip()
             if not plan_id:
@@ -4055,6 +4971,176 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'name required'}, 400)
                 return
             self.send_json(pm_create_project(name, description))
+            return
+
+        if p == '/api/jzg/project-create':
+            name = body.get('name', '').strip()
+            description = body.get('description', '').strip()
+            if not name:
+                self.send_json({'ok': False, 'error': 'name required'}, 400)
+                return
+            self.send_json(jzg_create_project(name, description))
+            return
+
+        if p == '/api/jzg/followup-create':
+            project_id = body.get('projectId', '').strip()
+            title = body.get('title', '').strip()
+            if not project_id or not title:
+                self.send_json({'ok': False, 'error': 'projectId and title required'}, 400)
+                return
+            self.send_json(jzg_add_followup(project_id, title))
+            return
+
+        if p == '/api/jzg/followup-toggle':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(jzg_toggle_followup(project_id, item_id, body.get('status', 'todo')))
+            return
+
+        if p == '/api/jzg/followup-update':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(jzg_update_followup(
+                project_id,
+                item_id,
+                title=body.get('title', None),
+                description=body.get('description', None),
+                memo=body.get('memo', None),
+                priority=body.get('priority', None),
+                category=body.get('category', None),
+                due_date=body.get('dueDate', None),
+                status=body.get('status', None),
+            ))
+            return
+
+        if p == '/api/jzg/followup-delete':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(jzg_delete_followup(project_id, item_id))
+            return
+
+        if p == '/api/jzg/followup-note':
+            project_id = body.get('projectId', '').strip()
+            text = body.get('text', '').strip()
+            if not project_id or not text:
+                self.send_json({'ok': False, 'error': 'projectId and text required'}, 400)
+                return
+            self.send_json(jzg_add_daily_note(project_id, text))
+            return
+
+        if p == '/api/jzg/daily-report-archive':
+            project_id = body.get('projectId', '').strip()
+            date = body.get('date', '').strip()
+            report = body.get('report', '').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(jzg_archive_daily_report(project_id, date, report))
+            return
+
+        if p == '/api/jzg/daily-report-update':
+            project_id = body.get('projectId', '').strip()
+            record_id = body.get('recordId', '').strip()
+            report = body.get('report', '').strip()
+            if not project_id or not record_id:
+                self.send_json({'ok': False, 'error': 'projectId and recordId required'}, 400)
+                return
+            self.send_json(jzg_update_daily_report(project_id, record_id, report, date=body.get('date', None)))
+            return
+
+        if p == '/api/jzg/report-template-update':
+            project_id = body.get('projectId', '').strip()
+            mode = body.get('mode', '').strip()
+            if not project_id or not mode:
+                self.send_json({'ok': False, 'error': 'projectId and mode required'}, 400)
+                return
+            self.send_json(jzg_update_report_template(project_id, mode, body.get('template', '')))
+            return
+
+        if p == '/api/jzg/report-template-generate':
+            project_id = body.get('projectId', '').strip()
+            mode = body.get('mode', '').strip()
+            requirement = body.get('requirement', '').strip()
+            if not project_id or not mode:
+                self.send_json({'ok': False, 'error': 'projectId and mode required'}, 400)
+                return
+            self.send_json(jzg_generate_report_template(
+                project_id,
+                mode=mode,
+                requirement=requirement,
+                current_template=body.get('currentTemplate', ''),
+            ))
+            return
+
+        if p == '/api/jzg/followup-report-generate':
+            project_id = body.get('projectId', '').strip()
+            mode = body.get('mode', 'daily').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(jzg_generate_followup_report(
+                project_id,
+                mode=mode,
+                date=body.get('date', ''),
+                start_date=body.get('startDate', ''),
+                end_date=body.get('endDate', ''),
+                template=body.get('template', ''),
+            ))
+            return
+
+        if p == '/api/jzg/plan-update':
+            project_id = body.get('projectId', '').strip()
+            rows = body.get('rows', [])
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(jzg_update_plan(project_id, rows))
+            return
+
+        if p == '/api/jzg/strategy-topic-create':
+            project_id = body.get('projectId', '').strip()
+            title = body.get('title', '').strip()
+            if not project_id or not title:
+                self.send_json({'ok': False, 'error': 'projectId and title required'}, 400)
+                return
+            self.send_json(jzg_create_strategy_topic(project_id, title, body.get('context', '')))
+            return
+
+        if p == '/api/jzg/strategy-message':
+            project_id = body.get('projectId', '').strip()
+            topic_id = body.get('topicId', '').strip()
+            message = body.get('message', '').strip()
+            if not project_id or not topic_id or not message:
+                self.send_json({'ok': False, 'error': 'projectId, topicId and message required'}, 400)
+                return
+            self.send_json(jzg_add_strategy_message(project_id, topic_id, message, body.get('role', 'user')))
+            return
+
+        if p == '/api/jzg/reminder-create':
+            project_id = body.get('projectId', '').strip()
+            title = body.get('title', '').strip()
+            if not project_id or not title:
+                self.send_json({'ok': False, 'error': 'projectId and title required'}, 400)
+                return
+            self.send_json(jzg_add_reminder(project_id, title, body.get('schedule', '')))
+            return
+
+        if p == '/api/jzg/reminder-toggle':
+            project_id = body.get('projectId', '').strip()
+            reminder_id = body.get('reminderId', '').strip()
+            if not project_id or not reminder_id:
+                self.send_json({'ok': False, 'error': 'projectId and reminderId required'}, 400)
+                return
+            self.send_json(jzg_toggle_reminder(project_id, reminder_id, bool(body.get('enabled', True))))
             return
 
         if p == '/api/pm/project-update':

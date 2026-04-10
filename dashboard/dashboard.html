@@ -100,6 +100,8 @@
     .modal.modal-learning{max-width:80vw}
     .modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;font-size:18px;color:var(--muted)}
     .modal-close:hover{background:var(--panel2);color:var(--text)}
+    .modal-close.trash{color:#ff7a8f}
+    .modal-close.trash:hover{background:#ff527022;color:#ff8fa1}
     .modal-id{font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:6px}
     .modal-title{font-size:22px;font-weight:800;line-height:1.3;margin-bottom:18px}
 
@@ -427,6 +429,27 @@
     .sub-feed .sf-cat{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--line)}
     .sub-feed .sf-del{cursor:pointer;color:var(--muted);font-size:14px}.sub-feed .sf-del:hover{color:var(--danger)}
 
+    /* ══ QUICK ACTION (⌘G) ══ */
+    .qa-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:260;display:none;backdrop-filter:blur(3px)}
+    .qa-bg.open{display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px 16px}
+    .qa-box{width:min(900px,96vw);background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden}
+    .qa-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+    .qa-title{font-size:14px;font-weight:800}
+    .qa-sub{font-size:11px;color:var(--muted)}
+    .qa-close{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+    .qa-close:hover{color:var(--text);border-color:var(--acc)}
+    .qa-wrap{display:grid;grid-template-columns:190px 1fr;min-height:360px}
+    .qa-nav{border-right:1px solid var(--line);padding:10px;background:var(--panel2)}
+    .qa-nav-item{padding:10px;border-radius:8px;border:1px solid transparent;cursor:pointer}
+    .qa-nav-item:hover{border-color:var(--line)}
+    .qa-nav-item.active{border-color:var(--acc);background:#0a1228}
+    .qa-nav-title{font-size:13px;font-weight:700}
+    .qa-nav-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+    .qa-main{padding:14px}
+    .qa-main .pm-sub{margin-top:6px}
+    .qa-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+    @media(max-width:900px){.qa-wrap{grid-template-columns:1fr}.qa-nav{border-right:none;border-bottom:1px solid var(--line)}}
+
     /* ══ CONFIRM DIALOG ══ */
     .confirm-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;backdrop-filter:blur(3px)}
     .confirm-bg.open{display:flex;align-items:center;justify-content:center}
@@ -735,6 +758,18 @@
     .pm-top{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
     .pm-input{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;outline:none}
     .pm-input:focus{border-color:var(--acc)}
+    .pm-input[type="date"]{
+      color-scheme: dark;
+    }
+    .pm-input[type="date"]::-webkit-calendar-picker-indicator{
+      filter: invert(86%) sepia(14%) saturate(346%) hue-rotate(182deg) brightness(108%) contrast(96%);
+      opacity:.92;
+      cursor:pointer;
+    }
+    .pm-input[type="date"]::-webkit-calendar-picker-indicator:hover{
+      opacity:1;
+      filter: invert(96%) sepia(8%) saturate(504%) hue-rotate(176deg) brightness(112%) contrast(102%);
+    }
     .pm-layout{display:grid;grid-template-columns:260px 1fr;gap:12px}
     .pm-left,.pm-right{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
     .pm-hdr{padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;font-weight:800}
@@ -785,6 +820,7 @@
     .pm-section-divider{height:1px;background:linear-gradient(90deg,transparent,#2b4375 20%,#2b4375 80%,transparent);margin:10px 0 10px}
     .pm-mini{font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--line);background:#12213d;color:#a8c3f7;cursor:pointer}
     .pm-mini:hover{background:#1a2e55}
+    .pm-mini-active{border-color:#f5c84266;background:#2a2412;color:#f5c842}
     .pm-mini-danger{background:#3a1a26;border-color:#6a2a3d;color:#ff9bb0}
     .pm-mini-danger:hover{background:#522135}
     .pm-tag{font-size:10px;padding:2px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
@@ -860,6 +896,72 @@
       color:#e7f0ff;
     }
     .pm-create-strip{grid-column:1/-1}
+    .jzg-followup-grid{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .jzg-followup-col{display:flex;flex-direction:column;height:68vh;min-height:520px}
+    .jzg-followup-block{display:flex;flex-direction:column;min-height:0}
+    .jzg-followup-block.todo{flex:2}
+    .jzg-followup-block.done{flex:1}
+    .jzg-followup-item{position:relative;cursor:default}
+    @keyframes jzgCardPulse{
+      0%{box-shadow:0 0 0 rgba(106,158,255,0)}
+      50%{box-shadow:0 0 18px rgba(106,158,255,.28)}
+      100%{box-shadow:0 0 0 rgba(106,158,255,0)}
+    }
+    .jzg-followup-item:hover{
+      border-color:#4d6fa8;
+      background:#111c31;
+      animation:jzgCardPulse .95s ease-in-out infinite;
+    }
+    .jzg-followup-item:hover .t{
+      color:#f4f8ff !important;
+      transform:translateX(1px) scale(1.02);
+      text-shadow:0 0 10px rgba(160,196,255,.3);
+    }
+    .jzg-followup-item .pm-proj-head{padding-right:6px}
+    .jzg-followup-item .jzg-done-hit{
+      position:absolute;
+      top:0;
+      right:0;
+      width:25%;
+      height:100%;
+      cursor:pointer;
+      border-left:1px dashed transparent;
+      border-radius:0 8px 8px 0;
+      transition:background .15s ease,border-color .15s ease;
+    }
+    .jzg-followup-item .jzg-done-hit::after{
+      content:'';
+      position:absolute;
+      top:50%;
+      right:10px;
+      transform:translateY(-50%);
+      font-size:14px;
+      color:#9fc2ff;
+      opacity:0;
+      transition:opacity .15s ease;
+    }
+    .jzg-followup-item .jzg-done-hit:hover{
+      background:linear-gradient(90deg,transparent 0%,rgba(32,53,89,.42) 45%,rgba(32,53,89,.65) 100%);
+      border-left-color:#2f4f7f;
+    }
+    .jzg-followup-item.is-todo .jzg-done-hit:hover::after{content:'✓ 完成';opacity:1}
+    .jzg-followup-item.is-done .jzg-done-hit:hover::after{content:'↺ 还原';opacity:1}
+    .jzg-daily-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .jzg-daily-actions .pm-input{width:auto}
+    .jzg-report-tabs{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+    .jzg-daily-text{width:100%;min-height:320px;resize:vertical;background:#0e1320;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font-size:12px;line-height:1.7;outline:none}
+    .jzg-daily-text:focus{border-color:var(--acc)}
+    .jzg-archive-wrap{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#0f1628;padding:8px}
+    .jzg-archive-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+    .jzg-archive-title{font-size:11px;font-weight:700;color:#b9cbee}
+    .jzg-archive-nav{display:flex;align-items:center;gap:6px}
+    .jzg-archive-nav .pm-mini{padding:2px 7px}
+    .jzg-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+    .jzg-cal-w{font-size:10px;color:var(--muted);text-align:center;padding:2px 0}
+    .jzg-cal-d{height:28px;border:1px solid #22324f;border-radius:6px;background:#101a2f;color:#b9cbee;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .jzg-cal-d.off{opacity:.35;cursor:default}
+    .jzg-cal-d.has{border-color:#3f6aa8;background:#132446;color:#d7e7ff}
+    .jzg-cal-d.sel{border-color:#f5c842aa;background:#2a2412;color:#f5d67a}
     .pm-q{font-size:11px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#0f1628;margin-bottom:6px}
     .pm-plan{font-size:11px;line-height:1.6;padding-left:16px}
     .pm-empty{text-align:center;color:var(--muted);font-size:12px;padding:20px}
@@ -933,7 +1035,7 @@
       0%,100%{box-shadow:0 0 0 rgba(96,164,255,0)}
       50%{box-shadow:0 0 12px rgba(96,164,255,.5)}
     }
-    @media(max-width:1100px){.pm-right-body{grid-template-columns:1fr}.pm-layout{grid-template-columns:1fr}}
+    @media(max-width:1100px){.pm-right-body{grid-template-columns:1fr}.pm-layout{grid-template-columns:1fr}.jzg-followup-grid{grid-template-columns:1fr}}
 
     /* MISC */
     .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
@@ -1033,6 +1135,7 @@
     </div>
     <div class="hdr-r">
       <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="切换主题">🌙</button>
+      <button class="theme-toggle" onclick="openQuickActions()" title="快捷操作（⌥+G）">⚡ 快捷</button>
       <button class="theme-toggle" onclick="openFeedback()" title="祈告上苍（反馈问题或建议）">🙏 祈告上苍</button>
       <span class="chip" id="chip-sync">⟳ 同步中</span>
       <span class="chip" id="chip-gateway">Gateway: 检测中</span>
@@ -1052,8 +1155,9 @@
     <div class="tab" data-tab="memorials">📜 奏折阁 <span class="tbadge" id="tb-mem">0</span></div>
     <div class="tab" data-tab="templates">📜 旨库</div>
     <div class="tab" data-tab="morning">📰 天下要闻</div>
-    <div class="tab" data-tab="learning">📚 学习系统</div>
-    <div class="tab" data-tab="pm">🗂 项目开发</div>
+    <div class="tab" data-tab="learning">📚 藏经阁</div>
+    <div class="tab" data-tab="pm">🗂 鲁班阁</div>
+    <div class="tab" data-tab="jzg">🏗 将作监</div>
   </div>
 
   <!-- ══ 旨意看板 ══ -->
@@ -1225,11 +1329,11 @@
     <div id="mb-body"></div>
   </div>
 
-  <!-- ══ 学习系统 ══ -->
+  <!-- ══ 藏经阁 ══ -->
   <div class="panel" id="panel-learning">
     <div class="mb-hdr">
       <div>
-        <div class="mb-title">📚 学习系统 · 礼部学策</div>
+        <div class="mb-title">📚 藏经阁 · 礼部学策</div>
         <div id="ls-subtitle" class="mb-sub">输入学习方向后，礼部先生成10问，再基于你的回答生成个性化路径与知识架构。</div>
       </div>
     </div>
@@ -1253,11 +1357,11 @@
     </div>
   </div>
 
-  <!-- ══ 项目开发 ══ -->
+  <!-- ══ 鲁班阁 ══ -->
   <div class="panel" id="panel-pm">
     <div class="mb-hdr">
       <div style="flex:1;min-width:0">
-        <div class="mb-title">🗂 项目开发 · 工部治理台</div>
+        <div class="mb-title">🗂 鲁班阁 · 工部治理台</div>
         <div class="mb-sub">记录 BUG/需求/优化，工部评审并推动流转。</div>
       </div>
       <button class="btn btn-g" onclick="openPmCreateProjectModal()" style="font-size:12px;padding:7px 12px;white-space:nowrap">＋ 创建项目</button>
@@ -1271,6 +1375,29 @@
         <div class="pm-hdr" id="pm-project-title">未选择项目</div>
         <div class="pm-right-body" id="pm-right-body">
           <div class="pm-empty">先创建或选择一个项目</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 将作监 ══ -->
+  <div class="panel" id="panel-jzg">
+    <div class="mb-hdr">
+      <div style="flex:1;min-width:0">
+        <div class="mb-title">🏗 将作监 · 吏部治理台</div>
+        <div class="mb-sub">项目跟进 / 策议司 / 智能看板。</div>
+      </div>
+      <button class="btn btn-g" onclick="openJzgCreateProjectModal()" style="font-size:12px;padding:7px 12px;white-space:nowrap">＋ 创建项目</button>
+    </div>
+    <div class="pm-layout">
+      <div class="pm-left">
+        <div class="pm-hdr">将作项目列表</div>
+        <div class="pm-list" id="jzg-project-list"></div>
+      </div>
+      <div class="pm-right">
+        <div class="pm-hdr" id="jzg-project-title">未选择项目</div>
+        <div class="pm-right-body" id="jzg-right-body">
+          <div class="pm-empty">先创建一个将作项目</div>
         </div>
       </div>
     </div>
@@ -1302,6 +1429,23 @@
     <div class="confirm-btns">
       <button class="btn btn-g" onclick="closeConfirm()">取消</button>
       <button class="btn btn-p" id="confirm-ok" onclick="doConfirm()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK ACTION (⌘G) -->
+<div class="qa-bg" id="qa-bg" onclick="closeQuickActions(event)">
+  <div class="qa-box" onclick="event.stopPropagation()">
+    <div class="qa-hd">
+      <div>
+        <div class="qa-title">快捷操作</div>
+        <div class="qa-sub">⌥ + G（推荐）/ Ctrl + Shift + G；⌘ + G 可能被浏览器占用</div>
+      </div>
+      <button class="qa-close" onclick="closeQuickActions()">✕</button>
+    </div>
+    <div class="qa-wrap">
+      <div class="qa-nav" id="qa-nav"></div>
+      <div class="qa-main" id="qa-main"></div>
     </div>
   </div>
 </div>
@@ -2081,11 +2225,31 @@ function openTask(id){
 function closeModal(e){
   if(e&&e.target!==document.getElementById('modal-bg')&&!e.target.classList.contains('modal-close'))return;
   document.getElementById('modal-bg').classList.remove('open');
+  resetMainModalClose();
   const m = document.getElementById('modal');
   if(m) m.classList.remove('modal-learning');
   currentTopicPlanId = '';
   currentTopicId = '';
   stopLiveActivity();
+}
+
+function resetMainModalClose(){
+  const closeEl = document.querySelector('#modal .modal-close');
+  if(!closeEl) return;
+  closeEl.classList.remove('trash');
+  closeEl.innerHTML = '✕';
+  closeEl.onclick = ()=>closeModal();
+}
+
+function setMainModalCloseAsTrash(itemId){
+  const closeEl = document.querySelector('#modal .modal-close');
+  if(!closeEl) return;
+  closeEl.classList.add('trash');
+  closeEl.innerHTML = '🗑';
+  closeEl.onclick = (ev)=>{
+    if(ev) ev.stopPropagation();
+    jzgConfirmDeleteFollowup(String(itemId||''));
+  };
 }
 
 /* ══ LIVE ACTIVITY ══ */
@@ -2701,6 +2865,7 @@ async function loadAll(){
   if(activeTab==='morning' && !_newsPolling) loadMorning();
   if(activeTab==='learning' && !isLearningModalOpen()) loadLearningPlans();
   if(activeTab==='pm') loadPm();
+  if(activeTab==='jzg') loadJzg();
 }
 
 /* ══ PROJECT MANAGEMENT (工部治理台) ══ */
@@ -2723,10 +2888,27 @@ let pmRenderBusy = false;
 const pmProjectFoldersOpen = {};
 const pmCollapsedFolders = {};
 let pmDesignGenerating = false;
+let pmVersionGenerating = false;
+let pmGongbuReviewing = false;
+let pmGongbuReviewMode = '';
+let pmGongbuReviewItemId = '';
+let jzgProjects = [];
+let selectedJzgProjectId = '';
+let selectedJzgFolderId = 'JZG-FOLLOWUP';
+let selectedJzgTopicId = '';
+let _jzgLoading = false;
+let jzgFollowupCreateOpen = false;
+const jzgDailyDraftByProject = {};
+let jzgReportGenerating = false;
+let jzgTemplateGenerating = false;
+const jzgArchiveMonthByProject = {};
 
 const PM_TYPE_LABEL = {bug:'BUG', req:'需求', opt:'优化'};
 const PM_DESIGN_FOLDER_ID = 'FLD-DESIGN';
 const PM_VERSION_FOLDER_ID = 'FLD-VERSION';
+const JZG_FOLLOWUP_FOLDER_ID = 'JZG-FOLLOWUP';
+const JZG_STRATEGY_FOLDER_ID = 'JZG-STRATEGY';
+const JZG_BOARD_FOLDER_ID = 'JZG-BOARD';
 const PM_DESIGN_SECTION_LABEL = {
   requirements: '需求说明（PRD）',
   architecture: '架构设计',
@@ -2760,6 +2942,292 @@ let pmDesignSection = 'requirements';
 function pmFmt(ts){
   if(!ts) return '-';
   return String(ts).replace('T',' ').slice(0,16);
+}
+
+function jzgTodayYmd(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function jzgWeekRangeByDate(ymd){
+  const raw = String(ymd||'').trim() || jzgTodayYmd();
+  const base = new Date(`${raw}T00:00:00`);
+  const day = base.getDay();
+  const diffToMon = day === 0 ? -6 : (1 - day);
+  const start = new Date(base);
+  start.setDate(base.getDate() + diffToMon);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  const fmt = (d)=>{
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  };
+  return {start: fmt(start), end: fmt(end)};
+}
+
+function jzgDoneAt(item){
+  const doneAt = String((item||{}).completedAt || '').trim();
+  if(doneAt) return doneAt;
+  const st = String((item||{}).status || '');
+  if(st === 'done'){
+    return String((item||{}).updatedAt || '').trim();
+  }
+  return '';
+}
+
+function _jzgDraft(projectId){
+  const pid = String(projectId||'');
+  if(!jzgDailyDraftByProject[pid]){
+    const today = jzgTodayYmd();
+    const wk = jzgWeekRangeByDate(today);
+    jzgDailyDraftByProject[pid] = {
+      mode: 'daily',
+      date: today,
+      dailyReport: '',
+      weekDate: today,
+      weekStart: wk.start,
+      weekEnd: wk.end,
+      weeklyReport: '',
+      dailyTemplate: '',
+      weeklyTemplate: '',
+    };
+  }
+  const d = jzgDailyDraftByProject[pid];
+  if(!d.mode) d.mode = 'daily';
+  if(!d.date) d.date = jzgTodayYmd();
+  if(!d.weekStart || !d.weekEnd){
+    const wk = jzgWeekRangeByDate(d.date || jzgTodayYmd());
+    d.weekStart = wk.start;
+    d.weekEnd = wk.end;
+  }
+  if(!d.weekDate){
+    d.weekDate = d.weekStart || d.date || jzgTodayYmd();
+  }
+  if(typeof d.dailyReport !== 'string') d.dailyReport = String(d.report||'');
+  if(typeof d.weeklyReport !== 'string') d.weeklyReport = '';
+  if(typeof d.dailyTemplate !== 'string') d.dailyTemplate = '';
+  if(typeof d.weeklyTemplate !== 'string') d.weeklyTemplate = '';
+  return jzgDailyDraftByProject[pid];
+}
+
+function _jzgYmOf(dateStr){
+  const d = String(dateStr||'').trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d.slice(0,7);
+  return jzgTodayYmd().slice(0,7);
+}
+
+function _jzgArchiveMonth(projectId, baseDate){
+  const pid = String(projectId||'');
+  if(!jzgArchiveMonthByProject[pid]){
+    jzgArchiveMonthByProject[pid] = _jzgYmOf(baseDate || jzgTodayYmd());
+  }
+  return jzgArchiveMonthByProject[pid];
+}
+
+function _jzgSetArchiveMonth(projectId, ym){
+  const pid = String(projectId||'');
+  if(!/^\d{4}-\d{2}$/.test(String(ym||''))) return;
+  jzgArchiveMonthByProject[pid] = ym;
+}
+
+function _jzgShiftYm(ym, delta){
+  const m = String(ym||'');
+  const y = Number(m.slice(0,4));
+  const mm = Number(m.slice(5,7));
+  if(!Number.isFinite(y) || !Number.isFinite(mm)) return _jzgYmOf(jzgTodayYmd());
+  const d = new Date(y, mm - 1 + Number(delta||0), 1);
+  const yy = d.getFullYear();
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  return `${yy}-${mo}`;
+}
+
+function _jzgDailyRecords(project){
+  const arr = ((((project||{}).followups||{}).dailyReports)||[]);
+  return Array.isArray(arr) ? arr : [];
+}
+
+const QUICK_ACTIONS = [
+  {id:'pm_create_issue', title:'快速新建问题', desc:'在鲁班阁指定项目/文件夹中创建问题'},
+];
+let quickActionId = 'pm_create_issue';
+let quickPmProjects = [];
+const quickPmDraft = {
+  projectId: '',
+  folderId: '',
+  title: '',
+  type: 'bug',
+  priority: 'P2',
+  description: '',
+};
+
+function quickGetPmProjects(){
+  return Array.isArray(quickPmProjects) && quickPmProjects.length ? quickPmProjects : [];
+}
+
+function quickGetIssueFolders(project){
+  const folders = Array.isArray((project||{}).folders) ? project.folders : [];
+  return folders.filter(f=>String(f.id||'')!=='FLD-DESIGN' && String(f.id||'')!=='FLD-VERSION');
+}
+
+function quickEnsureDraftRefs(){
+  const projects = quickGetPmProjects();
+  if(!projects.length){
+    quickPmDraft.projectId = '';
+    quickPmDraft.folderId = '';
+    return;
+  }
+  const hasProject = projects.some(p=>p.id===quickPmDraft.projectId);
+  if(!hasProject){
+    quickPmDraft.projectId = projects[0].id;
+  }
+  const project = projects.find(p=>p.id===quickPmDraft.projectId) || projects[0];
+  const folders = quickGetIssueFolders(project);
+  if(!folders.length){
+    quickPmDraft.folderId = '';
+    return;
+  }
+  const hasFolder = folders.some(f=>f.id===quickPmDraft.folderId);
+  if(!hasFolder){
+    quickPmDraft.folderId = folders[0].id;
+  }
+}
+
+async function loadQuickPmProjects(){
+  if(Array.isArray(pmProjects) && pmProjects.length){
+    quickPmProjects = pmProjects.slice();
+  }else{
+    const d = await fetchJ(API+'/pm/projects');
+    quickPmProjects = Array.isArray(d.projects) ? d.projects : [];
+  }
+  quickEnsureDraftRefs();
+}
+
+function renderQuickActions(){
+  const navEl = document.getElementById('qa-nav');
+  const mainEl = document.getElementById('qa-main');
+  if(!navEl || !mainEl) return;
+  navEl.innerHTML = QUICK_ACTIONS.map(a=>`
+    <div class="qa-nav-item ${quickActionId===a.id?'active':''}" onclick="quickSwitchAction('${a.id}')">
+      <div class="qa-nav-title">${esc(a.title)}</div>
+      <div class="qa-nav-desc">${esc(a.desc)}</div>
+    </div>
+  `).join('');
+
+  if(quickActionId!=='pm_create_issue'){
+    mainEl.innerHTML = '<div class="pm-empty">该快捷操作暂未开放</div>';
+    return;
+  }
+  const projects = quickGetPmProjects();
+  if(!projects.length){
+    mainEl.innerHTML = '<div class="pm-empty">暂无鲁班阁项目，请先到鲁班阁创建项目</div>';
+    return;
+  }
+  quickEnsureDraftRefs();
+  const project = projects.find(p=>p.id===quickPmDraft.projectId) || projects[0];
+  const folders = quickGetIssueFolders(project);
+  mainEl.innerHTML = `
+    <div class="pm-sub">所属项目</div>
+    <select id="qa-pm-project" class="pm-input" style="width:100%" onchange="quickSetPmProject(this.value)">
+      ${projects.map(p=>`<option value="${esc(p.id)}" ${quickPmDraft.projectId===p.id?'selected':''}>${esc(p.name||p.id)}</option>`).join('')}
+    </select>
+    <div class="pm-sub">所属文件夹</div>
+    <select id="qa-pm-folder" class="pm-input" style="width:100%" onchange="quickSetPmFolder(this.value)">
+      ${folders.map(f=>`<option value="${esc(f.id)}" ${quickPmDraft.folderId===f.id?'selected':''}>${esc(f.name||f.id)}</option>`).join('')}
+    </select>
+    <div class="pm-sub">标题</div>
+    <input id="qa-pm-title" class="pm-input" style="width:100%" placeholder="例如：登录后空白页" value="${esc(quickPmDraft.title||'')}" oninput="quickSetPmTitle(this.value)">
+    <div class="pm-create-meta" style="margin-top:10px">
+      <select id="qa-pm-type" class="pm-input" onchange="quickSetPmType(this.value)">
+        <option value="bug" ${quickPmDraft.type==='bug'?'selected':''}>BUG</option>
+        <option value="req" ${quickPmDraft.type==='req'?'selected':''}>需求</option>
+        <option value="opt" ${quickPmDraft.type==='opt'?'selected':''}>优化</option>
+      </select>
+      <select id="qa-pm-priority" class="pm-input" onchange="quickSetPmPriority(this.value)">
+        <option value="P0" ${quickPmDraft.priority==='P0'?'selected':''}>P0</option>
+        <option value="P1" ${quickPmDraft.priority==='P1'?'selected':''}>P1</option>
+        <option value="P2" ${quickPmDraft.priority==='P2'?'selected':''}>P2</option>
+        <option value="P3" ${quickPmDraft.priority==='P3'?'selected':''}>P3</option>
+      </select>
+    </div>
+    <div class="pm-sub">描述</div>
+    <textarea id="qa-pm-desc" class="pm-text" placeholder="问题现象 / 期望行为 / 补充说明" oninput="quickSetPmDesc(this.value)">${esc(quickPmDraft.description||'')}</textarea>
+    <div class="qa-actions">
+      <button class="btn btn-g" onclick="closeQuickActions()">取消</button>
+      <button class="btn btn-p" onclick="quickSavePmIssue()">保存并关闭</button>
+    </div>
+  `;
+  setTimeout(()=>{
+    const inp = document.getElementById('qa-pm-title');
+    if(inp && !inp.value) inp.focus();
+  }, 0);
+}
+
+function quickSwitchAction(actionId){
+  quickActionId = actionId;
+  renderQuickActions();
+}
+function quickSetPmProject(v){
+  quickPmDraft.projectId = String(v||'');
+  quickPmDraft.folderId = '';
+  quickEnsureDraftRefs();
+  renderQuickActions();
+}
+function quickSetPmFolder(v){ quickPmDraft.folderId = String(v||''); }
+function quickSetPmTitle(v){ quickPmDraft.title = String(v||''); }
+function quickSetPmType(v){ quickPmDraft.type = String(v||'bug'); }
+function quickSetPmPriority(v){ quickPmDraft.priority = String(v||'P2'); }
+function quickSetPmDesc(v){ quickPmDraft.description = String(v||''); }
+
+async function openQuickActions(){
+  try{
+    await loadQuickPmProjects();
+    renderQuickActions();
+    document.getElementById('qa-bg').classList.add('open');
+  }catch(e){
+    toast('快捷操作加载失败: '+e.message, 'err');
+  }
+}
+
+function closeQuickActions(e){
+  const bg = document.getElementById('qa-bg');
+  if(e && e.target && e.target !== bg) return;
+  bg.classList.remove('open');
+}
+
+async function quickSavePmIssue(){
+  const projectId = String(quickPmDraft.projectId||'').trim();
+  const folderId = String(quickPmDraft.folderId||'').trim();
+  const title = String(quickPmDraft.title||'').trim();
+  if(!projectId){ toast('请选择项目','err'); return; }
+  if(!folderId){ toast('请选择文件夹','err'); return; }
+  if(!title){ toast('请输入问题标题','err'); return; }
+  try{
+    const r = await postJ(API+'/pm/item-create', {
+      projectId,
+      folderId,
+      title,
+      type: quickPmDraft.type || 'bug',
+      priority: quickPmDraft.priority || 'P2',
+      description: String(quickPmDraft.description||'').trim(),
+    });
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    quickPmDraft.title = '';
+    quickPmDraft.description = '';
+    closeQuickActions();
+    if(activeTab==='pm'){
+      await loadPm();
+    }else{
+      await loadPm(true);
+    }
+    toast('问题已创建','ok');
+  }catch(e){
+    toast('创建失败: '+e.message,'err');
+  }
 }
 
 function _getSelectedPmProject(){
@@ -2983,7 +3451,7 @@ function renderPm(){
     <span class="pm-hdr-title">${esc(project.name||project.id)} · ${esc((selectedFolder&&selectedFolder.name)||'默认文件夹')}</span>
     <span class="pm-hdr-actions">
       ${pmIsSystemFolder((selectedFolder&&selectedFolder.id)||'') ? '' : `<button class="pm-mini pm-mini-danger" onclick="event.stopPropagation();pmDeleteFolder()">删除文件夹</button>`}
-      ${isVersionFolder ? `<button class="pm-mini" onclick="event.stopPropagation();pmGenerateVersion()">更新版本</button>` : ''}
+      ${isVersionFolder ? `<button class="pm-mini ${pmVersionGenerating?'btn-generating':''}" ${pmVersionGenerating?'disabled':''} onclick="event.stopPropagation();pmGenerateVersion()">${pmVersionGenerating?'更新中…':'更新版本'}</button>` : ''}
       <button class="pm-mini" onclick="event.stopPropagation();pmPromptCreateFolder()">＋文件夹</button>
       ${pmIsSystemFolder((selectedFolder&&selectedFolder.id)||'') ? '' : `<button class="pm-mini" onclick="event.stopPropagation();togglePmIssueCreate()">${pmIssueCreateOpen?'收起新增':'新增问题'}</button>`}
     </span>
@@ -3070,6 +3538,13 @@ function pmRenderItemDetail(project, item){
   const statusOpts = ['open','clarify','in_progress','blocked','done'];
   const typeOpts = ['bug','req','opt'];
   const priorityOpts = ['P0','P1','P2','P3'];
+  const isReviewBusy = pmGongbuReviewing && pmGongbuReviewItemId===item.id;
+  const reviewText = isReviewBusy
+    ? (pmGongbuReviewMode==='execute' ? '催办中…' : '复审中…')
+    : '工部复审';
+  const executeText = isReviewBusy
+    ? (pmGongbuReviewMode==='execute' ? '催办中…' : '工部催办')
+    : '工部催办';
   return `
     <div class="pm-head">
       <div class="tt">${esc(item.title||item.id)}</div>
@@ -3128,8 +3603,8 @@ function pmRenderItemDetail(project, item){
       <div class="pm-gov-head">
         <div class="pm-gov-title">工部行动建议</div>
         <div class="pm-actions pm-actions-sm pm-actions-inline">
-          <button class="btn btn-p" onclick="pmGongbuReview('review')">工部复审</button>
-          <button class="btn btn-g" onclick="pmGongbuReview('execute')">工部催办</button>
+          <button class="btn btn-p ${isReviewBusy && pmGongbuReviewMode==='review'?'btn-generating':''}" ${isReviewBusy?'disabled':''} onclick="pmGongbuReview('review')">${reviewText}</button>
+          <button class="btn btn-g ${isReviewBusy && pmGongbuReviewMode==='execute'?'btn-generating':''}" ${isReviewBusy?'disabled':''} onclick="pmGongbuReview('execute')">${executeText}</button>
         </div>
       </div>
       <div class="pm-gov-block">
@@ -3467,6 +3942,9 @@ async function pmGenerateVersion(){
   const project = _getSelectedPmProject();
   const folder = _getSelectedPmFolder(project);
   if(!project || !folder || !pmIsVersionFolder(folder.id)){ toast('请先进入版本控制目录','err'); return; }
+  if(pmVersionGenerating) return;
+  pmVersionGenerating = true;
+  renderPm();
   try{
     toast('工部正在汇总版本清单…');
     const r = await postJ(API+'/pm/version-generate', {projectId: project.id});
@@ -3477,6 +3955,9 @@ async function pmGenerateVersion(){
     toast(r.mode==='updated' ? '已更新最新未提交版本日志' : '已创建新的未提交版本日志','ok');
   }catch(e){
     toast('生成失败: '+e.message,'err');
+  }finally{
+    pmVersionGenerating = false;
+    renderPm();
   }
 }
 
@@ -3618,6 +4099,7 @@ function pmRoleLabel(role){
 }
 
 function pmOpenConfirmDialog(title, message, onConfirm){
+  resetMainModalClose();
   pmPendingConfirmAction = (typeof onConfirm === 'function') ? onConfirm : null;
   const body = document.getElementById('modal-body');
   if(!body) return;
@@ -3649,7 +4131,7 @@ async function pmRunConfirmDialog(){
 
 function openPmCreateProjectModal(){
   document.getElementById('modal-body').innerHTML = `
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">项目开发</div>
+    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">鲁班阁</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:14px">＋ 创建项目</div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <input id="pm-modal-project-name" class="pm-input" style="width:100%" placeholder="项目名称">
@@ -4021,8 +4503,13 @@ async function pmGongbuReview(mode){
   const project = _getSelectedPmProject();
   const item = _getSelectedPmItem(project);
   if(!project || !item){ toast('请先选择问题单','err'); return; }
+  if(pmGongbuReviewing) return;
   const m = mode || 'review';
   try{
+    pmGongbuReviewing = true;
+    pmGongbuReviewMode = m;
+    pmGongbuReviewItemId = item.id;
+    renderPm();
     toast('工部处理中，请稍候...','ok',2000);
     const r = await postJ(API+'/pm/gongbu-review', {projectId: project.id, itemId: item.id, mode: m});
     if(!r.ok){ toast(r.error||'工部处理失败','err'); return; }
@@ -4031,6 +4518,11 @@ async function pmGongbuReview(mode){
     else toast('工部结果已更新','ok');
   }catch(e){
     toast('工部处理失败: '+e.message,'err');
+  }finally{
+    pmGongbuReviewing = false;
+    pmGongbuReviewMode = '';
+    pmGongbuReviewItemId = '';
+    renderPm();
   }
 }
 
@@ -4251,6 +4743,823 @@ function filterSessions(filter, el){
   document.querySelectorAll('.sess-filter').forEach(x=>x.classList.remove('active'));
   if(el) el.classList.add('active');
   renderSessions(liveStatus?liveStatus.tasks:[]);
+}
+
+/* ══ JIANGZUOJIAN (将作监) ══ */
+function _getSelectedJzgProject(){
+  return (jzgProjects||[]).find(p=>p.id===selectedJzgProjectId) || null;
+}
+
+function _jzgFolderName(folderId){
+  if(folderId===JZG_FOLLOWUP_FOLDER_ID) return '项目跟进';
+  if(folderId===JZG_STRATEGY_FOLDER_ID) return '策议司';
+  if(folderId===JZG_BOARD_FOLDER_ID) return '智能看板';
+  return '项目跟进';
+}
+
+async function loadJzg(){
+  if(_jzgLoading) return;
+  _jzgLoading = true;
+  try{
+    const d = await fetchJ(API+'/jzg/projects');
+    if(!d.ok) throw new Error(d.error||'加载失败');
+    jzgProjects = Array.isArray(d.projects) ? d.projects : [];
+    if(selectedJzgProjectId && !jzgProjects.some(p=>p.id===selectedJzgProjectId)){
+      selectedJzgProjectId = '';
+      selectedJzgTopicId = '';
+    }
+    if(!selectedJzgProjectId && jzgProjects.length){
+      selectedJzgProjectId = jzgProjects[0].id;
+    }
+    const p = _getSelectedJzgProject();
+    const topics = (((p||{}).strategy||{}).topics || []);
+    if(selectedJzgTopicId && !topics.some(t=>t.id===selectedJzgTopicId)) selectedJzgTopicId = '';
+    if(!selectedJzgTopicId && topics.length) selectedJzgTopicId = topics[0].id;
+    renderJzg();
+  }catch(e){
+    const listEl = document.getElementById('jzg-project-list');
+    const right = document.getElementById('jzg-right-body');
+    if(listEl) listEl.innerHTML = `<div class="pm-empty">加载失败：${esc(e.message)}</div>`;
+    if(right) right.innerHTML = '<div class="pm-empty">将作监数据加载失败</div>';
+  }finally{
+    _jzgLoading = false;
+  }
+}
+
+function renderJzg(){
+  const listEl = document.getElementById('jzg-project-list');
+  const titleEl = document.getElementById('jzg-project-title');
+  const right = document.getElementById('jzg-right-body');
+  if(!listEl || !titleEl || !right) return;
+  if(!jzgProjects.length){
+    titleEl.textContent = '未选择项目';
+    listEl.innerHTML = '<div class="pm-empty">暂无将作项目</div>';
+    right.innerHTML = '<div class="pm-empty">点击右上角创建项目后，会自动生成 项目跟进 / 策议司 / 智能看板</div>';
+    return;
+  }
+  listEl.innerHTML = jzgProjects.map(p=>{
+    const f = ((p.followups||{}).items||[]);
+    const todo = f.filter(x=>x.status!=='done').length;
+    const done = f.filter(x=>x.status==='done').length;
+    const active = selectedJzgProjectId===p.id;
+    const folders = [
+      {id:JZG_FOLLOWUP_FOLDER_ID,name:'项目跟进'},
+      {id:JZG_STRATEGY_FOLDER_ID,name:'策议司'},
+      {id:JZG_BOARD_FOLDER_ID,name:'智能看板'},
+    ];
+    return `<div>
+    <div class="pm-proj ${active?'active':''}" onclick="jzgSelectProject('${p.id}')">
+      <div class="pm-proj-head"><div class="t">${esc(p.name||p.id)}</div></div>
+      <div class="m">${esc(p.id)} · 待办${todo} · 完成${done}</div>
+    </div>
+    ${active ? folders.map(fd=>`<div class="pm-folder-row ${selectedJzgFolderId===fd.id?'active':''}" onclick="jzgSelectFolder('${fd.id}')"><div class="pm-folder-head"><div class="n">📁 ${esc(fd.name)}</div></div></div>`).join('') : ''}
+    </div>`;
+  }).join('');
+  const p = _getSelectedJzgProject();
+  if(!p){
+    titleEl.textContent = '未选择项目';
+    right.innerHTML = '<div class="pm-empty">请选择项目</div>';
+    return;
+  }
+  titleEl.classList.add('pm-title-row');
+  titleEl.innerHTML = `
+    <span class="pm-hdr-title">${esc(p.name||p.id)} · ${esc(_jzgFolderName(selectedJzgFolderId))}</span>
+    <span class="pm-hdr-actions">
+      ${selectedJzgFolderId===JZG_FOLLOWUP_FOLDER_ID ? `<button class="pm-mini" onclick="event.stopPropagation();jzgToggleCreateFollowup()">${jzgFollowupCreateOpen?'收起新增':'新增事项'}</button>` : ''}
+    </span>
+  `;
+  if(selectedJzgFolderId===JZG_STRATEGY_FOLDER_ID){
+    right.innerHTML = jzgRenderStrategy(p);
+    return;
+  }
+  if(selectedJzgFolderId===JZG_BOARD_FOLDER_ID){
+    right.innerHTML = jzgRenderBoard(p);
+    return;
+  }
+  right.innerHTML = jzgRenderFollowup(p);
+}
+
+function jzgRenderFollowup(project){
+  const followups = (((project||{}).followups||{}).items||[]);
+  const todoItems = followups.filter(it=>it.status!=='done');
+  const doneItems = followups.filter(it=>it.status==='done');
+  const draft = _jzgDraft((project||{}).id || '');
+  const tpl = (((project||{}).followups||{}).reportTemplates||{});
+  if(!draft.dailyTemplate) draft.dailyTemplate = String(tpl.daily||'');
+  if(!draft.weeklyTemplate) draft.weeklyTemplate = String(tpl.weekly||'');
+  const renderItem = (it)=>`
+    <div class="pm-issue jzg-followup-item ${it.status==='done'?'is-done':''} ${it.status==='done'?'':'is-todo'}" onclick="jzgOpenFollowupDetail('${it.id}')">
+      <div class="pm-proj-head">
+        <div class="t">${esc(it.title||it.id)}</div>
+      </div>
+      <div class="m">
+        <span>${esc(it.category||'通用')}</span>
+        <span>${esc(it.priority||'P2')}</span>
+        ${it.dueDate ? `<span>截止 ${esc(it.dueDate)}</span>` : ''}
+        <span>更新 ${esc(pmFmt(it.updatedAt||''))}</span>
+        ${it.status==='done' ? `<span>完成 ${esc(pmFmt(jzgDoneAt(it)||''))}</span>` : ''}
+      </div>
+      <div class="jzg-done-hit" title="${it.status==='done'?'还原为未完成':'标记为已完成'}" onclick="event.stopPropagation();jzgToggleFollowup('${it.id}', ${it.status==='done'?'false':'true'})"></div>
+    </div>
+  `;
+  return `
+    ${jzgFollowupCreateOpen ? `<div class="pm-box pm-create-strip">
+      <div class="pm-sub">新增事项</div>
+      <div class="pm-create-desc-row">
+        <input id="jzg-followup-title" class="pm-input" style="flex:1" placeholder="例如：本周完成项目管理菜单重构">
+        <button class="pm-create-plus" title="创建" onclick="jzgCreateFollowup()">＋</button>
+      </div>
+    </div>` : ''}
+    <div class="jzg-followup-grid">
+      <div class="pm-box">
+        <div class="jzg-followup-col">
+          <div class="jzg-followup-block todo">
+            <div class="pm-sub">未完成任务清单（${todoItems.length}）</div>
+            <div class="pm-issues" style="height:100%;max-height:none;min-height:0">
+              ${todoItems.length ? todoItems.map(renderItem).join('') : '<div class="pm-empty">暂无未完成事项</div>'}
+            </div>
+          </div>
+          <div class="pm-section-divider"></div>
+          <div class="jzg-followup-block done">
+            <div class="pm-sub">已完成任务清单（${doneItems.length}）</div>
+            <div class="pm-issues" style="height:100%;max-height:none;min-height:0">
+              ${doneItems.length ? doneItems.map(renderItem).join('') : '<div class="pm-empty">暂无已完成事项</div>'}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pm-box">
+        <div class="jzg-report-tabs">
+          <button class="pm-mini ${draft.mode==='daily'?'pm-mini-active':''}" onclick="jzgSetReportMode('daily')">日报</button>
+          <button class="pm-mini ${draft.mode==='weekly'?'pm-mini-active':''}" onclick="jzgSetReportMode('weekly')">周报</button>
+        </div>
+        ${draft.mode==='weekly' ? `
+          <div class="jzg-daily-actions">
+            <input id="jzg-week-date" type="date" class="pm-input" value="${esc(draft.weekDate||draft.weekStart||'')}" onchange="jzgUpdateWeekDate(this.value)">
+            <span class="pm-tag">周范围 ${esc(draft.weekStart||'-')} ~ ${esc(draft.weekEnd||'-')}</span>
+            <button class="btn btn-g" ${jzgReportGenerating?'disabled':''} onclick="jzgGenerateWeeklyReport()">${jzgReportGenerating?'生成中...':'生成周报'}</button>
+            <button class="pm-mini" style="margin-left:auto;opacity:.75" onclick="jzgOpenReportTemplateModal()">模版</button>
+          </div>
+          <textarea id="jzg-daily-text" class="jzg-daily-text" placeholder="点击“生成周报”后会自动填充..." oninput="jzgUpdateReportText(this.value)">${esc(draft.weeklyReport||'')}</textarea>
+        ` : `
+          <div class="jzg-daily-actions">
+            <input id="jzg-daily-date" type="date" class="pm-input" value="${esc(draft.date||jzgTodayYmd())}" onchange="jzgUpdateDailyDate(this.value)">
+            <button class="btn btn-g" ${jzgReportGenerating?'disabled':''} onclick="jzgGenerateDailyReport()">${jzgReportGenerating?'生成中...':'生成日报'}</button>
+            <button class="pm-mini" ${jzgReportGenerating?'disabled':''} onclick="jzgArchiveDailyReport()">留档</button>
+            <button class="pm-mini" style="margin-left:auto;opacity:.75" onclick="jzgOpenReportTemplateModal()">模版</button>
+          </div>
+          <textarea id="jzg-daily-text" class="jzg-daily-text" placeholder="点击“生成日报”后会自动填充..." oninput="jzgUpdateReportText(this.value)">${esc(draft.dailyReport||'')}</textarea>
+          ${jzgRenderDailyArchiveCalendar(project, draft)}
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function jzgRenderDailyArchiveCalendar(project, draft){
+  const records = _jzgDailyRecords(project);
+  const pid = String((project||{}).id||'');
+  const month = _jzgArchiveMonth(pid, draft.date || jzgTodayYmd());
+  const y = Number(month.slice(0,4));
+  const m = Number(month.slice(5,7));
+  const first = new Date(y, m - 1, 1);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const weekOffset = first.getDay();
+  const markSet = new Set(records.map(r=>String((r||{}).date||'').slice(0,10)).filter(Boolean));
+  const selected = String(draft.date||'').slice(0,10);
+  const labels = ['日','一','二','三','四','五','六'];
+  const cells = [];
+  for(let i=0;i<weekOffset;i++){
+    cells.push(`<div class="jzg-cal-d off"></div>`);
+  }
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = `${month}-${String(d).padStart(2,'0')}`;
+    const cls = `jzg-cal-d${markSet.has(ds)?' has':''}${selected===ds?' sel':''}`;
+    cells.push(`<button class="${cls}" onclick="jzgOpenDailyReportByDate('${ds}')">${String(d).padStart(2,'0')}</button>`);
+  }
+  return `
+    <div class="jzg-archive-wrap">
+      <div class="jzg-archive-head">
+        <span class="jzg-archive-title">日报日历（已留档日期高亮）</span>
+        <span class="jzg-archive-nav">
+          <button class="pm-mini" onclick="jzgShiftArchiveMonth(-1)">‹</button>
+          <span class="pm-tag">${esc(month)}</span>
+          <button class="pm-mini" onclick="jzgShiftArchiveMonth(1)">›</button>
+        </span>
+      </div>
+      <div class="jzg-cal-grid">
+        ${labels.map(x=>`<div class="jzg-cal-w">${x}</div>`).join('')}
+        ${cells.join('')}
+      </div>
+    </div>
+  `;
+}
+
+function jzgShiftArchiveMonth(delta){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  const d = _jzgDraft(p.id);
+  const cur = _jzgArchiveMonth(p.id, d.date || jzgTodayYmd());
+  _jzgSetArchiveMonth(p.id, _jzgShiftYm(cur, Number(delta||0)));
+  renderJzg();
+}
+
+function jzgOpenDailyReportByDate(date){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  const ds = String(date||'').slice(0,10);
+  const d = _jzgDraft(p.id);
+  d.date = ds || d.date;
+  const recs = _jzgDailyRecords(p).filter(r=>String((r||{}).date||'').slice(0,10)===ds);
+  if(!recs.length){
+    renderJzg();
+    toast('该日期暂无留档日报','err');
+    return;
+  }
+  const rec = recs[0];
+  const m = document.getElementById('modal');
+  if(m) m.classList.remove('modal-learning');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="pm-head"><div class="tt">日报留档 · ${esc(ds)}</div></div>
+    <div class="pm-kv">留档时间：${esc(pmFmt(rec.createdAt||''))}</div>
+    <textarea id="jzg-archive-report-editor" class="jzg-daily-text" style="min-height:420px">${esc(rec.report||'')}</textarea>
+    <div class="pm-actions" style="justify-content:flex-end">
+      <button class="btn btn-g" onclick="jzgRegenerateArchivedDailyReport('${esc(ds)}')">重新生成日报</button>
+      <button class="btn btn-p" onclick="jzgSaveArchivedDailyReport('${esc(rec.id||'')}','${esc(ds)}')">保存</button>
+      <button class="btn btn-g" onclick="closeModal()">关闭</button>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+  renderJzg();
+}
+
+async function jzgArchiveDailyReport(){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const d = _jzgDraft(p.id);
+  const reportEditor = document.getElementById('jzg-daily-text');
+  const report = String((reportEditor && reportEditor.value) || d.dailyReport || '').trim();
+  const date = String(d.date||'').trim() || jzgTodayYmd();
+  if(!report){
+    toast('请先生成日报内容再留档','err');
+    return;
+  }
+  try{
+    const r = await postJ(API+'/jzg/daily-report-archive', {projectId:p.id, date, report});
+    if(!r.ok){ toast(r.error||'留档失败','err'); return; }
+    d.dailyReport = report;
+    _jzgSetArchiveMonth(p.id, _jzgYmOf(date));
+    await loadJzg();
+    toast('日报已留档','ok');
+  }catch(e){
+    toast('留档失败: '+e.message,'err');
+  }
+}
+
+async function jzgSaveArchivedDailyReport(recordId, date){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const report = String((document.getElementById('jzg-archive-report-editor')||{}).value||'').trim();
+  if(!report){
+    toast('日报内容不能为空','err');
+    return;
+  }
+  try{
+    const r = await postJ(API+'/jzg/daily-report-update', {projectId:p.id, recordId, date, report});
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    await loadJzg();
+    toast('日报留档已保存','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+async function jzgRegenerateArchivedDailyReport(date){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const d = _jzgDraft(p.id);
+  const dt = String(date||'').slice(0,10);
+  if(!dt){
+    toast('日期无效','err');
+    return;
+  }
+  const btns = Array.from(document.querySelectorAll('#modal-body .pm-actions .btn'));
+  try{
+    btns.forEach(b=>b.disabled=true);
+    const r = await postJ(API+'/jzg/followup-report-generate', {
+      projectId: p.id,
+      mode: 'daily',
+      date: dt,
+      template: String(d.dailyTemplate||'').trim(),
+    });
+    if(!r.ok){ toast(r.error||'重新生成失败','err'); return; }
+    const editor = document.getElementById('jzg-archive-report-editor');
+    if(editor) editor.value = String(r.report||'');
+    toast('已重新生成日报，请确认后保存','ok');
+  }catch(e){
+    toast('重新生成失败: '+e.message,'err');
+  }finally{
+    btns.forEach(b=>b.disabled=false);
+  }
+}
+
+function jzgSetReportMode(mode){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  const d = _jzgDraft(p.id);
+  d.mode = (mode === 'weekly') ? 'weekly' : 'daily';
+  if(d.mode === 'weekly'){
+    const wk = jzgWeekRangeByDate(d.weekDate || d.date || jzgTodayYmd());
+    d.weekStart = wk.start;
+    d.weekEnd = wk.end;
+  }
+  renderJzg();
+}
+
+function jzgUpdateDailyDate(v){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  const d = _jzgDraft(p.id);
+  d.date = String(v||'').trim() || jzgTodayYmd();
+  if(!d.weekStart || !d.weekEnd){
+    const wk = jzgWeekRangeByDate(d.date);
+    d.weekStart = wk.start;
+    d.weekEnd = wk.end;
+  }
+}
+
+function jzgUpdateWeekStart(v){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  _jzgDraft(p.id).weekStart = String(v||'').trim();
+}
+
+function jzgUpdateWeekEnd(v){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  _jzgDraft(p.id).weekEnd = String(v||'').trim();
+}
+
+function jzgUpdateWeekDate(v){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  const d = _jzgDraft(p.id);
+  d.weekDate = String(v||'').trim() || jzgTodayYmd();
+  const wk = jzgWeekRangeByDate(d.weekDate);
+  d.weekStart = wk.start;
+  d.weekEnd = wk.end;
+  renderJzg();
+}
+
+function jzgUpdateReportText(v){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  const d = _jzgDraft(p.id);
+  if(d.mode === 'weekly'){
+    d.weeklyReport = String(v||'');
+  }else{
+    d.dailyReport = String(v||'');
+  }
+}
+
+function jzgOpenReportTemplateModal(){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const d = _jzgDraft(p.id);
+  const mode = d.mode === 'weekly' ? 'weekly' : 'daily';
+  const modeLabel = mode === 'weekly' ? '周报' : '日报';
+  const curTpl = mode === 'weekly' ? d.weeklyTemplate : d.dailyTemplate;
+  const m = document.getElementById('modal');
+  if(m) m.classList.remove('modal-learning');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="pm-head"><div class="tt">${modeLabel}模版</div></div>
+    <div class="pm-kv">可用变量：${mode==='weekly' ? '{project_name} / {start_date} / {end_date} / {done_items} / {todo_items}' : '{project_name} / {date} / {done_items} / {todo_items}'}</div>
+    <div class="pm-sub">对模版的要求</div>
+    <div class="jzg-daily-actions" style="margin-bottom:8px">
+      <input id="jzg-template-requirement" class="pm-input" style="flex:1;min-width:240px" placeholder="例如：语气更专业，增加风险与行动项，适合发给管理层">
+      <button class="pm-mini" id="jzg-template-ai-btn" onclick="jzgGenerateTemplateByAi('${mode}')">${jzgTemplateGenerating?'🤖 生成中':'🤖 AI生成'}</button>
+    </div>
+    <textarea id="jzg-template-text" class="jzg-daily-text" style="min-height:360px" placeholder="在这里编辑模版...">${esc(curTpl||'')}</textarea>
+    <div class="pm-actions" style="justify-content:flex-end">
+      <button class="btn btn-g" onclick="closeModal()">取消</button>
+      <button class="btn btn-p" onclick="jzgSaveReportTemplate('${mode}')">保存模版</button>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+async function jzgSaveReportTemplate(mode){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const txt = String((document.getElementById('jzg-template-text')||{}).value||'').trim();
+  try{
+    const r = await postJ(API+'/jzg/report-template-update', {projectId:p.id, mode, template:txt});
+    if(!r.ok){ toast(r.error||'模版保存失败','err'); return; }
+    const d = _jzgDraft(p.id);
+    if(mode === 'weekly') d.weeklyTemplate = String((r.template||txt)||'');
+    else d.dailyTemplate = String((r.template||txt)||'');
+    closeModal();
+    await loadJzg();
+    toast('模版已保存','ok');
+  }catch(e){
+    toast('模版保存失败: '+e.message,'err');
+  }
+}
+
+async function jzgGenerateTemplateByAi(mode){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const reqEl = document.getElementById('jzg-template-requirement');
+  const tplEl = document.getElementById('jzg-template-text');
+  const btnEl = document.getElementById('jzg-template-ai-btn');
+  const requirement = String((reqEl&&reqEl.value)||'').trim();
+  if(!requirement){
+    toast('请先输入对模版的要求','err');
+    return;
+  }
+  const currentTemplate = String((tplEl&&tplEl.value)||'').trim();
+  try{
+    jzgTemplateGenerating = true;
+    if(btnEl){
+      btnEl.disabled = true;
+      btnEl.textContent = '🤖 生成中';
+    }
+    const r = await postJ(API+'/jzg/report-template-generate', {
+      projectId: p.id,
+      mode,
+      requirement,
+      currentTemplate,
+    });
+    if(!r.ok){ toast(r.error||'AI生成模版失败','err'); return; }
+    const tpl = String(r.template||'');
+    if(tplEl) tplEl.value = tpl;
+    const d = _jzgDraft(p.id);
+    if(mode === 'weekly') d.weeklyTemplate = tpl;
+    else d.dailyTemplate = tpl;
+    toast('已生成一版模版，请检查后保存','ok');
+  }catch(e){
+    toast('AI生成模版失败: '+e.message,'err');
+  }finally{
+    jzgTemplateGenerating = false;
+    if(btnEl){
+      btnEl.disabled = false;
+      btnEl.textContent = '🤖 AI生成';
+    }
+  }
+}
+
+async function jzgGenerateDailyReport(){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const draft = _jzgDraft(p.id);
+  const dt = String(draft.date||'').trim() || jzgTodayYmd();
+  try{
+    jzgReportGenerating = true;
+    renderJzg();
+    const r = await postJ(API+'/jzg/followup-report-generate', {
+      projectId: p.id,
+      mode: 'daily',
+      date: dt,
+      template: String(draft.dailyTemplate||'').trim(),
+    });
+    if(!r.ok){ toast(r.error||'日报生成失败','err'); return; }
+    draft.dailyReport = String(r.report||'');
+    const ta = document.getElementById('jzg-daily-text');
+    if(ta) ta.value = draft.dailyReport;
+    toast('日报已生成','ok');
+  }catch(e){
+    toast('日报生成失败: '+e.message,'err');
+  }finally{
+    jzgReportGenerating = false;
+    renderJzg();
+  }
+}
+
+async function jzgGenerateWeeklyReport(){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const draft = _jzgDraft(p.id);
+  const start = String(draft.weekStart||'').trim();
+  const end = String(draft.weekEnd||'').trim();
+  if(!start || !end){
+    toast('请先选择周报起止日期','err');
+    return;
+  }
+  if(start > end){
+    toast('周报起始日期不能晚于结束日期','err');
+    return;
+  }
+  try{
+    jzgReportGenerating = true;
+    renderJzg();
+    const r = await postJ(API+'/jzg/followup-report-generate', {
+      projectId: p.id,
+      mode: 'weekly',
+      startDate: start,
+      endDate: end,
+      template: String(draft.weeklyTemplate||'').trim(),
+    });
+    if(!r.ok){ toast(r.error||'周报生成失败','err'); return; }
+    draft.weeklyReport = String(r.report||'');
+    const ta = document.getElementById('jzg-daily-text');
+    if(ta) ta.value = draft.weeklyReport;
+    toast('周报已生成','ok');
+  }catch(e){
+    toast('周报生成失败: '+e.message,'err');
+  }finally{
+    jzgReportGenerating = false;
+    renderJzg();
+  }
+}
+
+function jzgRenderStrategy(project){
+  const topics = (((project||{}).strategy||{}).topics||[]);
+  const topic = topics.find(t=>t.id===selectedJzgTopicId) || topics[0] || null;
+  if(topic && !selectedJzgTopicId) selectedJzgTopicId = topic.id;
+  const qa = ((topic||{}).qa||[]);
+  return `
+    <div class="pm-box">
+      <div class="pm-sub">新建讨论主题</div>
+      <input id="jzg-topic-title" class="pm-input" style="width:100%;margin-bottom:6px" placeholder="主题标题（例如：将作监策议司文档上传流）">
+      <textarea id="jzg-topic-context" class="pm-text" placeholder="主题背景或文档摘要"></textarea>
+      <div class="pm-actions"><button class="btn btn-g" onclick="jzgCreateTopic()">创建主题</button></div>
+      <div class="pm-issues">
+        ${topics.length ? topics.map(t=>`
+          <div class="pm-issue ${topic&&topic.id===t.id?'active':''}" onclick="jzgSelectTopic('${t.id}')">
+            <div class="t">${esc(t.title||t.id)}</div>
+            <div class="m">更新 ${esc(pmFmt(t.updatedAt||''))}</div>
+          </div>`).join('') : '<div class="pm-empty">暂无主题</div>'}
+      </div>
+    </div>
+    <div class="pm-box pm-detail">
+      ${topic ? `
+        <div class="pm-head"><div class="tt">${esc(topic.title||'')}</div></div>
+        <div class="pm-kv">背景：${esc(topic.context||'（无）')}</div>
+        <div style="max-height:260px;overflow:auto;margin:8px 0">
+          ${qa.length ? qa.slice().reverse().map(x=>`<div class="pm-q"><b>${esc((x.role||'user')==='user'?'用户':'吏部')}：</b>${esc(x.text||'')}</div>`).join('') : '<div class="pm-empty">暂无对话</div>'}
+        </div>
+        <textarea id="jzg-topic-message" class="pm-text" placeholder="围绕主题继续提问或补充说明"></textarea>
+        <div class="pm-actions"><button class="btn btn-g" onclick="jzgAddTopicMsg()">发送</button></div>
+      ` : '<div class="pm-empty">先创建一个讨论主题</div>'}
+    </div>
+  `;
+}
+
+function jzgRenderBoard(project){
+  const followups = (((project||{}).followups||{}).items||[]);
+  const reminders = (((project||{}).board||{}).reminders||[]);
+  const done = followups.filter(x=>x.status==='done').length;
+  const todo = followups.filter(x=>x.status!=='done').length;
+  return `
+    <div class="pm-box">
+      <div class="pm-sub">项目进展</div>
+      <div class="m">待办 ${todo} · 完成 ${done} · 完成率 ${followups.length?Math.round(done*100/followups.length):0}%</div>
+    </div>
+    <div class="pm-box pm-detail">
+      <div class="pm-sub">定时提醒</div>
+      <div class="pm-create-meta" style="margin-bottom:8px">
+        <input id="jzg-reminder-title" class="pm-input" style="min-width:220px" placeholder="提醒标题">
+        <input id="jzg-reminder-schedule" class="pm-input" style="min-width:220px" placeholder="频率描述（例如：每天 20:00）">
+        <button class="btn btn-g" onclick="jzgAddReminder()">新增提醒</button>
+      </div>
+      <div class="pm-issues">
+        ${reminders.length ? reminders.map(r=>`
+          <div class="pm-issue">
+            <div class="pm-proj-head">
+              <div class="t">${esc(r.title||r.id)}</div>
+              <label style="font-size:12px;color:var(--muted)">
+                <input type="checkbox" ${r.enabled?'checked':''} onchange="jzgToggleReminder('${r.id}', this.checked)"> 启用
+              </label>
+            </div>
+            <div class="m">${esc(r.schedule||'未设置')} · 更新 ${esc(pmFmt(r.updatedAt||''))}</div>
+          </div>
+        `).join('') : '<div class="pm-empty">暂无提醒</div>'}
+      </div>
+    </div>
+  `;
+}
+
+function jzgSelectProject(projectId){
+  selectedJzgProjectId = projectId;
+  selectedJzgFolderId = JZG_FOLLOWUP_FOLDER_ID;
+  selectedJzgTopicId = '';
+  jzgFollowupCreateOpen = false;
+  renderJzg();
+}
+
+function jzgSelectFolder(folderId){
+  selectedJzgFolderId = folderId;
+  if(folderId!==JZG_FOLLOWUP_FOLDER_ID) jzgFollowupCreateOpen = false;
+  renderJzg();
+}
+
+function jzgSelectTopic(topicId){
+  selectedJzgTopicId = topicId;
+  renderJzg();
+}
+
+function openJzgCreateProjectModal(){
+  document.getElementById('modal-body').innerHTML = `
+    <div class="pm-head"><div class="tt">创建将作项目</div></div>
+    <div class="pm-sub">项目名称</div>
+    <input id="jzg-new-name" class="pm-input" style="width:100%;margin-bottom:8px" placeholder="例如：将作监工作台">
+    <div class="pm-sub">项目说明（可选）</div>
+    <textarea id="jzg-new-desc" class="pm-text" placeholder="简述项目目标"></textarea>
+    <div class="pm-actions"><button class="btn btn-g" onclick="jzgCreateProjectFromModal()">创建</button></div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+async function jzgCreateProjectFromModal(){
+  const name = (document.getElementById('jzg-new-name')||{}).value || '';
+  const description = (document.getElementById('jzg-new-desc')||{}).value || '';
+  const nm = String(name).trim();
+  if(!nm){ toast('请输入项目名称','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/project-create', {name:nm, description:String(description||'').trim()});
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    selectedJzgProjectId = (r.project||{}).id || selectedJzgProjectId;
+    selectedJzgFolderId = JZG_FOLLOWUP_FOLDER_ID;
+    selectedJzgTopicId = '';
+    closeModal();
+    await loadJzg();
+    toast('将作项目已创建','ok');
+  }catch(e){
+    toast('创建失败: '+e.message,'err');
+  }
+}
+
+async function jzgCreateFollowup(){
+  const p = _getSelectedJzgProject();
+  const el = document.getElementById('jzg-followup-title');
+  const title = String((el&&el.value)||'').trim();
+  if(!p || !title){ toast('请输入跟进事项标题','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/followup-create', {projectId:p.id, title});
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    if(el) el.value = '';
+    jzgFollowupCreateOpen = false;
+    await loadJzg();
+  }catch(e){ toast('创建失败: '+e.message,'err'); }
+}
+
+async function jzgToggleFollowup(itemId, done){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  try{
+    const r = await postJ(API+'/jzg/followup-toggle', {projectId:p.id, itemId, status: done?'done':'todo'});
+    if(!r.ok){ toast(r.error||'更新失败','err'); return; }
+    await loadJzg();
+  }catch(e){ toast('更新失败: '+e.message,'err'); }
+}
+
+function jzgToggleCreateFollowup(){
+  jzgFollowupCreateOpen = !jzgFollowupCreateOpen;
+  renderJzg();
+}
+
+function jzgOpenFollowupDetail(itemId){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const items = (((p||{}).followups||{}).items||[]);
+  const it = items.find(x=>String(x.id||'')===String(itemId||''));
+  if(!it){ toast('任务不存在','err'); return; }
+  const m = document.getElementById('modal');
+  if(m) m.classList.remove('modal-learning');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="pm-head"><div class="tt">任务详情 · ${esc(it.id||'')}</div></div>
+    <div class="pm-sub">任务标题</div>
+    <input id="jzg-item-title" class="pm-input" style="width:100%" value="${esc(it.title||'')}" placeholder="任务标题">
+    <div class="pm-sub">任务内容</div>
+    <textarea id="jzg-item-description" class="pm-text" style="min-height:120px" placeholder="补充任务内容说明">${esc(it.description||'')}</textarea>
+    <div class="pm-sub">任务备忘录</div>
+    <textarea id="jzg-item-memo" class="pm-text" style="min-height:110px" placeholder="记录处理备注、阻塞点、补充信息">${esc(it.memo||'')}</textarea>
+    <div class="pm-create-meta" style="margin-top:8px">
+      <select id="jzg-item-priority" class="pm-input pm-create-priority">
+        ${['P0','P1','P2','P3'].map(x=>`<option value="${x}" ${String(it.priority||'P2')===x?'selected':''}>${x}</option>`).join('')}
+      </select>
+      <input id="jzg-item-category" class="pm-input" style="min-width:12ch" value="${esc(it.category||'通用')}" placeholder="任务类别">
+      <input id="jzg-item-due-date" type="date" class="pm-input" value="${esc(it.dueDate||'')}">
+      <select id="jzg-item-status" class="pm-input" style="min-width:10ch">
+        <option value="todo" ${String(it.status||'')!=='done'?'selected':''}>未完成</option>
+        <option value="done" ${String(it.status||'')==='done'?'selected':''}>已完成</option>
+      </select>
+    </div>
+    <div class="pm-actions" style="justify-content:flex-end">
+      <button class="btn btn-g" onclick="closeModal()">取消</button>
+      <button class="btn btn-p" onclick="jzgSaveFollowupDetail('${esc(it.id||'')}')">保存</button>
+    </div>
+  `;
+  setMainModalCloseAsTrash(it.id||'');
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+async function jzgSaveFollowupDetail(itemId){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const payload = {
+    projectId: p.id,
+    itemId: String(itemId||''),
+    title: String((document.getElementById('jzg-item-title')||{}).value||'').trim(),
+    description: String((document.getElementById('jzg-item-description')||{}).value||'').trim(),
+    memo: String((document.getElementById('jzg-item-memo')||{}).value||'').trim(),
+    priority: String((document.getElementById('jzg-item-priority')||{}).value||'').trim(),
+    category: String((document.getElementById('jzg-item-category')||{}).value||'').trim(),
+    dueDate: String((document.getElementById('jzg-item-due-date')||{}).value||'').trim(),
+    status: String((document.getElementById('jzg-item-status')||{}).value||'').trim(),
+  };
+  if(!payload.title){ toast('任务标题不能为空','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/followup-update', payload);
+    if(!r.ok){ toast(r.error||'保存失败','err'); return; }
+    closeModal();
+    await loadJzg();
+    toast('任务已更新','ok');
+  }catch(e){
+    toast('保存失败: '+e.message,'err');
+  }
+}
+
+function jzgConfirmDeleteFollowup(itemId){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  const items = (((p||{}).followups||{}).items||[]);
+  const it = items.find(x=>String(x.id||'')===String(itemId||''));
+  if(!it){ toast('任务不存在','err'); return; }
+  pmOpenConfirmDialog(
+    '删除任务',
+    `确认删除任务「${it.title||it.id}」？该操作不可恢复。`,
+    async ()=>{ await jzgDeleteFollowup(itemId); }
+  );
+}
+
+async function jzgDeleteFollowup(itemId){
+  const p = _getSelectedJzgProject();
+  if(!p){ toast('请先选择项目','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/followup-delete', {projectId:p.id, itemId:String(itemId||'')});
+    if(!r.ok){ toast(r.error||'删除失败','err'); return; }
+    await loadJzg();
+    toast('任务已删除','ok');
+  }catch(e){
+    toast('删除失败: '+e.message,'err');
+  }
+}
+
+async function jzgCreateTopic(){
+  const p = _getSelectedJzgProject();
+  const titleEl = document.getElementById('jzg-topic-title');
+  const ctxEl = document.getElementById('jzg-topic-context');
+  const title = String((titleEl&&titleEl.value)||'').trim();
+  const context = String((ctxEl&&ctxEl.value)||'').trim();
+  if(!p || !title){ toast('请输入主题标题','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/strategy-topic-create', {projectId:p.id, title, context});
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    if(titleEl) titleEl.value = '';
+    if(ctxEl) ctxEl.value = '';
+    selectedJzgTopicId = ((r.topic||{}).id || '');
+    await loadJzg();
+  }catch(e){ toast('创建失败: '+e.message,'err'); }
+}
+
+async function jzgAddTopicMsg(){
+  const p = _getSelectedJzgProject();
+  const msgEl = document.getElementById('jzg-topic-message');
+  const message = String((msgEl&&msgEl.value)||'').trim();
+  if(!p || !selectedJzgTopicId || !message){ toast('请输入消息内容','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/strategy-message', {projectId:p.id, topicId:selectedJzgTopicId, message, role:'user'});
+    if(!r.ok){ toast(r.error||'发送失败','err'); return; }
+    if(msgEl) msgEl.value = '';
+    await loadJzg();
+  }catch(e){ toast('发送失败: '+e.message,'err'); }
+}
+
+async function jzgAddReminder(){
+  const p = _getSelectedJzgProject();
+  const titleEl = document.getElementById('jzg-reminder-title');
+  const schEl = document.getElementById('jzg-reminder-schedule');
+  const title = String((titleEl&&titleEl.value)||'').trim();
+  const schedule = String((schEl&&schEl.value)||'').trim();
+  if(!p || !title){ toast('请输入提醒标题','err'); return; }
+  try{
+    const r = await postJ(API+'/jzg/reminder-create', {projectId:p.id, title, schedule});
+    if(!r.ok){ toast(r.error||'创建失败','err'); return; }
+    if(titleEl) titleEl.value = '';
+    if(schEl) schEl.value = '';
+    await loadJzg();
+  }catch(e){ toast('创建失败: '+e.message,'err'); }
+}
+
+async function jzgToggleReminder(reminderId, enabled){
+  const p = _getSelectedJzgProject();
+  if(!p) return;
+  try{
+    const r = await postJ(API+'/jzg/reminder-toggle', {projectId:p.id, reminderId, enabled: !!enabled});
+    if(!r.ok){ toast(r.error||'更新失败','err'); return; }
+    await loadJzg();
+  }catch(e){ toast('更新失败: '+e.message,'err'); }
 }
 
 /* ══ MORNING BRIEF (天下要闻) ══ */
@@ -5421,16 +6730,26 @@ async function loadOfficials(){
 }
 
 const OFFICIAL_ORDER = ['taizi','zhongshu','menxia','shangshu','libu','hubu','bingbu','xingbu','gongbu','libu_hr','zaochao'];
+const OFFICIAL_PROFILE_MAP = {
+  libu: {
+    role: '礼部尚书（学习系统治理）',
+    brief: '主责学习十问澄清、学习路径与知识架构、主题问答与知识回写',
+  },
+  gongbu: {
+    role: '工部尚书（项目开发治理）',
+    brief: '主责问题清单治理、项目设计文档、版本控制与发布记录',
+  },
+};
 const AGENT_FLOW_MAP = {
   taizi:   {upstream:'皇上/入口渠道', decision:'识别是否为旨意，建单并转交中书', downstream:'中书省'},
   zhongshu:{upstream:'太子/门下省(驳回)', decision:'拆解任务、起草方案、明确执行路径', downstream:'门下省（审议）/尚书省（准奏后）'},
   menxia:  {upstream:'中书省', decision:'审议方案，准奏或封驳', downstream:'尚书省 或 中书省(修订)'},
   shangshu:{upstream:'门下省(准奏)/中书省(直派)', decision:'派单六部、汇总结果、回奏太子', downstream:'六部/太子'},
-  libu:    {upstream:'尚书省', decision:'文档规范、报告与表达交付', downstream:'尚书省'},
+  libu:    {upstream:'学习主题输入与学习者补充回答（十问）', decision:'生成十问澄清、构建学习路径与知识架构，按主题实时问答并将总结回写学习内容', downstream:'学习系统看板（画像/阶段目录/知识架构/主题内容）与后续学习动作'},
   hubu:    {upstream:'尚书省', decision:'预算资源、成本核算、数据口径', downstream:'尚书省'},
   bingbu:  {upstream:'尚书省', decision:'工程实现、技术方案、执行落地', downstream:'尚书省'},
   xingbu:  {upstream:'尚书省', decision:'合规审计、风险红线、质量把关', downstream:'尚书省'},
-  gongbu:  {upstream:'尚书省', decision:'部署运维、基础设施、自动化', downstream:'尚书省'},
+  gongbu:  {upstream:'尚书省派发的问题单与项目设计/版本请求', decision:'按状态治理问题清单，增量修订PRD/架构/FSD，汇总已完成且未编号问题形成版本日志并回填系统版本号', downstream:'项目开发看板更新（问题/设计/版本）并回传尚书省与提交链路'},
   libu_hr: {upstream:'尚书省', decision:'人事协同、能力建设、组织治理', downstream:'尚书省'},
   zaochao: {upstream:'定时任务/太子', decision:'资讯采集、简报生成、分发', downstream:'太子/消息渠道'},
 };
@@ -5498,6 +6817,9 @@ async function selectOfficial(id, el){
   const running = allTasks.filter(t=>!['Done','Cancelled'].includes(t.state) && t.org===o.label);
   const recent = allTasks.filter(t=>['Done','Cancelled'].includes(t.state) && t.org===o.label).slice(0,5);
   const flow = AGENT_FLOW_MAP[id] || {upstream:'—', decision:'—', downstream:'—'};
+  const profile = OFFICIAL_PROFILE_MAP[id] || null;
+  const roleName = (profile && profile.role) ? profile.role : o.role;
+  const briefText = (profile && profile.brief) ? profile.brief : '省部调度视图已集成';
 
   const [soulResp, sessResp] = await Promise.all([
     fetchJ(API + '/agent-soul/' + encodeURIComponent(id)).catch(()=>({ok:false,error:'SOUL读取失败'})),
@@ -5513,9 +6835,9 @@ async function selectOfficial(id, el){
     <div class="od-hero">
       <div class="od-emoji">${o.emoji}</div>
       <div>
-        <div class="od-name">${esc(o.role)}</div>
+        <div class="od-name">${esc(roleName)}</div>
         <div class="od-role">${esc(o.label)} · <span style="color:var(--acc)">${esc(o.model_short||o.model)}</span></div>
-        <div class="od-rank-badge">🔧 ${esc(id)} · 省部调度视图已集成</div>
+        <div class="od-rank-badge">🔧 ${esc(id)} · ${esc(briefText)}</div>
       </div>
       <div class="od-hb">
         <div class="hb ${hb.status}" style="margin-bottom:4px">${esc(hb.label)}</div>
@@ -5800,6 +7122,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   if(activeTab==='morning')loadMorning();
   if(activeTab==='learning')loadLearningPlans();
   if(activeTab==='pm')loadPm();
+  if(activeTab==='jzg')loadJzg();
   if(activeTab==='sessions')renderSessions(liveStatus?liveStatus.tasks:[]);
   if(activeTab==='memorials')renderMemorials();
   if(activeTab==='templates')renderTemplates();
@@ -5829,9 +7152,19 @@ function startCd(){
 
 /* ══ KEY ══ */
 document.addEventListener('keydown',e=>{
-  if(e.key!=='Escape') return;
+  const key = String(e.key||'').toLowerCase();
+  const hotkeyCmdG = (e.metaKey || e.ctrlKey) && !e.shiftKey && key === 'g';
+  const hotkeyCtrlShiftG = e.ctrlKey && e.shiftKey && key === 'g';
+  const hotkeyAltG = e.altKey && !e.metaKey && !e.ctrlKey && key === 'g';
+  if(hotkeyCmdG || hotkeyCtrlShiftG || hotkeyAltG){
+    e.preventDefault();
+    openQuickActions();
+    return;
+  }
+  if(key!=='escape') return;
   document.getElementById('modal-bg').classList.remove('open');
   document.getElementById('agent-session-bg').classList.remove('open');
+  document.getElementById('qa-bg').classList.remove('open');
 });
 
 /* ══ COURT CEREMONY (上朝仪式感) ══ */

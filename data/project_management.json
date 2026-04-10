@@ -1,0 +1,844 @@
+{
+  "projects": [
+    {
+      "id": "PRJ-20260409145332293",
+      "name": "三省六部总控台",
+      "description": "问题清单管控中心",
+      "owner": "gongbu",
+      "items": [
+        {
+          "id": "ISS-20260410142728055",
+          "title": "将作监-项目跟进中增加项目计划模块",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260410103926513",
+          "description": "点击项目跟进，右侧需要有一个模块放项目计划的展示图，而模块的右上角有编辑按钮，点击后弹出一个项目计划表格，类似于Excel的表格，里面有项目计划模版，我在里面将项目计划填写完成后保存，外面看到的项目计划展示就会同步更新。这个展示图中要能看到整个计划周期，以及当前时间节点所在的位置。可以参考市面上做的好的项目计划看板图。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已按描述完成实现，请刷新将作监页面验证交互。",
+              "at": "2026-04-10T06:33:51.304660Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "项目计划模块已按需求完成开发并实现功能\n\n",
+              "at": "2026-04-10T12:36:21.018290Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "项目计划模块已按需求完成开发并实现功能\n\n",
+              "at": "2026-04-10T12:47:24.866107Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\"编辑计划\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。",
+          "createdAt": "2026-04-10T06:27:28.055682Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z",
+          "lastGongbuRaw": "{\n  \"summary\":\"项目计划模块已按需求完成开发并实现功能\",\n  \"status\":\"done\",\n  \"questions\":[],\n  \"plan\":[],\n  \"resolution\":\"已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\\\"编辑计划\\\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。\"\n}"
+        },
+        {
+          "id": "ISS-20260410142244470",
+          "title": "将作监-日报周报模块拿掉",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260410103926513",
+          "description": "日报周报模块先拿掉",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已按描述完成实现，请刷新将作监页面验证交互。",
+              "at": "2026-04-10T06:33:51.300561Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已完成：项目跟进中的日报/周报模块已移除。",
+          "createdAt": "2026-04-10T06:22:44.470740Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z"
+        },
+        {
+          "id": "ISS-20260410142013252",
+          "title": "将作监-新增事项优化",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260410103926513",
+          "description": "新增事项可以借鉴鲁班阁的新增问题一样，在标题右边放个按钮，然后点击新增按钮后，下面会伸缩出来一个模块用来新增事项。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已按描述完成实现，请刷新将作监页面验证交互。",
+              "at": "2026-04-10T06:33:51.296433Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已完成：新增事项改为标题右侧按钮触发的伸缩模块，默认收起；展开后填写并创建，创建成功后自动收起。",
+          "createdAt": "2026-04-10T06:20:13.252958Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z"
+        },
+        {
+          "id": "ISS-20260410141818400",
+          "title": "将作监-项目子菜单结构优化",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260410103926513",
+          "description": "项目跟进，策议司，智能看板不要放在标题上，放在左边项目名称下面，类似鲁班阁的结构",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已按描述完成实现，请刷新将作监页面验证交互。",
+              "at": "2026-04-10T06:33:51.292490Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已完成：将作监子菜单由标题区迁移到左侧项目列表下（与鲁班阁结构一致），点击项目后可在其下直接切换 项目跟进/策议司/智能看板。",
+          "createdAt": "2026-04-10T06:18:18.400696Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z"
+        },
+        {
+          "id": "ISS-20260410104930476",
+          "title": "鲁班阁-问题中版本号问题",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-DEFAULT",
+          "description": "问题上绑定的版本号不应该是github的版本号，而是系统自动生成的那个版本号。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "gongbu",
+              "text": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:38:07.964802Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:40:31.555384Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 跟进：已完成修复并验证。复审接口在出现上下文溢出时会自动降级为结构化结果，不再阻断流程。请刷新鲁班阁查看最新状态。",
+              "at": "2026-04-10T03:48:10.360128Z"
+            }
+          ],
+          "plan": [
+            "收到补充后重新生成执行计划",
+            "分步实现并回填修复结论"
+          ],
+          "questions": [
+            "请补充该问题的期望结果与验收标准（2-3条即可）。"
+          ],
+          "resolution": "已修复工部复审的 Context overflow 卡死：新增 overflow 识别、极简重试与结构化降级兜底；即使模型溢出也会返回可继续流转的评审结果，不再只写入报错原文。",
+          "createdAt": "2026-04-10T02:49:30.476598Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z"
+        },
+        {
+          "id": "ISS-20260410104750142",
+          "title": "鲁班阁-创建项目按钮逻辑优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-DEFAULT",
+          "description": "鲁班阁中，每新创建一个项目，工部agent是需要新开一个会话对接这个项目，防止项目之间会有影响。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:49:23.726531Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T04:02:34.727013Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按你的描述直接落地实现，可刷新页面验证。",
+              "at": "2026-04-10T04:03:23.677732Z"
+            }
+          ],
+          "plan": [
+            "收到补充后重新生成执行计划",
+            "分步实现并回填修复结论"
+          ],
+          "questions": [
+            "请补充该问题的期望结果与验收标准（2-3条即可）。"
+          ],
+          "resolution": "已实现：鲁班阁新建项目会自动绑定独立 gongbuSessionId，并在工部复审/设计生成/版本汇总时使用该项目级会话，项目间上下文隔离，避免互相污染。",
+          "createdAt": "2026-04-10T02:47:50.142899Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z"
+        },
+        {
+          "id": "ISS-20260410104557161",
+          "title": "新增菜单-将作监",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260410103926513",
+          "description": "描述：项目管理与事项跟进\n大脑：吏部尚书Agent\n布局：与鲁班阁基本一致，都有创建项目，然后左侧是项目列表，右侧布局也可借鉴。\n功能：项目创建后，\n1.第一个文件夹，项目跟进，其中可以创建项目计划，跟进项目计划，记录每日待办和已办事项，后面可以根据记录的事项形成日报和周报。\n2.第二个文件夹，策议司，我可以将项目相关的本地文档上传，然后吏部agent开始分析总结，然后我可以创建讨论主题，与吏部agent进行聊天询问问题，AI会结合我上传的文档给我答复，也可以帮我形成文档。\n3.第三个文件夹，智能看板，可以查看项目进展，待办，我可以查看也可以操作。以及可以制定一些定时任务。\n验收标准：按钮，布局，功能基本符合预期，都能正常使用。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "gongbu",
+              "text": "用户提出新增将作监菜单功能需求，但功能描述不明确，需进一步澄清具体需求\n\n",
+              "at": "2026-04-10T03:09:18.156137Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:20:36.496294Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:21:17.619726Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:28:22.804358Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:31:29.862208Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:35:57.278551Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:42:28.336468Z"
+            },
+            {
+              "role": "user",
+              "text": "验收标准就是按钮功能基本符合预期，都能正常使用。",
+              "at": "2026-04-10T03:43:28.491699Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:43:51.253350Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:44:32.523426Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:45:19.336662Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "本次复审上下文过长，已降级为简化评审结果\n\n原因: Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+              "at": "2026-04-10T03:49:06.577888Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按你的描述直接落地实现，可刷新页面验证。",
+              "at": "2026-04-10T04:03:23.681693Z"
+            }
+          ],
+          "plan": [
+            "收到补充后重新生成执行计划",
+            "分步实现并回填修复结论"
+          ],
+          "questions": [
+            "请补充该问题的期望结果与验收标准（2-3条即可）。"
+          ],
+          "resolution": "已实现将作监基础版：新增“将作监”菜单，支持创建项目并自动包含项目跟进/策议司/智能看板；支持跟进项新增与完成切换、日报记录、策议主题与会话记录、提醒项新增与启停。",
+          "createdAt": "2026-04-10T02:45:57.161429Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+          "versionRefId": "VER-20260410200620770",
+          "versionTag": "v2026.04.10.2",
+          "versionedAt": "2026-04-10T13:14:05.633672Z"
+        },
+        {
+          "id": "ISS-20260409230040304",
+          "title": "学习系统-知识点没有删除按钮",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "folderId": "FLD-20260409181514410",
+          "description": "新增了想要学习的主题之后，缺少一个删除这个学习主题的按钮。可以放在右边最上面的标题上的最右边，放一个垃圾桶按钮作为删除按钮。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已完成：学习主题弹窗右上角新增删除按钮；删除走系统确认弹窗，确认后调用后端 topic-delete 接口删除主题并刷新列表。",
+              "at": "2026-04-09T15:04:14.700225Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已在学习主题弹窗标题右侧新增删除按钮（垃圾桶），支持系统确认弹窗后删除主题；后端新增 /api/learning-plan/topic-delete 并同步清理该主题聊天记录。",
+          "createdAt": "2026-04-09T15:00:40.304526Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409161700474",
+          "title": "项目管理界面-问题清单需要增加文件夹",
+          "type": "req",
+          "priority": "P2",
+          "status": "done",
+          "description": "目前问题清单是单独一条，我想要能够给问题清单归归类，就想要能够创建文件夹，然后在文件夹下创建问题清单。这样就比较清爽。然后在项目列表中，项目下是可以展开一个树状图，可以显示文件夹目录，也可以收起。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已完成该条实现，请刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T08:28:46.703477Z"
+            },
+            {
+              "role": "user",
+              "text": "这个文件夹，我希望是在项目列表栏中，而不是在问题清单栏中，项目列表中有项目和文件夹清单，然后点击文件夹之后，右边的问题清单就是这个文件夹中的问题，新建的问题也是这个文件夹下的问题。",
+              "at": "2026-04-09T08:35:51.130252Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T08:40:22.496380Z"
+            },
+            {
+              "role": "user",
+              "text": "文件夹的名称无法修改，还有新增文件夹的按钮也没有，流程应该是先点击项目，然后新增文件夹，然后再新增问题。",
+              "at": "2026-04-09T08:45:55.162153Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T08:50:42.124300Z"
+            },
+            {
+              "role": "user",
+              "text": "文件夹名称编辑的方式无效，而且这个小笔的按钮OK的，可以点击小笔后，左边文件夹名称变成可编辑的文本框，然后调整后点击其他地方就直接生效。",
+              "at": "2026-04-09T08:59:20.675506Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T09:02:07.360231Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已修复文件夹改名不生效问题，请刷新页面后再测试改名。",
+              "at": "2026-04-09T09:05:31.870409Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已修复文件夹改名不生效：改名保存改为直接提交输入框当前值（失焦/Enter），不再依赖全局状态，避免点击切换导致提交被打断。",
+          "createdAt": "2026-04-09T08:17:00.474585Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409155953671",
+          "title": "项目管理界面-问题清单标题样式优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "description": "现在这个问题清单，这4个字光光的感觉，能否给它这行加点颜色，当然这个颜色也要与系统整体审美匹配。目的是让问题清单比较清楚的与上面新增记录模块区分开来。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已完成该条实现，请刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T08:28:46.705614Z"
+            },
+            {
+              "role": "user",
+              "text": "在问题清单这四个字后面，加上文件夹名称",
+              "at": "2026-04-09T08:36:44.976802Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T08:40:22.499031Z"
+            },
+            {
+              "role": "user",
+              "text": "再去隐藏掉新增问题之后，这个问题清单 这一栏感觉跟下面问题清单靠的太紧了，应该要分个层，而且要靠上来点，与右边对对齐。",
+              "at": "2026-04-09T08:47:52.610532Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T08:50:42.126506Z"
+            },
+            {
+              "role": "user",
+              "text": "在问题清单的上面，项目名称后面加的是 点 项目编号，调整成 点 文件夹名称。",
+              "at": "2026-04-09T08:57:31.760564Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T09:02:07.362419Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已修正标题副信息为“项目名称 · 文件夹名称”，不再显示项目编号；并保持问题清单标题区与列表的分层间距与对齐。",
+          "createdAt": "2026-04-09T07:59:53.671573Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409155138734",
+          "title": "项目管理界面-新增记录方式优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "description": "参考编辑项目按钮，在它左边弄个新增问题，点击后新增记录的框框就会出现，再次点击就会收回。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已完成该条实现，请刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T08:28:46.707738Z"
+            },
+            {
+              "role": "user",
+              "text": "做的不够好，首先我收会新增问题的时候，新增记录这4个字还在列表中。其次，这个新增问题和编辑项目这两个按钮，我想的是放在最右边，不是在项目名称下面。",
+              "at": "2026-04-09T08:32:20.736109Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T08:40:22.501558Z"
+            },
+            {
+              "role": "user",
+              "text": "这个新增问题和编辑项目这两个按钮，我想的是放在项目名称的最右边，不是在项目名称下面。这个还没有调整。",
+              "at": "2026-04-09T08:42:39.033290Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T08:50:42.128536Z"
+            },
+            {
+              "role": "user",
+              "text": "这个新增问题，编辑项目 两个按钮放错位置了，我想的是放在问题清单上面，不是有项目名称嘛，放在那个项目名称行的右边。不是项目列表中的项目名称。",
+              "at": "2026-04-09T08:56:07.879813Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已按最新反馈完成调整，请刷新项目管理页面验证。",
+              "at": "2026-04-09T09:02:07.364916Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已将“新增问题/编辑项目”按钮放到右侧详情区的项目名称行最右侧（问题清单上方），不再放在左侧项目列表名称行。",
+          "createdAt": "2026-04-09T07:51:38.734593Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409153700759",
+          "title": "项目管理界面-新建项目方式优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "description": "因为项目并不会经常新建，所以没必要经常占着一整行，可以在项目管管理工部治理台 这行的最右边加个按钮，不要太大，要么加号，要么就创建项目，然后点击后会弹出一个页面里面编写项目信息，然后创建项目。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "codex",
+              "text": "Codex 已完成该条实现，请刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T07:47:47.305584Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已将“创建项目”改为标题行右上角小按钮，点击弹出创建弹窗填写项目名称/说明后提交，移除常驻整行输入区。",
+          "createdAt": "2026-04-09T07:37:00.759572Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409153237250",
+          "title": "项目管理界面-问题详情中，问题描述不能编辑",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "description": "问题在创建后，就不能编辑描述，这不合理，将描述做成文本框可以编辑的那种，创建后也可以编辑保存。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "user",
+              "text": "Codex 已完成该条实现并更新页面交互，请刷新项目管理页面验证。",
+              "at": "2026-04-09T07:36:23.247946Z"
+            },
+            {
+              "role": "user",
+              "text": "有个问题，这个保存描述的按钮太丑了，能否放在问题描述的最右边，弄个不大的按钮。",
+              "at": "2026-04-09T07:39:57.703010Z"
+            },
+            {
+              "role": "user",
+              "text": "还有我在界面上回复的时候，这个主体是 你，你作为codex在后台调整完代码反馈留言的时候，自称是codex.现在我留言都成了codex了，不合理。",
+              "at": "2026-04-09T07:41:42.766237Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已完成该条实现，请刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T07:47:47.308188Z"
+            },
+            {
+              "role": "codex",
+              "text": "Codex 已完成该条实现，请刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T08:28:46.710973Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已按补充意见优化：问题描述保存改为描述标题右侧小按钮；并修复问答主体显示，用户留言显示“用户”，Codex 留言显示“Codex”。",
+          "createdAt": "2026-04-09T07:32:37.250392Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409153129186",
+          "title": "项目管理界面-问题详情中，问题的类型和优先级无法调整",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "description": "也跟问题状态一样，做一个类似的下拉框，可以调整问题的类型。优先级也一样，都应该可以调整。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "user",
+              "text": "Codex 已完成该条实现并更新页面交互，请刷新项目管理页面验证。",
+              "at": "2026-04-09T07:36:23.249934Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已支持问题类型与优先级调整：在详情标签区新增下拉交互（与状态一致），可直接切换类型和优先级。",
+          "createdAt": "2026-04-09T07:31:29.186603Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409153009855",
+          "title": "项目管理界面-问题详情中，最近更新时间行优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "description": "最近更新这行记录放在这里很多余，能否放在问题编号后面，相同的样式，这样不占位置。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "user",
+              "text": "Codex 已完成该条实现并更新页面交互，请刷新项目管理页面验证。",
+              "at": "2026-04-09T07:36:23.251646Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已优化最近更新时间展示：移除独立占位行，更新时间并入编号标签行，降低信息占位。",
+          "createdAt": "2026-04-09T07:30:09.855075Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409152422378",
+          "title": "项目管理界面-问题详情中，删除问题按钮优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "description": "这个删除按钮，调整成在问题名称最右边，加一个类似垃圾桶的按钮，红色的，点击后删除问题。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "user",
+              "text": "Codex 已按该条优化完成实现，可刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T07:27:24.578416Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已将删除问题操作优化为问题详情右上角红色垃圾桶按钮，减少占位并保持视觉一致。点击后保留二次确认再删除。",
+          "createdAt": "2026-04-09T07:24:22.378921Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409152259612",
+          "title": "项目管理界面-问题详情中，状态流转栏位优化",
+          "type": "opt",
+          "priority": "P2",
+          "status": "done",
+          "description": "状态流转栏位太占位置了，希望在状态的地方点击，就可以调整选择状态，这个弹框请设计的漂亮一点与系统审美一致。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "user",
+              "text": "Codex 已按该条优化完成实现，可刷新项目管理页面验证最新交互。",
+              "at": "2026-04-09T07:27:24.580576Z"
+            }
+          ],
+          "plan": [],
+          "questions": [],
+          "resolution": "已将状态流转按钮组改为“当前状态标签下拉选择”交互，点击状态即可弹出一致风格菜单并切换状态，减少横向占位。",
+          "createdAt": "2026-04-09T07:22:59.612261Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409150014126",
+          "title": "项目管理界面-项目列表中内容不能修改",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "description": "项目创建完之后，项目列表中的项目名称和说明都不能再编辑了，需要能否编辑项目相关信息。设计要高大上一点。",
+          "owner": "gongbu",
+          "qa": [
+            {
+              "role": "user",
+              "text": "不是想要这个样子的，希望隐藏式的，不要占用我页面的空间，其实可以点击右边项目名称，会有一个下移的框框，然后进行项目信息的调整。再此点击右边项目名称，就收回去。",
+              "at": "2026-04-09T07:11:12.856073Z"
+            },
+            {
+              "role": "gongbu",
+              "text": "用户希望改进项目列表的编辑功能，采用隐藏式交互设计而非当前的直接编辑方式\n\n分析当前项目列表组件的代码结构\n设计隐藏式编辑面板的交互逻辑\n实现点击项目名称展开/收起编辑框的功能\n开发项目信息修改保存功能\n测试新交互的用户体验",
+              "at": "2026-04-09T07:11:57.130306Z"
+            },
+            {
+              "role": "user",
+              "text": "已按你的交互要求调整：项目信息编辑改为标题触发的折叠面板，不再常驻占位。请刷新页面确认体验。",
+              "at": "2026-04-09T07:17:19.424163Z"
+            }
+          ],
+          "plan": [
+            "分析当前项目列表组件的代码结构",
+            "设计隐藏式编辑面板的交互逻辑",
+            "实现点击项目名称展开/收起编辑框的功能",
+            "开发项目信息修改保存功能",
+            "测试新交互的用户体验"
+          ],
+          "questions": [],
+          "resolution": "已改为隐藏式编辑交互：默认不占空间；点击右侧项目标题展开编辑面板，再次点击收起。编辑区支持项目名称/说明保存，并保留删除项目入口。",
+          "createdAt": "2026-04-09T07:00:14.126947Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "lastGongbuRaw": "{\n  \"summary\": \"用户希望改进项目列表的编辑功能，采用隐藏式交互设计而非当前的直接编辑方式\",\n  \"status\": \"in_progress\",\n  \"questions\": [],\n  \"plan\": [\n    \"分析当前项目列表组件的代码结构\",\n    \"设计隐藏式编辑面板的交互逻辑\",\n    \"实现点击项目名称展开/收起编辑框的功能\",\n    \"开发项目信息修改保存功能\",\n    \"测试新交互的用户体验\"\n  ],\n  \"resolution\": \"\"\n}",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409145641827",
+          "title": "项目管理界面-问题清单也是没有一个删除按钮",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "description": "问题清单只能创建，不能删除呀。",
+          "owner": "gongbu",
+          "qa": [],
+          "plan": [],
+          "questions": [],
+          "resolution": "已支持问题单删除，详情区新增“删除问题”按钮，删除后问题清单即时同步。",
+          "createdAt": "2026-04-09T06:56:41.827149Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        },
+        {
+          "id": "ISS-20260409145510894",
+          "title": "项目管理界面-项目需要一个删除按钮",
+          "type": "bug",
+          "priority": "P2",
+          "status": "done",
+          "description": "项目只能创建，不能删除呀。",
+          "owner": "gongbu",
+          "qa": [],
+          "plan": [],
+          "questions": [],
+          "resolution": "已支持项目删除，项目设置区新增“删除项目”按钮，含二次确认，删除后自动回到项目空态。",
+          "createdAt": "2026-04-09T06:55:10.894298Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "folderId": "FLD-DEFAULT",
+          "versionTag": "v2026.04.10.1",
+          "versionedAt": "2026-04-10T02:09:14.056015Z",
+          "versionRefId": "VER-20260410093321813"
+        }
+      ],
+      "createdAt": "2026-04-09T06:53:32.293091Z",
+      "updatedAt": "2026-04-10T13:14:05.633672Z",
+      "folders": [
+        {
+          "id": "FLD-DESIGN",
+          "name": "项目设计"
+        },
+        {
+          "id": "FLD-VERSION",
+          "name": "版本控制"
+        },
+        {
+          "id": "FLD-DEFAULT",
+          "name": "鲁班阁"
+        },
+        {
+          "id": "FLD-20260409181514410",
+          "name": "藏经阁"
+        },
+        {
+          "id": "FLD-20260410103926513",
+          "name": "将作监"
+        }
+      ],
+      "design": {
+        "sections": {
+          "requirements": {
+            "content": "# 三省六部总控台 - 产品需求文档(PRD)\n\n## 背景与目标\n\n### 项目背景\n三省六部总控台是一个基于传统三省六部官制理念构建的问题清单管控中心系统。该系统已经实现了基础的项目管理和问题跟踪功能，包括项目创建、任务管理、状态流转等核心功能。系统采用现代化的Web界面设计，支持用户进行高效的项目管理和问题处理。\n\n### 项目目标\n- 提供完整的项目生命周期管理功能\n- 实现问题清单的结构化组织和管理\n- 支持项目和任务的编辑、删除等操作\n- 提供友好的用户界面和交互体验\n- 为后续AI智能功能扩展奠定基础\n\n## 用户与场景\n\n### 主要用户角色\n- **项目经理**：负责项目的创建、管理和监控\n- **团队成员**：参与项目任务的执行和状态更新\n- **系统管理员**：负责系统的维护和配置\n\n### 核心使用场景\n1. **项目创建与管理**：用户创建新项目，设置项目基本信息，管理项目成员\n2. **任务管理**：用户在问题清单中创建、编辑、删除任务，跟踪任务进度\n3. **任务分类管理**：用户通过文件夹对任务进行分类组织\n4. **状态跟踪**：用户查看和更新任务状态，了解项目进展情况\n5. **项目信息维护**：用户编辑项目信息，包括名称、描述等内容\n\n## 功能范围\n\n### 核心功能模块\n\n#### 项目管理模块\n- 项目创建：支持创建新项目，设置项目基本信息\n- 项目编辑：支持修改项目名称、描述等信息\n- 项目删除：提供项目删除功能，包含确认机制\n- 项目列表：展示所有项目，支持基本的查看功能\n\n#### 任务管理模块\n- 任务创建：支持创建新任务，设置任务标题、描述等属性\n- 任务编辑：支持修改任务描述、类型、优先级等信息\n- 任务删除：提供任务删除功能，包含确认机制\n- 任务分类：支持通过文件夹对任务进行分类管理\n- 状态管理：支持任务状态的查看和基本流转\n\n#### 界面优化功能\n- 问题清单文件夹功能：允许用户创建和管理任务文件夹\n- 标题样式优化：改进问题清单标题的显示样式\n- 新增记录方式优化：简化任务创建流程\n- 新建项目方式优化：改进项目创建界面和流程\n- 项目列表编辑：支持通过隐藏式面板编辑项目信息\n- 时间显示优化：改进最近更新时间的显示方式\n- 状态流转优化：优化任务状态流转的界面展示\n\n### 边界定义\n- 不包含复杂的报表功能\n- 不包含高级的权限管理\n- 不包含团队协作功能（如评论、通知等）\n- 不包含时间跟踪功能\n- 不包含资源分配功能\n\n## 非功能需求\n\n### 性能要求\n- 页面加载时间不超过3秒\n- 任务列表滚动流畅，响应时间小于100ms\n- 数据保存响应时间小于500ms\n- 支持同时处理多个项目和任务\n\n### 可用性要求\n- 支持主流浏览器（Chrome、Firefox、Safari、Edge）\n- 界面响应式设计，支持不同屏幕尺寸\n- 提供清晰的操作反馈和错误提示\n- 符合无障碍设计标准\n\n### 安全性要求\n- 用户身份认证与授权\n- 敏感操作二次确认机制\n- 数据传输加密保护\n\n### 兼容性要求\n- 前端框架兼容性确保向后兼容\n- 数据库结构保持稳定\n\n## 里程碑与验收标准\n\n### 里程碑一：基础功能实现（已完成）\n- 项目创建、编辑、删除功能完成\n- 任务创建、编辑、删除功能完成\n- 问题清单文件夹功能实现\n- 界面样式和交互优化完成\n\n### 里程碑二：用户体验优化（已完成）\n- 新增记录方式优化完成\n- 新建项目方式优化完成\n- 项目列表编辑功能完成\n- 时间显示和状态流转优化完成\n\n### 里程碑三：功能完整性验证（已完成）\n- 所有功能模块集成测试通过\n- 用户界面交互符合设计规范\n- 数据一致性得到保障\n- 错误处理机制完善\n\n### 验收标准\n- 所有标记为done的功能正常可用\n- 用户操作流程顺畅，无明显卡顿\n- 界面交互符合设计规范\n- 数据一致性得到保障\n- 错误处理机制完善，提供友好的错误提示\n- 项目和任务的CRUD操作功能完整\n- 文件夹分类功能正常运行\n- 隐藏式编辑面板交互体验良好",
+            "updatedAt": "2026-04-09T13:45:23.125937Z",
+            "updatedBy": "gongbu",
+            "suggestions": []
+          },
+          "architecture": {
+            "content": "# 三省六部总控台 - 架构设计\n\n## 系统架构概览\n\n三省六部总控台采用微服务架构，分为前端展示层、应用服务层、AI智能层、数据存储层和基础设施层。系统以可追踪、可干预、可回溯为核心设计理念，通过事件驱动的方式实现各模块间的解耦。\n\n## 系统架构图\n\n```mermaid\ngraph TB\n    subgraph \"前端展示层\"\n        UI[Web UI]\n        Mobile[Mobile App]\n        APIGW[API Gateway]\n    end\n    \n    subgraph \"应用服务层\"\n        PM[项目管理服务]\n        TM[任务管理服务]\n        UM[用户管理服务]\n        KS[知识管理服务]\n        NF[通知服务]\n    end\n    \n    subgraph \"AI智能层\"\n        TA[任务分析引擎]\n        PA[项目分析引擎]\n        RE[风险预测引擎]\n        RECO[推荐引擎]\n    end\n    \n    subgraph \"数据存储层\"\n        DB[(PostgreSQL)]\n        KV[(Redis)]\n        ES[(Elasticsearch)]\n        OBJ[(对象存储)]\n    end\n    \n    subgraph \"事件总线\"\n        EB[消息队列]\n    end\n    \n    subgraph \"基础设施层\"\n        LOG[日志系统]\n        MON[监控系统]\n        AUDIT[审计系统]\n    end\n    \n    UI --> APIGW\n    Mobile --> APIGW\n    APIGW --> PM\n    APIGW --> TM\n    APIGW --> UM\n    APIGW --> KS\n    APIGW --> NF\n    \n    PM --> DB\n    PM --> KV\n    TM --> DB\n    TM --> KV\n    UM --> DB\n    UM --> KV\n    KS --> DB\n    KS --> ES\n    KS --> OBJ\n    \n    PM --> EB\n    TM --> EB\n    KS --> EB\n    \n    EB --> TA\n    EB --> PA\n    EB --> RE\n    EB --> RECO\n    \n    TA --> DB\n    PA --> DB\n    RE --> DB\n    RECO --> DB\n    \n    TA --> ES\n    PA --> ES\n    RE --> ES\n    RECO --> ES\n    \n    LOG --> DB\n    MON --> DB\n    AUDIT --> DB\n```\n\n## 关键模块职责\n\n### 项目管理服务 (PM)\n- 负责项目的创建、编辑、删除和查询\n- 管理项目基本信息和元数据\n- 处理项目状态变更和生命周期管理\n- 提供项目权限控制和访问验证\n\n### 任务管理服务 (TM)\n- 负责任务的创建、编辑、删除和查询\n- 管理任务状态流转和优先级调整\n- 处理任务分类和文件夹组织\n- 记录任务操作历史和变更轨迹\n\n### AI智能层\n- **任务分析引擎(TA)**：分析任务执行模式，识别异常行为\n- **项目分析引擎(PA)**：分析项目整体趋势，识别关键节点\n- **风险预测引擎(RE)**：基于历史数据预测潜在风险\n- **推荐引擎(RECO)**：提供知识推荐和最佳实践建议\n\n### 知识管理服务 (KS)\n- 自动收集项目和任务过程数据\n- 构建和维护知识库索引\n- 提供知识检索和推荐功能\n- 管理知识版本和更新\n\n### 事件总线 (EB)\n- 实现服务间异步通信\n- 支持事件驱动的架构模式\n- 保证事件的可靠传递\n- 支持事件重试和死信处理\n\n## 数据流设计\n\n### 项目创建流程\n```mermaid\nsequenceDiagram\n    participant U as 用户\n    participant UI as 前端UI\n    participant PM as 项目管理服务\n    participant DB as 数据库\n    participant EB as 事件总线\n    participant KS as 知识管理服务\n    \n    U->>UI: 创建项目请求\n    UI->>PM: 创建项目API调用\n    PM->>DB: 保存项目数据\n    PM->>EB: 发布项目创建事件\n    EB->>KS: 接收项目创建事件\n    KS->>DB: 初始化项目知识索引\n    PM-->>UI: 返回创建结果\n    UI-->>U: 显示项目创建成功\n```\n\n### 任务分析与干预流程\n```mermaid\nsequenceDiagram\n    participant TM as 任务管理服务\n    participant EB as 事件总线\n    participant TA as 任务分析引擎\n    participant RE as 风险预测引擎\n    participant NF as 通知服务\n    participant PM as 项目经理\n    \n    TM->>EB: 任务状态变更事件\n    EB->>TA: 接收任务事件\n    TA->>RE: 请求风险分析\n    RE->>TA: 返回风险评估\n    alt 存在风险\n        TA->>NF: 发送干预通知\n        NF->>PM: 通知项目经理\n        PM->>TM: 手动干预操作\n    end\n    TA-->>EB: 完成处理\n```\n\n### 知识沉淀流程\n```mermaid\nsequenceDiagram\n    participant TM as 任务管理服务\n    participant PM as 项目管理服务\n    participant EB as 事件总线\n    participant KS as 知识管理服务\n    participant ES as Elasticsearch\n    \n    TM->>EB: 任务完成事件\n    PM->>EB: 项目完成事件\n    EB->>KS: 接收完成事件\n    KS->>ES: 索引项目经验\n    KS->>DB: 保存知识条目\n    KS-->>EB: 完成知识沉淀\n```\n\n## 边界定义\n\n### 系统边界\n- **内部边界**：项目管理、任务管理、AI分析、知识管理等功能模块\n- **外部边界**：不包含第三方系统集成，不包含复杂报表功能\n- **数据边界**：仅处理项目和任务相关数据，不涉及财务或人事数据\n\n### 服务边界\n- **项目管理服务**：专注于项目生命周期管理，不处理任务细节\n- **任务管理服务**：专注于任务执行和状态管理，不处理项目层面逻辑\n- **AI智能层**：提供分析和预测能力，不直接处理业务逻辑\n- **知识管理服务**：负责知识的存储和检索，不进行业务决策\n\n## 风险分析\n\n### 技术风险\n- **AI准确性风险**：AI预测和推荐可能不准确，影响用户体验\n- **数据一致性风险**：分布式环境下可能出现数据不一致\n- **性能风险**：AI分析可能消耗大量计算资源，影响系统性能\n- **扩展性风险**：系统设计可能无法满足未来大规模扩展需求\n\n### 业务风险\n- **用户接受度风险**：用户可能不信任AI推荐，导致功能使用率低\n- **知识质量风险**：沉淀的知识可能存在质量问题，影响后续使用\n- **隐私合规风险**：处理用户数据需遵守相关法规要求\n\n### 缓解措施\n- 建立AI模型监控和校准机制\n- 实施分布式事务和最终一致性方案\n- 采用缓存和异步处理优化性能\n- 提供AI决策解释和人工审核机制\n- 建立严格的数据访问控制和审计机制",
+            "updatedAt": "2026-04-09T13:37:55.726616Z",
+            "updatedBy": "gongbu",
+            "suggestions": []
+          },
+          "function": {
+            "content": "# 三省六部总控台 - 功能设计文档(FSD)\n\n## 功能拆解\n\n### 项目管理功能\n- 项目创建功能\n- 项目编辑功能\n- 项目删除功能\n- 项目列表展示功能\n\n### 任务管理功能\n- 任务创建功能\n- 任务编辑功能\n- 任务删除功能\n- 任务分类管理功能（文件夹）\n- 任务状态管理功能\n\n### 界面交互功能\n- 隐藏式编辑面板功能\n- 文件夹管理功能\n- 标题样式展示功能\n- 时间显示功能\n- 状态流转展示功能\n\n## 功能流程\n\n### 项目创建流程\n```\n用户 -> 前端界面 -> 创建项目表单 -> 验证输入 -> 保存到数据源 -> 刷新列表\n```\n1. 用户点击创建项目按钮\n2. 前端显示项目创建表单\n3. 用户填写项目信息并提交\n4. 前端验证输入数据\n5. 保存项目数据到后端\n6. 刷新项目列表显示新项目\n\n### 项目编辑流程\n```\n用户 -> 点击项目名称 -> 显示隐藏编辑面板 -> 修改信息 -> 保存 -> 更新显示\n```\n1. 用户点击项目名称区域\n2. 前端显示隐藏式编辑面板\n3. 用户修改项目信息\n4. 用户点击保存按钮\n5. 前端验证并提交修改\n6. 更新项目列表显示\n\n### 任务创建流程\n```\n用户 -> 前端界面 -> 创建任务表单 -> 验证输入 -> 保存到数据源 -> 刷新列表\n```\n1. 用户点击创建任务按钮\n2. 前端显示任务创建表单\n3. 用户填写任务信息并提交\n4. 前端验证输入数据\n5. 保存任务数据到后端\n6. 刷新任务列表显示新任务\n\n### 任务编辑流程\n```\n用户 -> 点击任务详情 -> 编辑描述/类型/优先级 -> 保存修改 -> 更新显示\n```\n1. 用户进入任务详情页面\n2. 用户修改任务描述、类型或优先级\n3. 用户点击保存按钮\n4. 前端验证并提交修改\n5. 更新任务显示\n\n## 接口与字段\n\n### 项目管理接口\n\n#### 创建项目\n```\nPOST /api/projects\nRequest:\n{\n  \"name\": \"string\",           // 项目名称 (必填)\n  \"description\": \"string\"     // 项目描述 (可选)\n}\n\nResponse:\n{\n  \"id\": \"string\",             // 项目ID\n  \"name\": \"string\",           // 项目名称\n  \"description\": \"string\",    // 项目描述\n  \"createdAt\": \"datetime\",    // 创建时间\n  \"updatedAt\": \"datetime\"     // 更新时间\n}\n```\n\n#### 更新项目\n```\nPUT /api/projects/{id}\nRequest:\n{\n  \"name\": \"string\",           // 项目名称\n  \"description\": \"string\"     // 项目描述\n}\n\nResponse:\n{\n  \"id\": \"string\",             // 项目ID\n  \"name\": \"string\",           // 项目名称\n  \"description\": \"string\",    // 项目描述\n  \"updatedAt\": \"datetime\"     // 更新时间\n}\n```\n\n#### 删除项目\n```\nDELETE /api/projects/{id}\nResponse:\n{\n  \"success\": \"boolean\",       // 删除是否成功\n  \"message\": \"string\"         // 提示信息\n}\n```\n\n### 任务管理接口\n\n#### 创建任务\n```\nPOST /api/tasks\nRequest:\n{\n  \"title\": \"string\",          // 任务标题 (必填)\n  \"description\": \"string\",    // 任务描述 (可选)\n  \"projectId\": \"string\",      // 所属项目ID (必填)\n  \"folderId\": \"string\",       // 所属文件夹ID (可选)\n  \"type\": \"string\",           // 任务类型 (可选)\n  \"priority\": \"string\"        // 优先级 (可选)\n}\n\nResponse:\n{\n  \"id\": \"string\",             // 任务ID\n  \"title\": \"string\",          // 任务标题\n  \"description\": \"string\",    // 任务描述\n  \"projectId\": \"string\",      // 所属项目ID\n  \"folderId\": \"string\",       // 所属文件夹ID\n  \"type\": \"string\",           // 任务类型\n  \"priority\": \"string\",       // 优先级\n  \"status\": \"string\",         // 状态\n  \"createdAt\": \"datetime\",    // 创建时间\n  \"updatedAt\": \"datetime\"     // 更新时间\n}\n```\n\n#### 更新任务\n```\nPUT /api/tasks/{id}\nRequest:\n{\n  \"title\": \"string\",          // 任务标题\n  \"description\": \"string\",    // 任务描述\n  \"folderId\": \"string\",       // 所属文件夹ID\n  \"type\": \"string\",           // 任务类型\n  \"priority\": \"string\",       // 优先级\n  \"status\": \"string\"          // 状态\n}\n\nResponse:\n{\n  \"id\": \"string\",             // 任务ID\n  \"title\": \"string\",          // 任务标题\n  \"description\": \"string\",    // 任务描述\n  \"projectId\": \"string\",      // 所属项目ID\n  \"folderId\": \"string\",       // 所属文件夹ID\n  \"type\": \"string\",           // 任务类型\n  \"priority\": \"string\",       // 优先级\n  \"status\": \"string\",         // 状态\n  \"updatedAt\": \"datetime\"     // 更新时间\n}\n```\n\n#### 删除任务\n```\nDELETE /api/tasks/{id}\nResponse:\n{\n  \"success\": \"boolean\",       // 删除是否成功\n  \"message\": \"string\"         // 提示信息\n}\n```\n\n### 文件夹管理接口\n\n#### 创建文件夹\n```\nPOST /api/folders\nRequest:\n{\n  \"name\": \"string\",           // 文件夹名称 (必填)\n  \"projectId\": \"string\"       // 所属项目ID (必填)\n}\n\nResponse:\n{\n  \"id\": \"string\",             // 文件夹ID\n  \"name\": \"string\",           // 文件夹名称\n  \"projectId\": \"string\",      // 所属项目ID\n  \"createdAt\": \"datetime\"     // 创建时间\n}\n```\n\n## 状态机与异常处理\n\n### 任务状态机\n```\n初始状态: todo\n状态选项:\n- todo: 待办\n- in_progress: 进行中\n- done: 已完成\n- cancelled: 已取消\n```\n\n### 异常处理\n\n#### 参数验证异常\n- 400 Bad Request: 输入参数不符合要求\n- 错误码: VALIDATION_ERROR\n- 错误信息: 包含具体验证失败的字段和原因\n\n#### 资源不存在异常\n- 404 Not Found: 请求的资源不存在\n- 错误码: RESOURCE_NOT_FOUND\n- 错误信息: 资源类型和ID信息\n\n#### 操作失败异常\n- 500 Internal Server Error: 操作执行失败\n- 错误码: OPERATION_FAILED\n- 错误信息: 具体的失败原因\n\n## 测试要点\n\n### 功能测试\n\n#### 项目管理功能测试\n- 验证项目创建时名称必填验证\n- 验证项目编辑功能的隐藏面板交互\n- 验证项目删除功能的安全确认\n- 验证项目信息修改的持久化\n\n#### 任务管理功能测试\n- 验证任务创建时标题必填验证\n- 验证任务编辑功能的描述修改\n- 验证任务类型和优先级的修改\n- 验证任务删除功能的数据清理\n- 验证文件夹创建和任务归属\n\n#### 界面交互功能测试\n- 验证隐藏式编辑面板的展开收起\n- 验证文件夹管理功能的完整性\n- 验证标题样式的正确显示\n- 验证时间显示格式的准确性\n- 验证状态流转的正确展示\n\n### 集成测试\n\n#### 数据一致性测试\n- 验证项目删除后相关任务的处理\n- 验证任务移动文件夹的数据同步\n- 验证编辑操作的实时刷新\n\n#### 用户体验测试\n- 验证隐藏编辑面板的交互流畅性\n- 验证错误提示的友好性\n- 验证操作确认的必要性\n\n### 安全测试\n\n#### 数据验证测试\n- 验证输入数据的合法性检查\n- 验证SQL注入防护机制\n- 验证XSS攻击防护机制\n\n#### 权限控制测试\n- 验证未授权用户的操作限制\n- 验证数据访问的边界控制",
+            "updatedAt": "2026-04-09T14:11:48.179138Z",
+            "updatedBy": "gongbu",
+            "suggestions": []
+          }
+        },
+        "brief": {
+          "content": "把三省六部总控台做成可长期项目管理与知识沉淀的一体化 AI 管家，优先强调可追踪、可干预、可回溯。",
+          "updatedAt": "2026-04-09T13:37:03.547117Z",
+          "updatedBy": "user"
+        }
+      },
+      "versions": [
+        {
+          "id": "VER-20260410200620770",
+          "systemVersion": "v2026.04.10.2",
+          "githubVersion": "",
+          "status": "draft",
+          "summary": "本次纳入 7 项已完成问题",
+          "content": "# 三省六部总控台 - 版本更新日志\n\n## BUG修复\n\n- **鲁班阁-问题中版本号问题**：已修复工部复审的 Context overflow 卡死：新增 overflow 识别、极简重试与结构化降级兜底；即使模型溢出也会返回可继续流转的评审结果，不再只写入报错原文。\n\n## 需求交付\n\n- **新增菜单-将作监**：已实现将作监基础版：新增\"将作监\"菜单，支持创建项目并自动包含项目跟进/策议司/智能看板；支持跟进项新增与完成切换、日报记录、策议主题与会话记录、提醒项新增与启停。\n- **将作监-项目跟进中增加项目计划模块**：已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\"编辑计划\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。\n- **将作监-项目子菜单结构优化**：已完成：将作监子菜单由标题区迁移到左侧项目列表下（与鲁班阁结构一致），点击项目后可在其下直接切换 项目跟进/策议司/智能看板。\n- **将作监-日报周报模块拿掉**：已完成：项目跟进中的日报/周报模块已移除。\n\n## 优化改进\n\n- **将作监-新增事项优化**：已完成：新增事项改为标题右侧按钮触发的伸缩模块，默认收起；展开后填写并创建，创建成功后自动收起。\n- **鲁班阁-创建项目按钮逻辑优化**：已实现：鲁班阁新建项目会自动绑定独立 gongbuSessionId，并在工部复审/设计生成/版本汇总时使用该项目级会话，项目间上下文隔离，避免互相污染。",
+          "issueIds": [
+            "ISS-20260410104750142",
+            "ISS-20260410142244470",
+            "ISS-20260410104930476",
+            "ISS-20260410104557161",
+            "ISS-20260410141818400",
+            "ISS-20260410142728055",
+            "ISS-20260410142013252"
+          ],
+          "createdAt": "2026-04-10T12:06:20.770246Z",
+          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "createdBy": "gongbu"
+        },
+        {
+          "id": "VER-20260410093321813",
+          "systemVersion": "v2026.04.10.1",
+          "githubVersion": "7bf7946",
+          "status": "github",
+          "summary": "本次纳入 13 项已完成问题",
+          "content": "# 三省六部总控台 - 版本更新日志\n\n## BUG修复\n\n- **项目管理界面-项目列表中内容不能修改**：现已支持隐藏式编辑交互，点击项目标题展开编辑面板，可修改项目名称和说明。\n- **项目管理界面-问题详情中，问题描述不能编辑**：问题描述现在可以编辑，保存按钮位于描述标题右侧，用户留言显示\"用户\"，Codex留言显示\"Codex\"。\n- **项目管理界面-问题详情中，问题的类型和优先级无法调整**：支持在详情标签区通过下拉菜单直接调整问题类型和优先级。\n- **项目管理界面-问题清单也是没有一个删除按钮**：问题详情区新增\"删除问题\"按钮，删除后问题清单即时同步。\n- **项目管理界面-项目需要一个删除按钮**：项目设置区新增\"删除项目\"按钮，含二次确认，删除后自动返回项目空态。\n\n## 需求交付\n\n- **项目管理界面-问题清单需要增加文件夹**：已实现文件夹功能，支持在项目下创建文件夹并管理问题清单，可展开/收起树状目录结构。\n- **学习系统-知识点没有删除按钮**：学习主题弹窗标题右侧新增删除按钮，支持系统确认后删除主题及相关聊天记录。\n\n## 优化改进\n\n- **项目管理界面-新建项目方式优化**：创建项目改为标题行右上角小按钮，点击弹出创建弹窗，移除常驻整行输入区。\n- **项目管理界面-新增记录方式优化**：\"新增问题/编辑项目\"按钮移至右侧详情区项目名称行最右侧，不再占用左侧列表空间。\n- **项目管理界面-问题清单标题样式优化**：问题清单标题增加颜色区分，标题副信息显示为\"项目名称 · 文件夹名称\"。\n- **项目管理界面-问题详情中，最近更新时间行优化**：最近更新时间整合到编号标签行，移除独立占位行，降低信息占位。\n- **项目管理界面-问题详情中，删除问题按钮优化**：删除按钮改为问题详情右上角红色垃圾桶图标，保持视觉一致且减少占位。\n- **项目管理界面-问题详情中，状态流转栏位优化**：状态流转改为下拉选择交互，点击状态标签即可切换，减少横向占位。",
+          "issueIds": [
+            "ISS-20260409145641827",
+            "ISS-20260409153237250",
+            "ISS-20260409153009855",
+            "ISS-20260409145510894",
+            "ISS-20260409155953671",
+            "ISS-20260409230040304",
+            "ISS-20260409152259612",
+            "ISS-20260409150014126",
+            "ISS-20260409161700474",
+            "ISS-20260409153700759",
+            "ISS-20260409153129186",
+            "ISS-20260409152422378",
+            "ISS-20260409155138734"
+          ],
+          "createdAt": "2026-04-10T01:33:21.813425Z",
+          "updatedAt": "2026-04-10T02:10:18.018680Z",
+          "createdBy": "gongbu"
+        }
+      ],
+      "runtime": {
+        "gongbuSessionId": "pm-gongbu-PRJ-20260409145332293-88552795",
+        "updatedAt": "2026-04-10T13:14:19.289930Z"
+      }
+    }
+  ]
+}
