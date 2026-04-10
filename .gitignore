@@ -1,5 +1,7 @@
 # Runtime data (machine-specific)
 data/context_capsules/
+data/agent_isolation_registry.json
+data/agent_isolation_registry.json.lock
 
 # Logs
 *.log

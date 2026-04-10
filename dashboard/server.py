@@ -11,7 +11,7 @@ Endpoints:
   GET  /api/model-change-log   → data/model_change_log.json
   GET  /api/last-result        → data/last_model_change_result.json
 """
-import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time, uuid
+import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time, uuid, shutil, hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from urllib.request import Request, urlopen
@@ -37,6 +37,7 @@ if str(CHANNELS_DIR.parent) not in sys.path:
 from channels import get_channel, get_channel_info, CHANNELS as NOTIFICATION_CHANNELS
 
 OCLAW_HOME = pathlib.Path.home() / '.openclaw'
+OPENCLAW_SKILLS_HOME = OCLAW_HOME / 'skills'
 AGENTS_SKILLS_HOME = pathlib.Path.home() / '.agents' / 'skills'
 MAX_REQUEST_BODY = 1 * 1024 * 1024  # 1 MB
 ALLOWED_ORIGIN = None  # Set via --cors; None means restrict to localhost
@@ -56,6 +57,7 @@ SCRIPTS = BASE.parent / 'scripts'
 _ACTIVE_TASK_DATA_DIR = None
 LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
 PM_FILE = DATA / 'project_management.json'
+PM_ISOLATION_FILE = DATA / 'agent_isolation_registry.json'
 JZG_FILE = DATA / 'jiangzuojian.json'
 PM_DESIGN_FOLDER_ID = 'FLD-DESIGN'
 PM_DESIGN_FOLDER_NAME = '项目设计'
@@ -292,7 +294,12 @@ def read_skill_content(agent_id, skill_name):
         return {'ok': False, 'error': f'技能 {skill_name} 不存在'}
     skill_path = pathlib.Path(sk.get('path', '')).resolve()
     # 路径遍历保护：确保路径在 OCLAW_HOME 或项目目录下
-    allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve(), AGENTS_SKILLS_HOME.resolve())
+    allowed_roots = (
+        OCLAW_HOME.resolve(),
+        OPENCLAW_SKILLS_HOME.resolve(),
+        BASE.parent.resolve(),
+        AGENTS_SKILLS_HOME.resolve(),
+    )
     if not any(str(skill_path).startswith(str(root)) for root in allowed_roots):
         return {'ok': False, 'error': '路径不在允许的目录范围内'}
     if not skill_path.exists():
@@ -434,7 +441,7 @@ def add_remote_skill(agent_id, skill_name, source_url, description=''):
             if not local_path.exists():
                 return {'ok': False, 'error': f'本地文件不存在: {local_path}'}
             # 路径遍历防护
-            allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve())
+            allowed_roots = (OCLAW_HOME.resolve(), OPENCLAW_SKILLS_HOME.resolve(), BASE.parent.resolve())
             if not any(str(local_path).startswith(str(root)) for root in allowed_roots):
                 return {'ok': False, 'error': '路径不在允许的目录范围内'}
             content = local_path.read_text()
@@ -1268,6 +1275,166 @@ def _save_pm_data(data):
     atomic_json_write(PM_FILE, data)
 
 
+def _load_agent_isolation_registry():
+    data = atomic_json_read(PM_ISOLATION_FILE, {'version': 1, 'scopes': {}})
+    if not isinstance(data, dict):
+        return {'version': 1, 'scopes': {}}
+    scopes = data.get('scopes')
+    if not isinstance(scopes, dict):
+        scopes = {}
+    data['version'] = int(data.get('version') or 1)
+    data['scopes'] = scopes
+    return data
+
+
+def _save_agent_isolation_registry(data):
+    if not isinstance(data, dict):
+        data = {'version': 1, 'scopes': {}}
+    if not isinstance(data.get('scopes'), dict):
+        data['scopes'] = {}
+    data['updatedAt'] = now_iso()
+    atomic_json_write(PM_ISOLATION_FILE, data)
+
+
+def _safe_slug(text, limit=24):
+    s = re.sub(r'[^a-zA-Z0-9]+', '-', str(text or '').strip().lower())
+    s = re.sub(r'-+', '-', s).strip('-')
+    if not s:
+        s = 'x'
+    return s[:max(6, int(limit))]
+
+
+def _build_isolation_scope_key(project_id, domain, action):
+    return f"{str(project_id or '').strip()}:{_safe_slug(domain, 20)}:{_safe_slug(action, 32)}"
+
+
+def _build_isolated_agent_id(base_agent, project_id, domain, action):
+    digest = hashlib.sha1(_build_isolation_scope_key(project_id, domain, action).encode('utf-8')).hexdigest()[:8]
+    base = _safe_slug(base_agent, 18)
+    dom = _safe_slug(domain, 12)
+    act = _safe_slug(action, 20)
+    # 统一命名规范：<base>__<domain>__<action>__<hash>
+    return f"{base}__{dom}__{act}__{digest}"
+
+
+def _list_registered_agents():
+    try:
+        result = subprocess.run(
+            ['openclaw', 'agents', 'list', '--json'],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except Exception:
+        return []
+    if result.returncode != 0:
+        return []
+    try:
+        rows = json.loads(result.stdout or '[]')
+    except Exception:
+        return []
+    return rows if isinstance(rows, list) else []
+
+
+def _agent_exists(agent_id):
+    rows = _list_registered_agents()
+    return any(str((r or {}).get('id') or '').strip() == agent_id for r in rows if isinstance(r, dict))
+
+
+def _get_agent_model(agent_id):
+    rows = _list_registered_agents()
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        if str(r.get('id') or '').strip() == agent_id:
+            model = str(r.get('model') or '').strip()
+            if model:
+                return model
+    return ''
+
+
+def _ensure_isolated_runtime_agent(base_agent, runtime_agent):
+    if _agent_exists(runtime_agent):
+        return {'ok': True, 'created': False}
+
+    base_workspace = OCLAW_HOME / f'workspace-{base_agent}'
+    if not base_workspace.is_dir():
+        return {'ok': False, 'error': f'base workspace 不存在: {base_workspace}'}
+
+    runtime_workspace = OCLAW_HOME / f'workspace-{runtime_agent}'
+    if runtime_workspace.exists() and not runtime_workspace.is_dir():
+        return {'ok': False, 'error': f'runtime workspace 非目录: {runtime_workspace}'}
+    if not runtime_workspace.exists():
+        shutil.copytree(
+            base_workspace,
+            runtime_workspace,
+            dirs_exist_ok=False,
+            symlinks=True,
+            ignore_dangling_symlinks=True,
+        )
+
+    cmd = [
+        'openclaw',
+        'agents',
+        'add',
+        runtime_agent,
+        '--non-interactive',
+        '--workspace',
+        str(runtime_workspace),
+        '--json',
+    ]
+    model = _get_agent_model(base_agent)
+    if model:
+        cmd.extend(['--model', model])
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
+    except Exception as e:
+        return {'ok': False, 'error': f'创建隔离 agent 失败: {e}'}
+    if result.returncode != 0:
+        # 并发/重入时，可能已被其他请求创建；再次确认
+        if _agent_exists(runtime_agent):
+            return {'ok': True, 'created': False}
+        err = (result.stderr or result.stdout or 'unknown error').strip()
+        return {'ok': False, 'error': f'创建隔离 agent 失败: {err[:220]}'}
+    return {'ok': True, 'created': True}
+
+
+def _resolve_isolated_agent(base_agent, project_id, domain, action):
+    scope_key = _build_isolation_scope_key(project_id, domain, action)
+    registry = _load_agent_isolation_registry()
+    scopes = registry.get('scopes') or {}
+    rec = scopes.get(scope_key) if isinstance(scopes, dict) else None
+
+    runtime_agent = ''
+    if isinstance(rec, dict):
+        runtime_agent = str(rec.get('runtimeAgentId') or '').strip()
+        if runtime_agent and _agent_exists(runtime_agent):
+            rec['lastUsedAt'] = now_iso()
+            scopes[scope_key] = rec
+            registry['scopes'] = scopes
+            _save_agent_isolation_registry(registry)
+            return {'ok': True, 'agentId': runtime_agent, 'created': False, 'scope': scope_key}
+
+    runtime_agent = _build_isolated_agent_id(base_agent, project_id, domain, action)
+    ensured = _ensure_isolated_runtime_agent(base_agent, runtime_agent)
+    if not ensured.get('ok'):
+        return {'ok': False, 'error': ensured.get('error', '创建隔离路由失败')}
+
+    scopes[scope_key] = {
+        'scopeKey': scope_key,
+        'baseAgentId': base_agent,
+        'runtimeAgentId': runtime_agent,
+        'projectId': str(project_id or '').strip(),
+        'domain': _safe_slug(domain, 24),
+        'action': _safe_slug(action, 40),
+        'createdAt': now_iso(),
+        'lastUsedAt': now_iso(),
+    }
+    registry['scopes'] = scopes
+    _save_agent_isolation_registry(registry)
+    return {'ok': True, 'agentId': runtime_agent, 'created': bool(ensured.get('created')), 'scope': scope_key}
+
+
 def _new_pm_id(prefix='PM'):
     ms = int(time.time() * 1000)
     dt = datetime.datetime.fromtimestamp(ms / 1000.0)
@@ -1961,7 +2128,10 @@ def pm_generate_design(project_id, section):
         f"{hints[sec]}\n"
         "输出要求：仅输出 Markdown 正文，不要输出解释。"
     )
-    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300, session_id=_get_pm_gongbu_session_id(project))
+    lane = _resolve_isolated_agent('gongbu', project.get('id', ''), 'pm', f'design-{sec}')
+    if not lane.get('ok'):
+        return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
+    ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=300)
     if not ai.get('ok'):
         return {'ok': False, 'error': ai.get('error', '工部生成失败')}
     content = str(ai.get('raw') or '').strip()
@@ -2050,14 +2220,14 @@ def pm_generate_version(project_id):
         "待汇总的问题：\n"
         + '\n'.join(issue_txt)
     )
-    # 版本生成为“单次任务”，不复用历史会话，避免上下文累积
-    version_sid = _reset_pm_gongbu_session_id(project)
-    ai = _run_agent_sync('gongbu', prompt, timeout_sec=300, session_id=version_sid)
+    lane = _resolve_isolated_agent('gongbu', project.get('id', ''), 'pm', 'version-generate')
+    if not lane.get('ok'):
+        return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
+    ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=300)
     if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
         ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
     if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
-        # 出现上下文溢出后，先重置会话再做轻量重试，避免旧会话继续污染
-        version_sid = _reset_pm_gongbu_session_id(project)
+        # 出现上下文溢出后，降载重试
         mini_prompt = (
             "你是工部尚书，负责输出版本更改清单。\n"
             "请严格输出 Markdown，并按以下三段：\n"
@@ -2071,7 +2241,7 @@ def pm_generate_version(project_id):
                 for it in final_items[:80]
             )
         )
-        ai = _run_agent_sync('gongbu', mini_prompt, timeout_sec=240, session_id=version_sid + '-version-retry')
+        ai = _run_agent_sync(lane['agentId'], mini_prompt, timeout_sec=240)
         if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
             ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
     if not ai.get('ok'):
@@ -2246,15 +2416,15 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
 
     _ensure_pm_project_runtime(project)
     prompt = _build_pm_gongbu_prompt(project, item, mode=mode)
-    # 复审使用“单次新会话 + 结构化看板上下文”，避免长会话导致溢出
-    review_sid = _reset_pm_gongbu_session_id(project)
-    ai = _run_agent_sync('gongbu', prompt, timeout_sec=480, session_id=review_sid)
+    lane = _resolve_isolated_agent('gongbu', project.get('id', ''), 'pm', f'gongbu-review-{mode}')
+    if not lane.get('ok'):
+        return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
+    ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=480)
     if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
         ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
 
     # 自动降载重试：出现上下文溢出时，用极简上下文再试一次
     if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
-        review_sid = _reset_pm_gongbu_session_id(project)
         mini_prompt = (
             "你是工部尚书。请只输出 JSON。\n"
             "{\n"
@@ -2273,7 +2443,7 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
             f"描述: {str(item.get('description',''))[:900]}\n"
             f"最近用户补充: {str(((item.get('qa') or [])[-1].get('text') if (item.get('qa') or []) else '') or '')[:500]}\n"
         )
-        ai = _run_agent_sync('gongbu', mini_prompt, timeout_sec=240, session_id=review_sid + '-retry')
+        ai = _run_agent_sync(lane['agentId'], mini_prompt, timeout_sec=240)
         if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
             ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
 

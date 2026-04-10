@@ -116,6 +116,7 @@ open http://127.0.0.1:7891
 详细规则与命令见：
 
 - [长上下文保真机制（通用）](context-continuity.md)
+- [Agent 隔离路由规范（第一版）](agent-isolation.md)
 
 ### 使用圣旨模板
 
