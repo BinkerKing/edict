@@ -2,6 +2,7 @@
 """同步各官员统计数据 → data/officials_stats.json"""
 import json, pathlib, datetime, logging
 from file_lock import atomic_json_write
+from project_openclaw import load_project_preferred_cfg, normalize_model
 
 log = logging.getLogger('officials')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -9,7 +10,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 BASE = pathlib.Path(__file__).resolve().parent.parent
 DATA = BASE / 'data'
 AGENTS_ROOT = pathlib.Path.home() / '.openclaw' / 'agents'
-OPENCLAW_CFG = pathlib.Path.home() / '.openclaw' / 'openclaw.json'
 
 # Anthropic 定价（每1M token，美元）
 MODEL_PRICING = {
@@ -43,22 +43,14 @@ def rj(p, d):
         return d
 
 
-# Pre-load openclaw config once (avoid re-reading per agent)
+# Pre-load project openclaw config once (avoid re-reading per agent)
 _OPENCLAW_CACHE = None
 
 def _load_openclaw_cfg():
     global _OPENCLAW_CACHE
     if _OPENCLAW_CACHE is None:
-        _OPENCLAW_CACHE = rj(OPENCLAW_CFG, {})
+        _OPENCLAW_CACHE, _ = load_project_preferred_cfg()
     return _OPENCLAW_CACHE
-
-
-def normalize_model(model_value, fallback='anthropic/claude-sonnet-4-6'):
-    if isinstance(model_value, str) and model_value:
-        return model_value
-    if isinstance(model_value, dict):
-        return model_value.get('primary') or model_value.get('id') or fallback
-    return fallback
 
 def get_model(agent_id):
     cfg = _load_openclaw_cfg()

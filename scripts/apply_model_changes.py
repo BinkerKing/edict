@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
-"""应用 data/pending_model_changes.json → openclaw.json，并重启 Gateway"""
+"""应用 data/pending_model_changes.json → 项目级 openclaw 配置，并尽力同步到全局运行时。"""
 import json, pathlib, subprocess, datetime, shutil, logging, glob
 from file_lock import atomic_json_write, atomic_json_read
+from project_openclaw import (
+    PROJECT_OPENCLAW_CFG,
+    GLOBAL_OPENCLAW_CFG,
+    ensure_project_openclaw_cfg,
+    load_global_cfg,
+    normalize_model,
+    read_json,
+)
 
 log = logging.getLogger('model_change')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
 
 BASE = pathlib.Path(__file__).parent.parent
 DATA = BASE / 'data'
-OPENCLAW_CFG = pathlib.Path.home() / '.openclaw' / 'openclaw.json'
+OPENCLAW_CFG = PROJECT_OPENCLAW_CFG
 PENDING = DATA / 'pending_model_changes.json'
 CHANGE_LOG = DATA / 'model_change_log.json'
 MAX_BACKUPS = 10
@@ -39,9 +47,10 @@ def main():
     if not pending:
         return
 
+    ensure_project_openclaw_cfg()
     cfg = rj(OPENCLAW_CFG, {})
     agents_list = cfg.get('agents', {}).get('list', [])
-    default_model = cfg.get('agents', {}).get('defaults', {}).get('model', {}).get('primary', '')
+    default_model = normalize_model(cfg.get('agents', {}).get('defaults', {}).get('model', {}), '')
 
     applied, errors = [], []
     for change in pending:
@@ -92,6 +101,26 @@ def main():
         restart_ok = False
         rollback = False
         try:
+            # 若全局 openclaw.json 中存在同名 agent，则顺手同步对应 model，减少项目配置与运行时脱节。
+            global_cfg, global_cfg_path = load_global_cfg()
+            if global_cfg_path.exists():
+                global_agents = ((global_cfg.get('agents') or {}).get('list') or [])
+                changed = False
+                for applied_item in applied:
+                    ag_id = applied_item['agentId']
+                    new_model = applied_item['newModel']
+                    for ag in global_agents:
+                        if ag.get('id') != ag_id:
+                            continue
+                        if new_model == default_model:
+                            ag.pop('model', None)
+                        else:
+                            ag['model'] = new_model
+                        changed = True
+                        break
+                if changed:
+                    atomic_json_write(global_cfg_path, global_cfg)
+
             r = subprocess.run(['openclaw', 'gateway', 'restart'], capture_output=True, text=True, timeout=30)
             restart_ok = r.returncode == 0
             log.info(f'gateway restart rc={r.returncode}')

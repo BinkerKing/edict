@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
-同步 openclaw.json 中的 agent 配置 → data/agent_config.json
+同步项目级 openclaw 配置中的 agent 信息 → data/agent_config.json
 支持自动发现 agent workspace 下的 Skills 目录
 """
 import json, os, pathlib, datetime, logging
 from file_lock import atomic_json_write
+from project_openclaw import (
+    load_project_preferred_cfg,
+    normalize_model,
+    project_workspace,
+)
 
 log = logging.getLogger('sync_agent_config')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -12,8 +17,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 # Auto-detect project root (parent of scripts/)
 BASE = pathlib.Path(__file__).parent.parent
 DATA = BASE / 'data'
-OPENCLAW_CFG = pathlib.Path.home() / '.openclaw' / 'openclaw.json'
-GLOBAL_SKILLS_DIR = pathlib.Path.home() / '.agents' / 'skills'
+GLOBAL_SKILLS_DIRS = [
+    pathlib.Path.home() / '.agents' / 'skills',   # 旧路径
+    pathlib.Path.home() / '.codex' / 'skills',    # 当前 Codex 技能目录
+]
 
 ID_LABEL = {
     'taizi':    {'label': '太子',   'role': '太子',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},
@@ -47,15 +54,6 @@ KNOWN_MODELS = [
     {'id': 'copilot/o3-mini',             'label': 'o3-mini',           'provider': 'Copilot'},
 ]
 
-
-def normalize_model(model_value, fallback='unknown'):
-    if isinstance(model_value, str) and model_value:
-        return model_value
-    if isinstance(model_value, dict):
-        return model_value.get('primary') or model_value.get('id') or fallback
-    return fallback
-
-
 def _skill_desc(md: pathlib.Path):
     if not md.exists():
         return ''
@@ -74,17 +72,28 @@ def _collect_skills(skills_dir: pathlib.Path, scope: str):
     if not skills_dir.exists():
         return out
     try:
-        for d in sorted(skills_dir.iterdir()):
-            if not d.is_dir():
+        skill_files = sorted(skills_dir.rglob('SKILL.md'))
+        for md in skill_files:
+            if not md.is_file():
                 continue
-            md = d / 'SKILL.md'
-            out.append({
-                'name': d.name,
-                'path': str(md),
-                'exists': md.exists(),
-                'description': _skill_desc(md),
-                'scope': scope,  # workspace | global
-            })
+            parent = md.parent
+            if parent == skills_dir:
+                skill_name = parent.name
+            else:
+                skill_name = parent.name
+            # 若是工作区 skill，只接受直接子目录，避免误把嵌套内容当单个技能
+            if scope == 'workspace' and parent.parent != skills_dir:
+                continue
+            if scope == 'global' and '.git' in md.parts:
+                continue
+            if md.exists():
+                out.append({
+                    'name': skill_name,
+                    'path': str(md),
+                    'exists': True,
+                    'description': _skill_desc(md),
+                    'scope': scope,  # workspace | global
+                })
     except PermissionError as e:
         log.warning(f'Skills 目录访问受限: {e}')
     return out
@@ -94,7 +103,9 @@ def get_skills(workspace: str):
     """合并 agent 专属 skills 与全局 skills。"""
     ws_dir = pathlib.Path(workspace) / 'skills'
     ws_skills = _collect_skills(ws_dir, 'workspace')
-    gl_skills = _collect_skills(GLOBAL_SKILLS_DIR, 'global')
+    gl_skills = []
+    for root in GLOBAL_SKILLS_DIRS:
+        gl_skills.extend(_collect_skills(root, 'global'))
 
     # 去重：同名 skill 优先保留 workspace 版本
     dedup = {}
@@ -151,12 +162,8 @@ def _collect_openclaw_models(cfg):
 
 
 def main():
-    cfg = {}
-    try:
-        cfg = json.loads(OPENCLAW_CFG.read_text(encoding='utf-8'))
-    except Exception as e:
-        log.warning(f'cannot read openclaw.json: {e}')
-        return
+    cfg, cfg_path = load_project_preferred_cfg()
+    log.info(f'using project openclaw config: {cfg_path}')
 
     agents_cfg = cfg.get('agents', {})
     default_model = normalize_model(agents_cfg.get('defaults', {}).get('model', {}), 'unknown')
@@ -170,7 +177,7 @@ def main():
         if ag_id not in ID_LABEL:
             continue
         meta = ID_LABEL[ag_id]
-        workspace = ag.get('workspace', str(pathlib.Path.home() / f'.openclaw/workspace-{ag_id}'))
+        workspace = ag.get('workspace', str(project_workspace(ag_id)))
         if 'allowAgents' in ag:
             allow_agents = ag.get('allowAgents', []) or []
         else:
@@ -186,15 +193,31 @@ def main():
         })
         seen_ids.add(ag_id)
 
-    # 补充不在 openclaw.json agents list 中的 agent（兼容旧版 main）
+    # 兼容旧版 main，同时确保项目级 11 部门配置完整
     EXTRA_AGENTS = {
-        'taizi':   {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-taizi'),
+        'taizi':   {'model': default_model, 'workspace': str(project_workspace('taizi')),
                     'allowAgents': ['zhongshu']},
-        'main':    {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-main'),
+        'main':    {'model': default_model, 'workspace': str(project_workspace('main')),
                     'allowAgents': ['zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','libu_hr']},
-        'zaochao': {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-zaochao'),
+        'zaochao': {'model': default_model, 'workspace': str(project_workspace('zaochao')),
                     'allowAgents': []},
-        'libu_hr': {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-libu_hr'),
+        'libu_hr': {'model': default_model, 'workspace': str(project_workspace('libu_hr')),
+                    'allowAgents': ['shangshu']},
+        'zhongshu': {'model': default_model, 'workspace': str(project_workspace('zhongshu')),
+                    'allowAgents': ['menxia', 'shangshu']},
+        'menxia': {'model': default_model, 'workspace': str(project_workspace('menxia')),
+                    'allowAgents': ['shangshu', 'zhongshu']},
+        'shangshu': {'model': default_model, 'workspace': str(project_workspace('shangshu')),
+                    'allowAgents': ['zhongshu','menxia','hubu','libu','bingbu','xingbu','gongbu','libu_hr']},
+        'libu': {'model': default_model, 'workspace': str(project_workspace('libu')),
+                    'allowAgents': ['shangshu']},
+        'hubu': {'model': default_model, 'workspace': str(project_workspace('hubu')),
+                    'allowAgents': ['shangshu']},
+        'bingbu': {'model': default_model, 'workspace': str(project_workspace('bingbu')),
+                    'allowAgents': ['shangshu']},
+        'xingbu': {'model': default_model, 'workspace': str(project_workspace('xingbu')),
+                    'allowAgents': ['shangshu']},
+        'gongbu': {'model': default_model, 'workspace': str(project_workspace('gongbu')),
                     'allowAgents': ['shangshu']},
     }
     for ag_id, extra in EXTRA_AGENTS.items():
@@ -298,7 +321,7 @@ def sync_scripts_to_workspaces():
         return
     synced = 0
     for proj_name, runtime_id in _SOUL_DEPLOY_MAP.items():
-        ws_scripts = pathlib.Path.home() / f'.openclaw/workspace-{runtime_id}' / 'scripts'
+        ws_scripts = project_workspace(runtime_id) / 'scripts'
         ws_scripts.mkdir(parents=True, exist_ok=True)
         for src_file in scripts_src.iterdir():
             if src_file.suffix not in ('.py', '.sh') or src_file.stem.startswith('__'):
@@ -310,7 +333,7 @@ def sync_scripts_to_workspaces():
             except Exception:
                 continue
     # also sync to workspace-main for legacy compatibility
-    ws_main_scripts = pathlib.Path.home() / '.openclaw/workspace-main/scripts'
+    ws_main_scripts = project_workspace('main') / 'scripts'
     ws_main_scripts.mkdir(parents=True, exist_ok=True)
     for src_file in scripts_src.iterdir():
         if src_file.suffix not in ('.py', '.sh') or src_file.stem.startswith('__'):
@@ -333,7 +356,7 @@ def deploy_soul_files():
         src = agents_dir / proj_name / 'SOUL.md'
         if not src.exists():
             continue
-        ws_dst = pathlib.Path.home() / f'.openclaw/workspace-{runtime_id}' / 'soul.md'
+        ws_dst = project_workspace(runtime_id) / 'soul.md'
         ws_dst.parent.mkdir(parents=True, exist_ok=True)
         # 只在内容不同时更新（避免不必要的写入）
         src_text = src.read_text(encoding='utf-8', errors='ignore')

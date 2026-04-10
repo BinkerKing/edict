@@ -1,4 +1,5 @@
 # Runtime data (machine-specific)
+data/context_capsules/
 
 # Logs
 *.log
@@ -24,3 +25,6 @@ edict/frontend/node_modules/
 
 # Backups
 *.bak*
+
+# Codex local notes
+.codex/

@@ -57,17 +57,21 @@ openclaw channels add --type feishu --agent taizi
 ## 第四步：启动服务
 
 ```bash
-# 终端 1：数据刷新循环（每 15 秒同步）
-bash scripts/run_loop.sh
+# 推荐：统一启动（网关 + 看板 + 刷新循环）
+bash scripts/edict_services.sh start
 
-# 终端 2：看板服务器
-python3 dashboard/server.py
+# 查看状态
+bash scripts/edict_services.sh status
+
+# 重启/停止
+bash scripts/edict_services.sh restart
+bash scripts/edict_services.sh stop
 
 # 打开浏览器
 open http://127.0.0.1:7891
 ```
 
-> 💡 **提示**：`run_loop.sh` 每 15 秒自动同步数据。可用 `&` 后台运行。
+> 💡 **兼容旧方式**：也可以分别手动运行 `bash scripts/run_loop.sh` 和 `python3 dashboard/server.py`，但建议优先使用统一脚本，避免进程状态不一致。
 
 > 💡 **看板即开即用**：`server.py` 内嵌 `dashboard/dashboard.html`，无需额外构建。Docker 镜像包含预构建的 React 前端。
 
@@ -99,6 +103,19 @@ open http://127.0.0.1:7891
 ---
 
 ## 🎯 进阶用法
+
+### 开发会话策略（避免上下文溢出）
+
+开发任务建议先做“会话策略分流”：
+
+- 短任务：新开会话，完成即关闭
+- 中等任务：保留当前会话，定时收口（30-60 分钟无动作关闭）
+- 长链路任务：持续同任务会话，里程碑执行一次上下文沉淀
+- 超长任务：使用 `context-continuity` 生成续接包后切新会话
+
+详细规则与命令见：
+
+- [长上下文保真机制（通用）](context-continuity.md)
 
 ### 使用圣旨模板
 
