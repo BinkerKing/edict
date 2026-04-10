@@ -2,7 +2,7 @@
 """同步各官员统计数据 → data/officials_stats.json"""
 import json, pathlib, datetime, logging
 from file_lock import atomic_json_write
-from project_openclaw import load_project_preferred_cfg, normalize_model
+from openclaw_config import load_openclaw_cfg, normalize_model
 
 log = logging.getLogger('officials')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -49,7 +49,7 @@ _OPENCLAW_CACHE = None
 def _load_openclaw_cfg():
     global _OPENCLAW_CACHE
     if _OPENCLAW_CACHE is None:
-        _OPENCLAW_CACHE, _ = load_project_preferred_cfg()
+        _OPENCLAW_CACHE, _ = load_openclaw_cfg()
     return _OPENCLAW_CACHE
 
 def get_model(agent_id):

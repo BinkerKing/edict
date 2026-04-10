@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 """
-同步项目级 openclaw 配置中的 agent 信息 → data/agent_config.json
+同步全局 openclaw 配置中的 agent 信息 → data/agent_config.json
 支持自动发现 agent workspace 下的 Skills 目录
 """
 import json, os, pathlib, datetime, logging
 from file_lock import atomic_json_write
-from project_openclaw import (
-    load_project_preferred_cfg,
-    normalize_model,
-    project_workspace,
-)
+from openclaw_config import load_openclaw_cfg, normalize_model, project_workspace
 
 log = logging.getLogger('sync_agent_config')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -18,8 +14,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 BASE = pathlib.Path(__file__).parent.parent
 DATA = BASE / 'data'
 GLOBAL_SKILLS_DIRS = [
-    pathlib.Path.home() / '.agents' / 'skills',   # 旧路径
-    pathlib.Path.home() / '.codex' / 'skills',    # 当前 Codex 技能目录
+    pathlib.Path.home() / '.openclaw' / 'skills', # OpenClaw 全局技能目录（主来源）
+    pathlib.Path.home() / '.agents' / 'skills',   # 旧路径兼容
 ]
 
 ID_LABEL = {
@@ -162,8 +158,8 @@ def _collect_openclaw_models(cfg):
 
 
 def main():
-    cfg, cfg_path = load_project_preferred_cfg()
-    log.info(f'using project openclaw config: {cfg_path}')
+    cfg, cfg_path = load_openclaw_cfg()
+    log.info(f'using openclaw config: {cfg_path}')
 
     agents_cfg = cfg.get('agents', {})
     default_model = normalize_model(agents_cfg.get('defaults', {}).get('model', {}), 'unknown')

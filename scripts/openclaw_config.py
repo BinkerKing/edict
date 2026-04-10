@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Edict 项目级 OpenClaw 配置辅助。
-
-目标：
-- 旧看板优先读取项目自己的 openclaw 配置，避免被本机全局 ~/.openclaw 直接影响
-- 若项目级配置不存在，则按 Edict 默认 11 部门骨架自动初始化
-- 仅在必要时回退读取全局配置（例如继承默认模型）
-"""
+"""OpenClaw 配置辅助（统一使用全局 ~/.openclaw/openclaw.json）。"""
 
 from __future__ import annotations
 
@@ -15,14 +9,12 @@ from typing import Any
 
 
 BASE = pathlib.Path(__file__).resolve().parent.parent
-DATA = BASE / "data"
-PROJECT_OPENCLAW_CFG = DATA / "openclaw_project.json"
 GLOBAL_OPENCLAW_CFG = pathlib.Path.home() / ".openclaw" / "openclaw.json"
 
 
 DEFAULT_MODEL_FALLBACK = "anthropic/claude-sonnet-4-6"
 
-PROJECT_AGENT_ORDER = [
+AGENT_ORDER = [
     "taizi",
     "zhongshu",
     "menxia",
@@ -36,7 +28,7 @@ PROJECT_AGENT_ORDER = [
     "zaochao",
 ]
 
-PROJECT_AGENT_SUBAGENTS: dict[str, list[str]] = {
+AGENT_SUBAGENTS: dict[str, list[str]] = {
     "taizi": ["zhongshu"],
     "zhongshu": ["menxia", "shangshu"],
     "menxia": ["shangshu", "zhongshu"],
@@ -71,54 +63,34 @@ def normalize_model(model_value: Any, fallback: str = DEFAULT_MODEL_FALLBACK) ->
     return fallback
 
 
-def _infer_default_model() -> str:
-    global_cfg = read_json(GLOBAL_OPENCLAW_CFG, {})
-    default_model = normalize_model(
-        ((global_cfg.get("agents") or {}).get("defaults") or {}).get("model"),
-        "",
-    )
-    if default_model:
-        return default_model
-
-    agent_cfg = read_json(DATA / "agent_config.json", {})
-    default_model = normalize_model(agent_cfg.get("defaultModel"), "")
-    if default_model:
-        return default_model
-
-    return DEFAULT_MODEL_FALLBACK
-
-
-def _build_project_cfg(default_model: str | None = None) -> dict[str, Any]:
-    model_id = default_model or _infer_default_model()
+def _build_default_cfg(default_model: str = DEFAULT_MODEL_FALLBACK) -> dict[str, Any]:
     return {
-        "generatedBy": "edict-project-runtime",
+        "generatedBy": "edict-global-runtime",
         "agents": {
             "defaults": {
-                "model": {"primary": model_id},
+                "model": {"primary": default_model},
             },
             "list": [
                 {
                     "id": agent_id,
                     "workspace": str(pathlib.Path.home() / f".openclaw/workspace-{agent_id}"),
-                    "subagents": {"allowAgents": PROJECT_AGENT_SUBAGENTS[agent_id]},
+                    "subagents": {"allowAgents": AGENT_SUBAGENTS[agent_id]},
                 }
-                for agent_id in PROJECT_AGENT_ORDER
+                for agent_id in AGENT_ORDER
             ],
         },
     }
 
 
-def ensure_project_openclaw_cfg() -> pathlib.Path:
-    """确保项目级配置存在。"""
-    if not PROJECT_OPENCLAW_CFG.exists():
-        write_json(PROJECT_OPENCLAW_CFG, _build_project_cfg())
-    return PROJECT_OPENCLAW_CFG
+def ensure_openclaw_cfg() -> pathlib.Path:
+    if not GLOBAL_OPENCLAW_CFG.exists():
+        write_json(GLOBAL_OPENCLAW_CFG, _build_default_cfg())
+    return GLOBAL_OPENCLAW_CFG
 
 
-def load_project_preferred_cfg() -> tuple[dict[str, Any], pathlib.Path]:
-    """优先读取项目级配置；若不存在则初始化并返回。"""
-    cfg_path = ensure_project_openclaw_cfg()
-    return read_json(cfg_path, _build_project_cfg()), cfg_path
+def load_openclaw_cfg() -> tuple[dict[str, Any], pathlib.Path]:
+    cfg_path = ensure_openclaw_cfg()
+    return read_json(cfg_path, _build_default_cfg()), cfg_path
 
 
 def load_global_cfg() -> tuple[dict[str, Any], pathlib.Path]:

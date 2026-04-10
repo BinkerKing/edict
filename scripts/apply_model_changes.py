@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""应用 data/pending_model_changes.json → 项目级 openclaw 配置，并尽力同步到全局运行时。"""
+"""应用 data/pending_model_changes.json → 全局 openclaw 配置。"""
 import json, pathlib, subprocess, datetime, shutil, logging, glob
 from file_lock import atomic_json_write, atomic_json_read
-from project_openclaw import (
-    PROJECT_OPENCLAW_CFG,
+from openclaw_config import (
     GLOBAL_OPENCLAW_CFG,
-    ensure_project_openclaw_cfg,
+    ensure_openclaw_cfg,
     load_global_cfg,
     normalize_model,
     read_json,
@@ -16,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 
 BASE = pathlib.Path(__file__).parent.parent
 DATA = BASE / 'data'
-OPENCLAW_CFG = PROJECT_OPENCLAW_CFG
+OPENCLAW_CFG = GLOBAL_OPENCLAW_CFG
 PENDING = DATA / 'pending_model_changes.json'
 CHANGE_LOG = DATA / 'model_change_log.json'
 MAX_BACKUPS = 10
@@ -47,7 +46,7 @@ def main():
     if not pending:
         return
 
-    ensure_project_openclaw_cfg()
+    ensure_openclaw_cfg()
     cfg = rj(OPENCLAW_CFG, {})
     agents_list = cfg.get('agents', {}).get('list', [])
     default_model = normalize_model(cfg.get('agents', {}).get('defaults', {}).get('model', {}), '')

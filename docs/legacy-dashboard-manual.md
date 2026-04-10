@@ -444,17 +444,31 @@
 - 迁移提示：
   - 后续所有旧看板重要改动都应同步补充到本说明书中
 
-### 2026-04-10 - 项目级 OpenClaw 配置隔离
+### 2026-04-10 - 项目级 OpenClaw 配置隔离（已退役）
 
-- 业务目的：让旧看板优先读取项目自己的 OpenClaw 配置，降低对本机全局 `~/.openclaw/openclaw.json` 的直接依赖
+- 业务目的：当时用于让旧看板优先读取项目自己的 OpenClaw 配置，降低对本机全局 `~/.openclaw/openclaw.json` 的直接依赖
 - 修改文件：
-  - `scripts/project_openclaw.py`
+  - `scripts/openclaw_config.py`
   - `scripts/sync_agent_config.py`
   - `scripts/sync_officials_stats.py`
   - `scripts/apply_model_changes.py`
 - 数据结构变化：
-  - 新增 `data/openclaw_project.json` 作为项目级配置源
+  - 当时新增 `data/openclaw_project.json` 作为项目级配置源（现已不再作为主来源）
 - 交互变化：
   - 模型配置页后续会优先显示项目内定义的 11 部门 agent，而不是仅显示本机全局配置中存在的 agent
 - 迁移提示：
-  - 未来迁移到新架构时，可直接把 `openclaw_project.json` 当作项目配置骨架来源，而不是重新从全局环境推断
+  - 该方案已退役，现统一使用全局 `~/.openclaw/openclaw.json` 作为单一配置源
+
+### 2026-04-11 - 统一为全局 OpenClaw 配置
+
+- 业务目的：避免项目级配置与 OpenClaw 会话运行时配置不一致，统一一套配置源
+- 修改文件：
+  - `scripts/openclaw_config.py`
+  - `scripts/sync_agent_config.py`
+  - `scripts/apply_model_changes.py`
+- 数据结构变化：
+  - 不再依赖 `data/openclaw_project.json` 作为运行主配置
+- 交互变化：
+  - 看板与同步脚本读取的 agent/model/workspace 与 OpenClaw 运行时一致
+- 迁移提示：
+  - 若历史环境仍保留 `openclaw_project.json`，仅作为备份，不应再作为主配置入口
