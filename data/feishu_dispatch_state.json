@@ -1,0 +1,12 @@
+{
+  "processed": {
+    "om_x100b53d6ba50f0b8c29aef77fba0263": {
+      "title": "分析比特币近一个月走势并预测未来一个月",
+      "result": "{\"ok\": true, \"taskId\": \"JJC-20260402-003\", \"title\": \"分析比特币近一个月走势并预测未来一个月\", \"createdAt\": \"2026-04-02T09:03:10.521931Z\", \"evidence\": \"/Users/binkerking/Documents/GitHub/edict/data/tasks_source.json\"}"
+    },
+    "om_sim_gold_20260402": {
+      "skip": "task_exists",
+      "title": "分析黄金近一个月走势并预测后续一个月"
+    }
+  }
+}

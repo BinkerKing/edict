@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/sync_officials_stats.py

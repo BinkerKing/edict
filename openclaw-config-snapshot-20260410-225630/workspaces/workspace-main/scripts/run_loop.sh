@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/run_loop.sh

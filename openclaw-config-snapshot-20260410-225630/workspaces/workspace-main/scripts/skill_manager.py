@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/skill_manager.py

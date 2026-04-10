@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/refresh_live_data.py

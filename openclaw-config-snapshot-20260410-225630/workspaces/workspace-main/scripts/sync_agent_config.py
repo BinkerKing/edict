@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/sync_agent_config.py

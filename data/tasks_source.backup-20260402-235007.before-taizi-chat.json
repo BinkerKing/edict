@@ -1,0 +1,250 @@
+[
+  {
+    "id": "JJC-20260402-001",
+    "title": "撰写一份关于AI时代教育改革的观点短文（800字）",
+    "official": "中书令",
+    "org": "太子",
+    "state": "Taizi",
+    "now": "太子口头称已转交，但未检测到中书省会话接单",
+    "eta": "-",
+    "block": "未完成真实转交中书省",
+    "output": "",
+    "ac": "",
+    "priority": "high",
+    "templateId": "",
+    "templateParams": {},
+    "flow_log": [
+      {
+        "at": "2026-04-02T15:46:44.937743Z",
+        "from": "皇上",
+        "to": "太子",
+        "remark": "下旨：撰写一份关于AI时代教育改革的观点短文（800字）"
+      },
+      {
+        "at": "2026-04-02T15:46:44.937796Z",
+        "from": "太子调度",
+        "to": "太子",
+        "remark": "🧭 进展确认：任务创建"
+      },
+      {
+        "at": "2026-04-02T15:46:44.941771Z",
+        "from": "太子调度",
+        "to": "太子",
+        "remark": "🧭 已入队派发：Taizi → taizi（imperial-edict）"
+      },
+      {
+        "at": "2026-04-02T15:46:59.294240Z",
+        "from": "太子调度",
+        "to": "太子",
+        "remark": "🧭 派发成功：taizi（imperial-edict）"
+      },
+      {
+        "at": "2026-04-02T15:47:24.157230Z",
+        "from": "太子调度",
+        "to": "太子",
+        "remark": "🧪 验真失败：太子宣称已转交，但中书省无接单会话"
+      }
+    ],
+    "updatedAt": "2026-04-02T15:47:24.157235Z",
+    "_scheduler": {
+      "enabled": true,
+      "stallThresholdSec": 600,
+      "maxRetry": 2,
+      "retryCount": 0,
+      "escalationLevel": 0,
+      "autoRollback": true,
+      "lastProgressAt": "2026-04-02T15:46:44.937788Z",
+      "stallSince": null,
+      "lastDispatchStatus": "success",
+      "snapshot": {
+        "state": "Taizi",
+        "org": "太子",
+        "now": "等待太子接旨分拣",
+        "savedAt": "2026-04-02T15:46:44.937784Z",
+        "note": "create-task-initial"
+      },
+      "lastEscalatedAt": null,
+      "lastDispatchAt": "2026-04-02T15:46:59.294223Z",
+      "lastDispatchAgent": "taizi",
+      "lastDispatchTrigger": "imperial-edict",
+      "lastDispatchError": ""
+    },
+    "_taiziAudit": {
+      "checkedAt": "2026-04-02T15:47:24.157098Z",
+      "sessionFile": "/Users/binkerking/.openclaw/agents/taizi/sessions/4220dd19-6ea2-42e7-9ce0-9f0df20a4e25.jsonl",
+      "actions": [
+        {
+          "tool": "sessions_send",
+          "command": ""
+        },
+        {
+          "tool": "sessions_spawn",
+          "command": ""
+        }
+      ],
+      "claimsTransfer": true,
+      "zhongshuSessionHasTask": false
+    }
+  },
+  {
+    "id": "OC-taizi-4220dd19",
+    "title": "太子会话",
+    "official": "储君",
+    "org": "太子",
+    "state": "Review",
+    "now": "思考中: 任务ID: JJC-20260402-001  ",
+    "eta": "2026-04-02 23:47:05",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/taizi/sessions/4220dd19-6ea2-42e7-9ce0-9f0df20a4e25.jsonl",
+    "flow": {
+      "draft": "agent=taizi",
+      "review": "updatedAt=2026-04-02 23:47:05",
+      "dispatch": "sessionKey=agent:taizi:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [
+      {
+        "at": "2026-04-02T15:47:05.491Z",
+        "kind": "assistant",
+        "text": "任务ID: JJC-20260402-001  "
+      },
+      {
+        "at": "2026-04-02T15:47:01.595Z",
+        "kind": "user",
+        "text": "User: [Thu 2026-04-02 23:47 GMT+8] OpenClaw runtime context (internal):\nThis context is runtime-generated,..."
+      },
+      {
+        "at": "2026-04-02T15:46:59.214Z",
+        "kind": "assistant",
+        "text": "任务ID: JJC-20260402-001  "
+      },
+      {
+        "at": "2026-04-02T15:46:57.044Z",
+        "kind": "tool",
+        "text": "Tool 'sessions_spawn' finished"
+      },
+      {
+        "at": "2026-04-02T15:46:56.970Z",
+        "kind": "assistant",
+        "text": "任务ID: JJC-20260402-001  "
+      },
+      {
+        "at": "2026-04-02T15:46:53.858Z",
+        "kind": "tool",
+        "text": "Tool 'sessions_send' finished"
+      },
+      {
+        "at": "2026-04-02T15:46:53.821Z",
+        "kind": "assistant",
+        "text": "任务ID: JJC-20260402-001  "
+      },
+      {
+        "at": "2026-04-02T15:46:48.463Z",
+        "kind": "user",
+        "text": "User: [Thu 2026-04-02 23:46 GMT+8] 📜 皇上旨意需要你处理\n任务ID: JJC-20260402-001\n旨意: 撰写一份关于AI时代教育改革的观点短文（800字）\n⚠️ 看板已..."
+      }
+    ],
+    "sourceMeta": {
+      "agentId": "taizi",
+      "sessionKey": "agent:taizi:main",
+      "sessionId": "4220dd19-6ea2-42e7-9ce0-9f0df20a4e25",
+      "updatedAt": 1775144825509,
+      "ageMs": 168986,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  },
+  {
+    "id": "OC-shangshu-cee389e4",
+    "title": "尚书省会话",
+    "official": "尚书令",
+    "org": "尚书省",
+    "state": "Review",
+    "now": "等待指令",
+    "eta": "2026-04-02 23:39:51",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/shangshu/sessions/cee389e4-347c-473a-9b41-560c2c13c0b0.jsonl",
+    "flow": {
+      "draft": "agent=shangshu",
+      "review": "updatedAt=2026-04-02 23:39:51",
+      "dispatch": "sessionKey=agent:shangshu:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [],
+    "sourceMeta": {
+      "agentId": "shangshu",
+      "sessionKey": "agent:shangshu:main",
+      "sessionId": "cee389e4-347c-473a-9b41-560c2c13c0b0",
+      "updatedAt": 1775144391699,
+      "ageMs": 602796,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  },
+  {
+    "id": "OC-bingbu-a1dc3858",
+    "title": "兵部会话",
+    "official": "兵部尚书",
+    "org": "兵部",
+    "state": "Review",
+    "now": "等待指令",
+    "eta": "2026-04-02 23:39:46",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/bingbu/sessions/a1dc3858-b4a5-443a-a754-66583e86fa0b.jsonl",
+    "flow": {
+      "draft": "agent=bingbu",
+      "review": "updatedAt=2026-04-02 23:39:46",
+      "dispatch": "sessionKey=agent:bingbu:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [],
+    "sourceMeta": {
+      "agentId": "bingbu",
+      "sessionKey": "agent:bingbu:main",
+      "sessionId": "a1dc3858-b4a5-443a-a754-66583e86fa0b",
+      "updatedAt": 1775144386242,
+      "ageMs": 608253,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  },
+  {
+    "id": "OC-menxia-39ef8f8e",
+    "title": "门下省会话",
+    "official": "侍中",
+    "org": "门下省",
+    "state": "Review",
+    "now": "等待指令",
+    "eta": "2026-04-02 23:38:53",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/menxia/sessions/39ef8f8e-8f7d-4d9f-96ae-f71d8b6e3247.jsonl",
+    "flow": {
+      "draft": "agent=menxia",
+      "review": "updatedAt=2026-04-02 23:38:53",
+      "dispatch": "sessionKey=agent:menxia:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [],
+    "sourceMeta": {
+      "agentId": "menxia",
+      "sessionKey": "agent:menxia:main",
+      "sessionId": "39ef8f8e-8f7d-4d9f-96ae-f71d8b6e3247",
+      "updatedAt": 1775144333468,
+      "ageMs": 661027,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  }
+]

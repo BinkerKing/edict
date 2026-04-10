@@ -1,0 +1,5078 @@
+{
+  "generatedAt": "2026-04-08 20:47:47",
+  "defaultModel": "bailian-cn/qwen3-coder-plus",
+  "knownModels": [
+    {
+      "id": "anthropic/claude-sonnet-4-6",
+      "label": "Claude Sonnet 4.6",
+      "provider": "Anthropic"
+    },
+    {
+      "id": "anthropic/claude-opus-4-5",
+      "label": "Claude Opus 4.5",
+      "provider": "Anthropic"
+    },
+    {
+      "id": "anthropic/claude-haiku-3-5",
+      "label": "Claude Haiku 3.5",
+      "provider": "Anthropic"
+    },
+    {
+      "id": "openai/gpt-4o",
+      "label": "GPT-4o",
+      "provider": "OpenAI"
+    },
+    {
+      "id": "openai/gpt-4o-mini",
+      "label": "GPT-4o Mini",
+      "provider": "OpenAI"
+    },
+    {
+      "id": "openai-codex/gpt-5.3-codex",
+      "label": "GPT-5.3 Codex",
+      "provider": "OpenAI Codex"
+    },
+    {
+      "id": "google/gemini-2.0-flash",
+      "label": "Gemini 2.0 Flash",
+      "provider": "Google"
+    },
+    {
+      "id": "google/gemini-2.5-pro",
+      "label": "Gemini 2.5 Pro",
+      "provider": "Google"
+    },
+    {
+      "id": "copilot/claude-sonnet-4",
+      "label": "Claude Sonnet 4",
+      "provider": "Copilot"
+    },
+    {
+      "id": "copilot/claude-opus-4.5",
+      "label": "Claude Opus 4.5",
+      "provider": "Copilot"
+    },
+    {
+      "id": "github-copilot/claude-opus-4.6",
+      "label": "Claude Opus 4.6",
+      "provider": "GitHub Copilot"
+    },
+    {
+      "id": "copilot/gpt-4o",
+      "label": "GPT-4o",
+      "provider": "Copilot"
+    },
+    {
+      "id": "copilot/gemini-2.5-pro",
+      "label": "Gemini 2.5 Pro",
+      "provider": "Copilot"
+    },
+    {
+      "id": "copilot/o3-mini",
+      "label": "o3-mini",
+      "provider": "Copilot"
+    },
+    {
+      "id": "bailian-cn/qwen3-coder-plus",
+      "label": "bailian-cn/qwen3-coder-plus",
+      "provider": "OpenClaw"
+    },
+    {
+      "id": "bailian/qwen3-coder-plus",
+      "label": "bailian/qwen3-coder-plus",
+      "provider": "bailian"
+    },
+    {
+      "id": "bailian-2/qwen3-coder-plus",
+      "label": "bailian-2/qwen3-coder-plus",
+      "provider": "bailian-2"
+    }
+  ],
+  "dispatchChannel": "",
+  "agents": [
+    {
+      "id": "taizi",
+      "label": "太子",
+      "role": "太子",
+      "duty": "飞书消息分拣与回奏",
+      "emoji": "🤴",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-taizi",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "zhongshu"
+      ]
+    },
+    {
+      "id": "zhongshu",
+      "label": "中书省",
+      "role": "中书令",
+      "duty": "起草任务令与优先级",
+      "emoji": "📜",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-zhongshu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "menxia",
+        "shangshu"
+      ]
+    },
+    {
+      "id": "menxia",
+      "label": "门下省",
+      "role": "侍中",
+      "duty": "审议与退回机制",
+      "emoji": "🔍",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-menxia",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu",
+        "zhongshu"
+      ]
+    },
+    {
+      "id": "shangshu",
+      "label": "尚书省",
+      "role": "尚书令",
+      "duty": "派单与升级裁决",
+      "emoji": "📮",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-shangshu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "zhongshu",
+        "menxia",
+        "hubu",
+        "libu",
+        "bingbu",
+        "xingbu",
+        "gongbu",
+        "libu_hr"
+      ]
+    },
+    {
+      "id": "hubu",
+      "label": "户部",
+      "role": "户部尚书",
+      "duty": "资源/预算/成本",
+      "emoji": "💰",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-hubu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu"
+      ]
+    },
+    {
+      "id": "libu",
+      "label": "礼部",
+      "role": "礼部尚书",
+      "duty": "文档/汇报/规范",
+      "emoji": "📝",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-libu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu"
+      ]
+    },
+    {
+      "id": "bingbu",
+      "label": "兵部",
+      "role": "兵部尚书",
+      "duty": "工程实现与架构设计",
+      "emoji": "⚔️",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-bingbu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu"
+      ]
+    },
+    {
+      "id": "xingbu",
+      "label": "刑部",
+      "role": "刑部尚书",
+      "duty": "合规/审计/红线",
+      "emoji": "⚖️",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-xingbu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu"
+      ]
+    },
+    {
+      "id": "gongbu",
+      "label": "工部",
+      "role": "工部尚书",
+      "duty": "基础设施与部署运维",
+      "emoji": "🔧",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-gongbu",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu"
+      ]
+    },
+    {
+      "id": "libu_hr",
+      "label": "吏部",
+      "role": "吏部尚书",
+      "duty": "人事/培训/Agent管理",
+      "emoji": "👔",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-libu_hr",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "shangshu"
+      ]
+    },
+    {
+      "id": "zaochao",
+      "label": "钦天监",
+      "role": "朝报官",
+      "duty": "每日新闻采集与简报",
+      "emoji": "📰",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-zaochao",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": []
+    },
+    {
+      "id": "main",
+      "label": "太子",
+      "role": "太子",
+      "duty": "飞书消息分拣与回奏",
+      "emoji": "🤴",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "defaultModel": "bailian-cn/qwen3-coder-plus",
+      "workspace": "/Users/binkerking/.openclaw/workspace-main",
+      "skills": [
+        {
+          "name": "1password-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: 1password",
+          "scope": "global"
+        },
+        {
+          "name": "a-stock-analysis-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: a-stock-analysis",
+          "scope": "global"
+        },
+        {
+          "name": "agent-self-reflection-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: self-reflection",
+          "scope": "global"
+        },
+        {
+          "name": "aminer-open-academic-1.0.5",
+          "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "exists": true,
+          "description": "name: aminer-data-search",
+          "scope": "global"
+        },
+        {
+          "name": "architecture-designer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: architecture-designer",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-browser-agent",
+          "path": "/Users/binkerking/.agents/skills/autoglm-browser-agent/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-browser-agent",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-deepresearch",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-generate-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-generate-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-open-link",
+          "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-open-link",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-search-image",
+          "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-search-image",
+          "scope": "global"
+        },
+        {
+          "name": "autoglm-websearch",
+          "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "exists": true,
+          "description": "name: autoglm-websearch",
+          "scope": "global"
+        },
+        {
+          "name": "automation-workflows-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: automation-workflows",
+          "scope": "global"
+        },
+        {
+          "name": "backtest-expert-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: backtest-expert",
+          "scope": "global"
+        },
+        {
+          "name": "blog-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: blog-writer",
+          "scope": "global"
+        },
+        {
+          "name": "brainstorming-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: brainstorming",
+          "scope": "global"
+        },
+        {
+          "name": "clawdefender-1",
+          "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "exists": true,
+          "description": "name: clawdefender",
+          "scope": "global"
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "exists": true,
+          "description": "name: clawhub-skill-vetting",
+          "scope": "global"
+        },
+        {
+          "name": "code-1.0.4",
+          "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "exists": true,
+          "description": "name: Code",
+          "scope": "global"
+        },
+        {
+          "name": "content-strategy-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: content-strategy",
+          "scope": "global"
+        },
+        {
+          "name": "copywriting-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: copywriting",
+          "scope": "global"
+        },
+        {
+          "name": "debug-pro-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/debug-pro-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Systematic debugging methodology and language-specific debugging commands.",
+          "scope": "global"
+        },
+        {
+          "name": "executing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: executing-plans",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-chat-history",
+          "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-chat-history",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-cron-reminder",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-doc-1.2.7",
+          "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-doc",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-drive-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-drive",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-perm",
+          "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-perm",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-screenshot",
+          "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-screenshot",
+          "scope": "global"
+        },
+        {
+          "name": "feishu-send-file",
+          "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "exists": true,
+          "description": "name: feishu-send-file",
+          "scope": "global"
+        },
+        {
+          "name": "ffmpeg-video-editor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: FFmpeg Video Editor",
+          "scope": "global"
+        },
+        {
+          "name": "find-skills",
+          "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "exists": true,
+          "description": "name: find-skills",
+          "scope": "global"
+        },
+        {
+          "name": "frontend-design-3-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: frontend-design",
+          "scope": "global"
+        },
+        {
+          "name": "git-essentials-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: git-essentials",
+          "scope": "global"
+        },
+        {
+          "name": "interview-designer-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: interview-designer",
+          "scope": "global"
+        },
+        {
+          "name": "market-research-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Market Research",
+          "scope": "global"
+        },
+        {
+          "name": "memory-1.0.2",
+          "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "exists": true,
+          "description": "name: Memory",
+          "scope": "global"
+        },
+        {
+          "name": "notion-api",
+          "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "exists": true,
+          "description": "name: notion-api",
+          "scope": "global"
+        },
+        {
+          "name": "obsidian-ontology-sync-1.0.1",
+          "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "exists": true,
+          "description": "name: obsidian-ontology-sync",
+          "scope": "global"
+        },
+        {
+          "name": "opencode-controller-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: opencode-controller",
+          "scope": "global"
+        },
+        {
+          "name": "research-paper-writer-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: research-paper-writer",
+          "scope": "global"
+        },
+        {
+          "name": "security-auditor-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: security-auditor",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-1.1.3",
+          "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "exists": true,
+          "description": "name: Self-Improving Agent (With Self-Reflection)",
+          "scope": "global"
+        },
+        {
+          "name": "self-improving-agent",
+          "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "exists": true,
+          "description": "name: self-improving-agent",
+          "scope": "global"
+        },
+        {
+          "name": "seo-1.0.3",
+          "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "exists": true,
+          "description": "name: SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "scope": "global"
+        },
+        {
+          "name": "seo-content-writer-2.0.0",
+          "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: seo-content-writer",
+          "scope": "global"
+        },
+        {
+          "name": "session-logs-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/session-logs-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: session-logs",
+          "scope": "global"
+        },
+        {
+          "name": "skill-creator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-creator",
+          "scope": "global"
+        },
+        {
+          "name": "skill-vetter-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: skill-vetter",
+          "scope": "global"
+        },
+        {
+          "name": "social-content-generator-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: social-content",
+          "scope": "global"
+        },
+        {
+          "name": "social-media-scheduler-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: Social Media Scheduler",
+          "scope": "global"
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "exists": true,
+          "description": "name: supabase-postgres-best-practices",
+          "scope": "global"
+        },
+        {
+          "name": "tavily-search",
+          "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "exists": true,
+          "description": "name: tavily-search",
+          "scope": "global"
+        },
+        {
+          "name": "test-runner-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/test-runner-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "Write and run tests across languages and frameworks.",
+          "scope": "global"
+        },
+        {
+          "name": "tmux-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: tmux",
+          "scope": "global"
+        },
+        {
+          "name": "ui-ux-pro-max-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: ui-ux-pro-max",
+          "scope": "global"
+        },
+        {
+          "name": "video-frames-1.0.0",
+          "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "exists": true,
+          "description": "name: video-frames",
+          "scope": "global"
+        },
+        {
+          "name": "writing-plans-0.1.0",
+          "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "exists": true,
+          "description": "name: writing-plans",
+          "scope": "global"
+        }
+      ],
+      "allowAgents": [
+        "zhongshu",
+        "menxia",
+        "shangshu",
+        "hubu",
+        "libu",
+        "bingbu",
+        "xingbu",
+        "gongbu",
+        "libu_hr"
+      ],
+      "isDefaultModel": true
+    }
+  ]
+}

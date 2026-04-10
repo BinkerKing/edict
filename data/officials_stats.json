@@ -1,0 +1,379 @@
+{
+  "generatedAt": "2026-04-08 11:30:04",
+  "officials": [
+    {
+      "id": "zhongshu",
+      "label": "中书省",
+      "role": "中书令",
+      "emoji": "📜",
+      "rank": "正一品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 1,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 11,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": "2026-04-07 11:04",
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 6,
+      "participated_edicts": [
+        {
+          "id": "JJC-20260407-102939384",
+          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+          "state": "Done"
+        }
+      ],
+      "merit_score": 13,
+      "merit_rank": 1
+    },
+    {
+      "id": "menxia",
+      "label": "门下省",
+      "role": "侍中",
+      "emoji": "🔍",
+      "rank": "正一品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 1,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 15,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": "2026-04-07 11:10",
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 4,
+      "participated_edicts": [
+        {
+          "id": "JJC-20260407-102939384",
+          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+          "state": "Done"
+        }
+      ],
+      "merit_score": 9,
+      "merit_rank": 2
+    },
+    {
+      "id": "shangshu",
+      "label": "尚书省",
+      "role": "尚书令",
+      "emoji": "📮",
+      "rank": "正一品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 3,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 39,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": "2026-04-07 11:13",
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 3,
+      "participated_edicts": [
+        {
+          "id": "JJC-20260407-102939384",
+          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+          "state": "Done"
+        }
+      ],
+      "merit_score": 9,
+      "merit_rank": 3
+    },
+    {
+      "id": "taizi",
+      "label": "太子",
+      "role": "太子",
+      "emoji": "🤴",
+      "rank": "储君",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 1,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 3,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": "2026-04-07 10:29",
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 1,
+      "participated_edicts": [
+        {
+          "id": "JJC-20260407-102939384",
+          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+          "state": "Done"
+        }
+      ],
+      "merit_score": 3,
+      "merit_rank": 4
+    },
+    {
+      "id": "libu",
+      "label": "礼部",
+      "role": "礼部尚书",
+      "emoji": "📝",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 1,
+      "participated_edicts": [
+        {
+          "id": "JJC-20260407-102939384",
+          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+          "state": "Done"
+        }
+      ],
+      "merit_score": 2,
+      "merit_rank": 5
+    },
+    {
+      "id": "hubu",
+      "label": "户部",
+      "role": "户部尚书",
+      "emoji": "💰",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 1,
+      "participated_edicts": [
+        {
+          "id": "JJC-20260407-102939384",
+          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+          "state": "Done"
+        }
+      ],
+      "merit_score": 2,
+      "merit_rank": 6
+    },
+    {
+      "id": "bingbu",
+      "label": "兵部",
+      "role": "兵部尚书",
+      "emoji": "⚔️",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
+      "merit_rank": 7
+    },
+    {
+      "id": "xingbu",
+      "label": "刑部",
+      "role": "刑部尚书",
+      "emoji": "⚖️",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
+      "merit_rank": 8
+    },
+    {
+      "id": "gongbu",
+      "label": "工部",
+      "role": "工部尚书",
+      "emoji": "🔧",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
+      "merit_rank": 9
+    },
+    {
+      "id": "libu_hr",
+      "label": "吏部",
+      "role": "吏部尚书",
+      "emoji": "👔",
+      "rank": "正二品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
+      "merit_rank": 10
+    },
+    {
+      "id": "zaochao",
+      "label": "钦天监",
+      "role": "朝报官",
+      "emoji": "📰",
+      "rank": "正三品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
+      "merit_rank": 11
+    }
+  ],
+  "totals": {
+    "tokens_total": 0,
+    "cache_total": 0,
+    "cost_usd": 0.0,
+    "cost_cny": 0.0,
+    "tasks_done": 0
+  },
+  "top_official": "中书省"
+}

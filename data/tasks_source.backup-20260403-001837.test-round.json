@@ -1,0 +1,110 @@
+[
+  {
+    "id": "JJC-20260403-001",
+    "title": "SOUL加载验证任务",
+    "official": "中书令",
+    "org": "中书省",
+    "state": "Zhongshu",
+    "now": "已下旨，等待中书省接旨",
+    "eta": "-",
+    "block": "无",
+    "output": "",
+    "ac": "",
+    "flow_log": [
+      {
+        "at": "2026-04-02T16:13:54.576601Z",
+        "from": "皇上",
+        "to": "中书省",
+        "remark": "下旨：SOUL加载验证任务"
+      }
+    ],
+    "updatedAt": "2026-04-02T16:13:54.576729Z"
+  },
+  {
+    "id": "OC-zhongshu-715bccd4",
+    "title": "中书省会话",
+    "official": "中书令",
+    "org": "中书省",
+    "state": "Review",
+    "now": "思考中: 已接旨。",
+    "eta": "2026-04-03 00:14:05",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/zhongshu/sessions/715bccd4-2c10-4a7c-b331-1d4eedf3e0b6.jsonl",
+    "flow": {
+      "draft": "agent=zhongshu",
+      "review": "updatedAt=2026-04-03 00:14:05",
+      "dispatch": "sessionKey=agent:zhongshu:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [
+      {
+        "at": "2026-04-02T16:14:05.553Z",
+        "kind": "assistant",
+        "text": "已接旨。"
+      },
+      {
+        "at": "2026-04-02T16:14:02.440Z",
+        "kind": "user",
+        "text": "User: [Fri 2026-04-03 00:14 GMT+8] 📋 调度层派发 · 中书省\n任务ID: JJC-20260403-001\n标题: SOUL加载验证任务\n当前状态: Zhongshu\n当前承办..."
+      }
+    ],
+    "sourceMeta": {
+      "agentId": "zhongshu",
+      "sessionKey": "agent:zhongshu:main",
+      "sessionId": "715bccd4-2c10-4a7c-b331-1d4eedf3e0b6",
+      "updatedAt": 1775146445574,
+      "ageMs": 263380,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  },
+  {
+    "id": "OC-taizi-f0ba3113",
+    "title": "太子会话",
+    "official": "储君",
+    "org": "太子",
+    "state": "Review",
+    "now": "思考中: SOUL_TEST_20260403",
+    "eta": "2026-04-03 00:13:55",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/taizi/sessions/f0ba3113-a2ce-41bf-bc3b-8a7e05027b56.jsonl",
+    "flow": {
+      "draft": "agent=taizi",
+      "review": "updatedAt=2026-04-03 00:13:55",
+      "dispatch": "sessionKey=agent:taizi:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [
+      {
+        "at": "2026-04-02T16:13:55.655Z",
+        "kind": "assistant",
+        "text": "SOUL_TEST_20260403"
+      },
+      {
+        "at": "2026-04-02T16:13:54.596Z",
+        "kind": "tool",
+        "text": "Tool 'exec' finished"
+      },
+      {
+        "at": "2026-04-02T16:13:51.794Z",
+        "kind": "user",
+        "text": "User: [Fri 2026-04-03 00:13 GMT+8] 测试消息B：重启后..."
+      }
+    ],
+    "sourceMeta": {
+      "agentId": "taizi",
+      "sessionKey": "agent:taizi:main",
+      "sessionId": "f0ba3113-a2ce-41bf-bc3b-8a7e05027b56",
+      "updatedAt": 1775146435690,
+      "ageMs": 273264,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  }
+]

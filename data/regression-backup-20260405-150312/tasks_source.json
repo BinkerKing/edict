@@ -1,0 +1,58 @@
+[
+  {
+    "id": "OC-taizi-fecd82a7",
+    "title": "太子会话",
+    "official": "储君",
+    "org": "太子",
+    "state": "Doing",
+    "now": "思考中: Sun Apr  5 15:01:17 CST 2026",
+    "eta": "2026-04-05 15:01:19",
+    "block": "无",
+    "output": "/Users/binkerking/.openclaw/agents/taizi/sessions/fecd82a7-b395-45bd-abcd-84f072c8fd6e.jsonl",
+    "flow": {
+      "draft": "agent=taizi",
+      "review": "updatedAt=2026-04-05 15:01:19",
+      "dispatch": "sessionKey=agent:taizi:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [
+      {
+        "at": "2026-04-05T07:01:19.229Z",
+        "kind": "assistant",
+        "text": "Sun Apr  5 15:01:17 CST 2026"
+      },
+      {
+        "at": "2026-04-05T07:01:17.922Z",
+        "kind": "tool",
+        "text": "Tool 'exec' returned: Sun Apr  5 15:01:17 CST 2026"
+      },
+      {
+        "at": "2026-04-05T07:01:15.996Z",
+        "kind": "user",
+        "text": "User: [Sun 2026-04-05 15:01 GMT+8] 请执行命令 date，并把命令输出原样返回。..."
+      },
+      {
+        "at": "2026-04-05T07:00:14.570Z",
+        "kind": "assistant",
+        "text": "已接旨。以下为太子已完成动作："
+      },
+      {
+        "at": "2026-04-05T07:00:09.792Z",
+        "kind": "user",
+        "text": "User: [Sun 2026-04-05 15:00 GMT+8] 下旨：用流程图方式整理总结三省六部项目的README，并生成报告。..."
+      }
+    ],
+    "sourceMeta": {
+      "agentId": "taizi",
+      "sessionKey": "agent:taizi:main",
+      "sessionId": "fecd82a7-b395-45bd-abcd-84f072c8fd6e",
+      "updatedAt": 1775372479249,
+      "ageMs": 72222,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null
+    }
+  }
+]

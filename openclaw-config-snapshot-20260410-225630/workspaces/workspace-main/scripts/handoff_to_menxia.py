@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/handoff_to_menxia.py

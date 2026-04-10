@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/record_demo.py

@@ -1,0 +1,59 @@
+graph TB
+    %% 三省
+    Zhongshu[中书省 - 决策机构]
+    Menxia[门下省 - 审议机构]
+    Shangshu[尚书省 - 执行机构]
+    
+    %% 六部
+    Libu[吏部 - 人事管理]
+    Hubu[户部 - 财政经济]
+    Libubu[礼部 - 礼仪教育]
+    Bingbu[兵部 - 军事事务]
+    Xingbu[刑部 - 司法监察]
+    Gongbu[工部 - 工程建设]
+    
+    %% 中书省的职责分支
+    Zhongshu --> ZS_Policy[政策制定]
+    Zhongshu --> ZS_Draft[诏令起草]
+    
+    %% 门下省的职责分支
+    Menxia --> MX_Review[审核驳正]
+    Menxia --> MX_Archive[典籍档案]
+    
+    %% 尚书省的职责分支
+    Shangshu --> SS_Coordination[协调执行]
+    Shangshu --> SS_Supervision[监督考核]
+    
+    %% 六部与尚书省的关系
+    SS_Coordination --> Libu
+    SS_Coordination --> Hubu
+    SS_Coordination --> Libubu
+    SS_Coordination --> Bingbu
+    SS_Coordination --> Xingbu
+    SS_Coordination --> Gongbu
+    
+    %% 数据流向
+    ZS_Draft --> MX_Review
+    MX_Review --> SS_Coordination
+    
+    %% 部门间的协作关系
+    Hubu -->|财政支持| Gongbu
+    Hubu -->|财政支持| Bingbu
+    Libu -->|人事调配| AllDepartments[其他五部]
+    Xingbu -->|司法监督| AllDepartments
+    
+    %% 工部内部职责
+    Gongbu --> GB_Construction[工程建设]
+    Gongbu --> GB_Maintenance[设施维护]
+    Gongbu --> GB_Technology[技术标准]
+    
+    %% 样式定义
+    classDef decisionBox fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef executionBox fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef reviewBox fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef departmentBox fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    
+    class Zhongshu,ZS_Policy,ZS_Draft decisionBox
+    class Menxia,MX_Review,MX_Archive reviewBox
+    class Shangshu,SS_Coordination,SS_Supervision executionBox
+    class Libu,Hubu,Libubu,Bingbu,Xingbu,Gongbu,AllDepartments departmentBox

@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/check_transfer_to_menxia.py

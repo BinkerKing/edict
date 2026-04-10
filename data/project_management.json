@@ -36,7 +36,7 @@
           "questions": [],
           "resolution": "已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\"编辑计划\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。",
           "createdAt": "2026-04-10T06:27:28.055682Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
           "versionedAt": "2026-04-10T13:14:05.633672Z",
@@ -62,7 +62,7 @@
           "questions": [],
           "resolution": "已完成：项目跟进中的日报/周报模块已移除。",
           "createdAt": "2026-04-10T06:22:44.470740Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
           "versionedAt": "2026-04-10T13:14:05.633672Z"
@@ -87,7 +87,7 @@
           "questions": [],
           "resolution": "已完成：新增事项改为标题右侧按钮触发的伸缩模块，默认收起；展开后填写并创建，创建成功后自动收起。",
           "createdAt": "2026-04-10T06:20:13.252958Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
           "versionedAt": "2026-04-10T13:14:05.633672Z"
@@ -112,7 +112,7 @@
           "questions": [],
           "resolution": "已完成：将作监子菜单由标题区迁移到左侧项目列表下（与鲁班阁结构一致），点击项目后可在其下直接切换 项目跟进/策议司/智能看板。",
           "createdAt": "2026-04-10T06:18:18.400696Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
           "versionedAt": "2026-04-10T13:14:05.633672Z"
@@ -152,7 +152,7 @@
           ],
           "resolution": "已修复工部复审的 Context overflow 卡死：新增 overflow 识别、极简重试与结构化降级兜底；即使模型溢出也会返回可继续流转的评审结果，不再只写入报错原文。",
           "createdAt": "2026-04-10T02:49:30.476598Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
@@ -193,7 +193,7 @@
           ],
           "resolution": "已实现：鲁班阁新建项目会自动绑定独立 gongbuSessionId，并在工部复审/设计生成/版本汇总时使用该项目级会话，项目间上下文隔离，避免互相污染。",
           "createdAt": "2026-04-10T02:47:50.142899Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
@@ -284,7 +284,7 @@
           ],
           "resolution": "已实现将作监基础版：新增“将作监”菜单，支持创建项目并自动包含项目跟进/策议司/智能看板；支持跟进项新增与完成切换、日报记录、策议主题与会话记录、提醒项新增与启停。",
           "createdAt": "2026-04-10T02:45:57.161429Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "lastGongbuRaw": "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
           "versionRefId": "VER-20260410200620770",
           "versionTag": "v2026.04.10.2",
@@ -737,7 +737,7 @@
         }
       ],
       "createdAt": "2026-04-09T06:53:32.293091Z",
-      "updatedAt": "2026-04-10T13:14:05.633672Z",
+      "updatedAt": "2026-04-10T13:15:34.657780Z",
       "folders": [
         {
           "id": "FLD-DESIGN",
@@ -791,8 +791,8 @@
         {
           "id": "VER-20260410200620770",
           "systemVersion": "v2026.04.10.2",
-          "githubVersion": "",
-          "status": "draft",
+          "githubVersion": "31a7f80",
+          "status": "github",
           "summary": "本次纳入 7 项已完成问题",
           "content": "# 三省六部总控台 - 版本更新日志\n\n## BUG修复\n\n- **鲁班阁-问题中版本号问题**：已修复工部复审的 Context overflow 卡死：新增 overflow 识别、极简重试与结构化降级兜底；即使模型溢出也会返回可继续流转的评审结果，不再只写入报错原文。\n\n## 需求交付\n\n- **新增菜单-将作监**：已实现将作监基础版：新增\"将作监\"菜单，支持创建项目并自动包含项目跟进/策议司/智能看板；支持跟进项新增与完成切换、日报记录、策议主题与会话记录、提醒项新增与启停。\n- **将作监-项目跟进中增加项目计划模块**：已完成：新增项目计划模块，支持计划周期展示、当前时间节点标记、任务条可视化；右上角\"编辑计划\"弹出表格式编辑器（类 Excel）填写并保存后同步更新看板。\n- **将作监-项目子菜单结构优化**：已完成：将作监子菜单由标题区迁移到左侧项目列表下（与鲁班阁结构一致），点击项目后可在其下直接切换 项目跟进/策议司/智能看板。\n- **将作监-日报周报模块拿掉**：已完成：项目跟进中的日报/周报模块已移除。\n\n## 优化改进\n\n- **将作监-新增事项优化**：已完成：新增事项改为标题右侧按钮触发的伸缩模块，默认收起；展开后填写并创建，创建成功后自动收起。\n- **鲁班阁-创建项目按钮逻辑优化**：已实现：鲁班阁新建项目会自动绑定独立 gongbuSessionId，并在工部复审/设计生成/版本汇总时使用该项目级会话，项目间上下文隔离，避免互相污染。",
           "issueIds": [
@@ -805,7 +805,7 @@
             "ISS-20260410142013252"
           ],
           "createdAt": "2026-04-10T12:06:20.770246Z",
-          "updatedAt": "2026-04-10T13:14:05.633672Z",
+          "updatedAt": "2026-04-10T13:15:34.657780Z",
           "createdBy": "gongbu"
         },
         {
@@ -837,7 +837,7 @@
       ],
       "runtime": {
         "gongbuSessionId": "pm-gongbu-PRJ-20260409145332293-88552795",
-        "updatedAt": "2026-04-10T13:14:19.289930Z"
+        "updatedAt": "2026-04-10T13:18:23.041190Z"
       }
     }
   ]

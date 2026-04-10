@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/sync_from_openclaw_runtime.py

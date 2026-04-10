@@ -1,0 +1,473 @@
+[
+  {
+    "id": "JJC-20260407-102939384",
+    "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
+    "official": "中书令",
+    "org": "完成",
+    "state": "Done",
+    "now": "碳循环减脂计划已完成",
+    "eta": "-",
+    "block": "无",
+    "output": "/Users/binkerking/Documents/GitHub/edict/reports/carbon_cycle_plan_86kg_23to15.md",
+    "ac": "",
+    "flow_log": [
+      {
+        "at": "2026-04-07T02:29:39.444677Z",
+        "from": "皇上",
+        "to": "中书省",
+        "remark": "太子整理旨意"
+      },
+      {
+        "at": "2026-04-07T02:29:39.594332Z",
+        "from": "太子",
+        "to": "中书省",
+        "remark": "📋 旨意传达：给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到15%",
+        "agent": "",
+        "agentLabel": ""
+      },
+      {
+        "at": "2026-04-07T02:30:14.866435Z",
+        "from": "中书省",
+        "to": "门下省",
+        "remark": "📋 方案提交审议",
+        "agent": "zhongshu",
+        "agentLabel": "中书省"
+      },
+      {
+        "at": "2026-04-07T03:04:32.254182Z",
+        "from": "门下省",
+        "to": "中书省",
+        "remark": "❌ 封驳：任务目标不完整，缺乏具体减脂目标和基础健康信息",
+        "agent": "menxia",
+        "agentLabel": "门下省"
+      },
+      {
+        "at": "2026-04-07T03:04:33.772948Z",
+        "from": "中书省",
+        "to": "门下省",
+        "remark": "📋 修正方案重新提交审议",
+        "agent": "",
+        "agentLabel": ""
+      },
+      {
+        "at": "2026-04-07T03:10:29.659092Z",
+        "from": "门下省",
+        "to": "中书省",
+        "remark": "✅ 准奏",
+        "agent": "menxia",
+        "agentLabel": "门下省"
+      },
+      {
+        "at": "2026-04-07T03:11:08.742604Z",
+        "from": "尚书省",
+        "to": "户部",
+        "remark": "派发：碳循环减脂计划数据分析",
+        "agent": "shangshu",
+        "agentLabel": "尚书省"
+      },
+      {
+        "at": "2026-04-07T03:11:10.793525Z",
+        "from": "尚书省",
+        "to": "礼部",
+        "remark": "派发：碳循环减脂计划文档制定",
+        "agent": "shangshu",
+        "agentLabel": "尚书省"
+      },
+      {
+        "at": "2026-04-07T03:12:05.833599Z",
+        "from": "六部",
+        "to": "尚书省",
+        "remark": "执行汇总完成，进入审查"
+      },
+      {
+        "at": "2026-04-07T03:12:07.790659Z",
+        "from": "完成",
+        "to": "皇上",
+        "remark": "✅ 完成：碳循环减脂计划已完成"
+      }
+    ],
+    "updatedAt": "2026-04-07T03:12:07.790792Z",
+    "todos": [
+      {
+        "id": "1",
+        "title": "需求确认",
+        "status": "completed"
+      },
+      {
+        "id": "2",
+        "title": "计划编制",
+        "status": "completed"
+      },
+      {
+        "id": "3",
+        "title": "热量核算",
+        "status": "completed"
+      },
+      {
+        "id": "4",
+        "title": "训练安排",
+        "status": "completed"
+      },
+      {
+        "id": "5",
+        "title": "交付审查",
+        "status": "completed"
+      }
+    ],
+    "progress_log": [
+      {
+        "at": "2026-04-07T02:30:12.565976Z",
+        "agent": "zhongshu",
+        "agentLabel": "中书省",
+        "text": "中书省已接旨，正在起草并准备提交门下省",
+        "todos": [
+          {
+            "id": "1",
+            "title": "接旨",
+            "status": "completed"
+          },
+          {
+            "id": "2",
+            "title": "起草方案",
+            "status": "in-progress"
+          },
+          {
+            "id": "3",
+            "title": "门下审议",
+            "status": "not-started"
+          },
+          {
+            "id": "4",
+            "title": "转尚书",
+            "status": "not-started"
+          }
+        ],
+        "state": "Zhongshu",
+        "org": "中书省"
+      },
+      {
+        "at": "2026-04-07T02:37:06.143819Z",
+        "agent": "menxia",
+        "agentLabel": "门下省",
+        "text": "门下省审议中，正在给出准奏/封驳",
+        "todos": [
+          {
+            "id": "1",
+            "title": "可行性审查",
+            "status": "in-progress"
+          },
+          {
+            "id": "2",
+            "title": "完整性审查",
+            "status": "not-started"
+          },
+          {
+            "id": "3",
+            "title": "风险评估",
+            "status": "not-started"
+          },
+          {
+            "id": "4",
+            "title": "出具结论",
+            "status": "not-started"
+          }
+        ],
+        "state": "Menxia",
+        "org": "门下省"
+      },
+      {
+        "at": "2026-04-07T03:04:14.078823Z",
+        "agent": "menxia",
+        "agentLabel": "门下省",
+        "text": "门下省审议中，正在给出准奏/封驳",
+        "todos": [
+          {
+            "id": "1",
+            "title": "可行性审查",
+            "status": "in-progress"
+          },
+          {
+            "id": "2",
+            "title": "完整性审查",
+            "status": "not-started"
+          },
+          {
+            "id": "3",
+            "title": "风险评估",
+            "status": "not-started"
+          },
+          {
+            "id": "4",
+            "title": "出具结论",
+            "status": "not-started"
+          }
+        ],
+        "state": "Menxia",
+        "org": "门下省"
+      },
+      {
+        "at": "2026-04-07T03:04:24.371508Z",
+        "agent": "zhongshu",
+        "agentLabel": "中书省",
+        "text": "门下省封驳，正在修正方案",
+        "todos": [
+          {
+            "id": "1",
+            "title": "接旨",
+            "status": "completed"
+          },
+          {
+            "id": "2",
+            "title": "起草方案",
+            "status": "completed"
+          },
+          {
+            "id": "3",
+            "title": "门下审议",
+            "status": "in-progress"
+          },
+          {
+            "id": "4",
+            "title": "修正方案",
+            "status": "not-started"
+          },
+          {
+            "id": "5",
+            "title": "转尚书",
+            "status": "not-started"
+          }
+        ],
+        "state": "Zhongshu",
+        "org": "中书省"
+      },
+      {
+        "at": "2026-04-07T03:04:31.006615Z",
+        "agent": "zhongshu",
+        "agentLabel": "中书省",
+        "text": "门下省封驳，正在重新起草方案",
+        "todos": [
+          {
+            "id": "1",
+            "title": "接旨",
+            "status": "completed"
+          },
+          {
+            "id": "2",
+            "title": "起草方案",
+            "status": "completed"
+          },
+          {
+            "id": "3",
+            "title": "门下审议",
+            "status": "completed"
+          },
+          {
+            "id": "4",
+            "title": "修正方案",
+            "status": "in-progress"
+          },
+          {
+            "id": "5",
+            "title": "转尚书",
+            "status": "not-started"
+          }
+        ],
+        "state": "Zhongshu",
+        "org": "中书省"
+      },
+      {
+        "at": "2026-04-07T03:04:40.526483Z",
+        "agent": "menxia",
+        "agentLabel": "门下省",
+        "text": "门下省审议中，正在给出准奏/封驳",
+        "todos": [
+          {
+            "id": "1",
+            "title": "可行性审查",
+            "status": "in-progress"
+          },
+          {
+            "id": "2",
+            "title": "完整性审查",
+            "status": "not-started"
+          },
+          {
+            "id": "3",
+            "title": "风险评估",
+            "status": "not-started"
+          },
+          {
+            "id": "4",
+            "title": "出具结论",
+            "status": "not-started"
+          }
+        ],
+        "state": "Menxia",
+        "org": "门下省"
+      },
+      {
+        "at": "2026-04-07T03:10:57.774006Z",
+        "agent": "shangshu",
+        "agentLabel": "尚书省",
+        "text": "正在分析碳循环减脂计划任务，确定派发给哪个部门",
+        "todos": [
+          {
+            "id": "1",
+            "title": "分析派发方案",
+            "status": "in-progress"
+          },
+          {
+            "id": "2",
+            "title": "派发部门",
+            "status": "not-started"
+          },
+          {
+            "id": "3",
+            "title": "等待执行",
+            "status": "not-started"
+          },
+          {
+            "id": "4",
+            "title": "汇总结果",
+            "status": "not-started"
+          },
+          {
+            "id": "5",
+            "title": "回传中书省",
+            "status": "not-started"
+          }
+        ],
+        "state": "Doing",
+        "org": "执行中"
+      },
+      {
+        "at": "2026-04-07T03:11:13.505515Z",
+        "agent": "shangshu",
+        "agentLabel": "尚书省",
+        "text": "已派发户部进行数据分析，礼部制定计划文档",
+        "todos": [
+          {
+            "id": "1",
+            "title": "分析派发方案",
+            "status": "completed"
+          },
+          {
+            "id": "2",
+            "title": "派发户部",
+            "status": "completed"
+          },
+          {
+            "id": "3",
+            "title": "派发礼部",
+            "status": "completed"
+          },
+          {
+            "id": "4",
+            "title": "等待执行",
+            "status": "in-progress"
+          },
+          {
+            "id": "5",
+            "title": "汇总结果",
+            "status": "not-started"
+          },
+          {
+            "id": "6",
+            "title": "回传中书省",
+            "status": "not-started"
+          }
+        ],
+        "state": "Doing",
+        "org": "执行中"
+      },
+      {
+        "at": "2026-04-07T03:11:32.463085Z",
+        "agent": "shangshu",
+        "agentLabel": "尚书省",
+        "text": "户部和礼部已完成执行，正在汇总结果",
+        "todos": [
+          {
+            "id": "1",
+            "title": "分析派发方案",
+            "status": "completed"
+          },
+          {
+            "id": "2",
+            "title": "派发户部",
+            "status": "completed"
+          },
+          {
+            "id": "3",
+            "title": "派发礼部",
+            "status": "completed"
+          },
+          {
+            "id": "4",
+            "title": "等待执行",
+            "status": "completed"
+          },
+          {
+            "id": "5",
+            "title": "汇总结果",
+            "status": "in-progress"
+          },
+          {
+            "id": "6",
+            "title": "回传中书省",
+            "status": "not-started"
+          }
+        ],
+        "state": "Doing",
+        "org": "执行中"
+      },
+      {
+        "at": "2026-04-07T03:12:05.833699Z",
+        "agent": "shangshu",
+        "agentLabel": "尚书省",
+        "text": "已完成碳循环计划编制，准备提交审查",
+        "todos": [
+          {
+            "id": "1",
+            "title": "需求确认",
+            "status": "completed"
+          },
+          {
+            "id": "2",
+            "title": "计划编制",
+            "status": "completed"
+          },
+          {
+            "id": "3",
+            "title": "热量核算",
+            "status": "completed"
+          },
+          {
+            "id": "4",
+            "title": "训练安排",
+            "status": "completed"
+          },
+          {
+            "id": "5",
+            "title": "交付审查",
+            "status": "completed"
+          }
+        ],
+        "state": "Review",
+        "org": "尚书省"
+      }
+    ],
+    "outputPaths": [
+      "/Users/binkerking/Documents/GitHub/edict/reports/carbon_cycle_plan_86kg_23to15.md"
+    ],
+    "outputMeta": {
+      "existsAll": true,
+      "files": [
+        {
+          "path": "/Users/binkerking/Documents/GitHub/edict/reports/carbon_cycle_plan_86kg_23to15.md",
+          "exists": true,
+          "lastModified": "2026-04-07 11:11:18"
+        }
+      ]
+    }
+  }
+]

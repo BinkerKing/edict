@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.8",
+    "lastTouchedAt": "2026-04-04T07:24:13.987Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-04-02T07:55:29.968Z",
+    "lastRunVersion": "2026.3.8",
+    "lastRunCommand": "onboard",
+    "lastRunMode": "local"
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "bailian": {
+        "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "apiKey": "sk-sp-f42993c4c5bb45098bac5d3ddc65327a",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "qwen3-coder-plus",
+            "name": "qwen3-coder-plus (Custom Provider)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "bailian-2": {
+        "baseUrl": "https://coding-intl.dashscope.aliyuncs.com/v1",
+        "apiKey": "sk-sp-f42993c4c5bb45098bac5d3ddc65327a",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "qwen3-coder-plus",
+            "name": "qwen3-coder-plus (Custom Provider)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "bailian-cn": {
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "apiKey": "sk-sp-f42993c4c5bb45098bac5d3ddc65327a",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "qwen3-coder-plus",
+            "name": "qwen3-coder-plus (Custom Provider)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "bailian-cn/qwen3-coder-plus"
+      },
+      "models": {
+        "bailian/qwen3-coder-plus": {},
+        "bailian-2/qwen3-coder-plus": {},
+        "bailian-cn/qwen3-coder-plus": {}
+      },
+      "workspace": "/Users/binkerking/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    },
+    "list": [
+      {
+        "id": "taizi",
+        "workspace": "/Users/binkerking/.openclaw/workspace-taizi",
+        "subagents": {
+          "allowAgents": [
+            "zhongshu"
+          ]
+        }
+      },
+      {
+        "id": "zhongshu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-zhongshu",
+        "subagents": {
+          "allowAgents": [
+            "menxia",
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "menxia",
+        "workspace": "/Users/binkerking/.openclaw/workspace-menxia",
+        "subagents": {
+          "allowAgents": [
+            "shangshu",
+            "zhongshu"
+          ]
+        }
+      },
+      {
+        "id": "shangshu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-shangshu",
+        "subagents": {
+          "allowAgents": [
+            "zhongshu",
+            "menxia",
+            "hubu",
+            "libu",
+            "bingbu",
+            "xingbu",
+            "gongbu",
+            "libu_hr"
+          ]
+        }
+      },
+      {
+        "id": "hubu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-hubu",
+        "subagents": {
+          "allowAgents": [
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "libu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-libu",
+        "subagents": {
+          "allowAgents": [
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "bingbu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-bingbu",
+        "subagents": {
+          "allowAgents": [
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "xingbu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-xingbu",
+        "subagents": {
+          "allowAgents": [
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "gongbu",
+        "workspace": "/Users/binkerking/.openclaw/workspace-gongbu",
+        "subagents": {
+          "allowAgents": [
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "libu_hr",
+        "workspace": "/Users/binkerking/.openclaw/workspace-libu_hr",
+        "subagents": {
+          "allowAgents": [
+            "shangshu"
+          ]
+        }
+      },
+      {
+        "id": "zaochao",
+        "workspace": "/Users/binkerking/.openclaw/workspace-zaochao",
+        "subagents": {
+          "allowAgents": []
+        }
+      }
+    ]
+  },
+  "tools": {
+    "profile": "coding",
+    "sessions": {
+      "visibility": "all"
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "channels": {
+    "feishu": {
+      "enabled": true,
+      "defaultAccount": "default",
+      "dmPolicy": "pairing",
+      "accounts": {
+        "default": {
+          "appId": "cli_a924854d89b89bc8",
+          "appSecret": "wpl8yxiWbaStsHObTCZ5oggwLFPEbSq0",
+          "botName": "edict"
+        }
+      }
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "77458508299c064a2213c3e5f7850f74cfc1fa181831c6cd"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    }
+  },
+  "plugins": {
+    "entries": {
+      "feishu": {
+        "enabled": true
+      },
+      "openclaw-codex-app-server": {
+        "enabled": true
+      }
+    },
+    "installs": {
+      "openclaw-codex-app-server": {
+        "source": "npm",
+        "spec": "openclaw-codex-app-server",
+        "installPath": "/Users/binkerking/.openclaw/extensions/openclaw-codex-app-server",
+        "version": "0.6.0",
+        "resolvedName": "openclaw-codex-app-server",
+        "resolvedVersion": "0.6.0",
+        "resolvedSpec": "openclaw-codex-app-server@0.6.0",
+        "integrity": "sha512-kVaZ+BB57lES5IeyECeUQQwCRINJ1yZLnTa1zc7ReZsTP9fd2QnwiTSf1C5OMyJ0u6UhmrZQTWvkxCKu/SW3Ww==",
+        "shasum": "cc4a806c04800119e1b38c29a28a5cf08de2baf3",
+        "resolvedAt": "2026-04-04T07:23:40.982Z",
+        "installedAt": "2026-04-04T07:24:13.939Z"
+      }
+    }
+  }
+}

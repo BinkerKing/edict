@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/codex_delegate.py

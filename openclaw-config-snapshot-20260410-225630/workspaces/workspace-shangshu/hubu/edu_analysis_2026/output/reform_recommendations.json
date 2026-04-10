@@ -1,0 +1,20 @@
+[
+  {
+    "priority": "中",
+    "area": "创新能力",
+    "recommendation": "利用AI工具促进学生创造力发展，设计创新课程体系",
+    "supporting_data": "AI工具使用者创造力评分为69.5，高于非使用者的68.9"
+  },
+  {
+    "priority": "中",
+    "area": "思辨能力",
+    "recommendation": "整合AI工具培养学生的批判性思维能力",
+    "supporting_data": "AI工具使用者批判思维评分为68.5，高于非使用者的67.9"
+  },
+  {
+    "priority": "中",
+    "area": "学习动力",
+    "recommendation": "利用AI技术提升学生学习参与度和兴趣",
+    "supporting_data": "AI工具使用者学习参与度为72.2，高于非使用者的71.8"
+  }
+]

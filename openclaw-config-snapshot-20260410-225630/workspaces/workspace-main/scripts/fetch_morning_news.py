@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/fetch_morning_news.py

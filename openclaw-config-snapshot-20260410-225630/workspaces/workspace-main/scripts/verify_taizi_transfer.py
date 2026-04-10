@@ -1,0 +1,1 @@
+/Users/binkerking/Documents/GitHub/edict/scripts/verify_taizi_transfer.py

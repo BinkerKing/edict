@@ -1,0 +1,1660 @@
+{
+  "agent:shangshu:main": {
+    "sessionId": "5b2bd2d5-9fda-4511-8efb-4b06051ba371",
+    "updatedAt": 1775371837212,
+    "skillsSnapshot": {
+      "prompt": "\n\nThe following skills provide specialized instructions for specific tasks.\nUse the read tool to load a skill's file when the task matches its description.\nWhen a skill file references a relative path, resolve it against the skill directory (parent of SKILL.md / dirname of the path) and use that absolute path in tool commands.\n\n<available_skills>\n  <skill>\n    <name>feishu-doc</name>\n    <description>Fetch content from Feishu (Lark) Wiki, Docs, Sheets, and Bitable. Automatically resolves Wiki URLs to real entities and converts content to Markdown.</description>\n    <location>~/.agents/skills/feishu-doc-1.2.7/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-drive</name>\n    <description>飞书云空间文件管理 Skill。上传/下载/移动/搜索文件、创建文件夹、获取元数据等。当需要管理飞书云空间中的文件和文件夹时使用此 Skill。</description>\n    <location>~/.agents/skills/feishu-drive-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-perm</name>\n    <description>Feishu permission management for documents and files. Activate when user mentions sharing, permissions, collaborators.</description>\n    <location>~/.agents/skills/feishu-perm/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-wiki</name>\n    <description>Feishu knowledge base navigation. Activate when user mentions knowledge base, wiki, or wiki links.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/dist/extensions/feishu/skills/feishu-wiki/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>1password</name>\n    <description>Set up and use 1Password CLI (op). Use when installing the CLI, enabling desktop app integration, signing in (single or multi-account), or reading/injecting/running secrets via op.</description>\n    <location>~/.agents/skills/1password-1.0.1/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>apple-notes</name>\n    <description>Manage Apple Notes via the `memo` CLI on macOS (create, view, edit, delete, search, move, and export notes). Use when a user asks OpenClaw to add a note, list notes, search notes, or manage note folders.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/apple-notes/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>clawflow</name>\n    <description>Use when work should span one or more detached tasks but still behave like one job with a single owner context. ClawFlow is the runtime substrate under authoring layers like Lobster, acpx, or plain code. Keep conditional logic in the caller; use ClawFlow for flow identity, waiting, outputs, and user-facing emergence.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/clawflow/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>clawflow-inbox-triage</name>\n    <description>Example ClawFlow authoring pattern for inbox triage. Use when messages need different treatment based on intent, with some routes notifying immediately, some waiting on outside answers, and others rolling into a later summary.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/clawflow-inbox-triage/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>gh-issues</name>\n    <description>Fetch GitHub issues, spawn sub-agents to implement fixes and open PRs, then monitor and address PR review comments. Usage: /gh-issues [owner/repo] [--label bug] [--limit 5] [--milestone v1.0] [--assignee @me] [--fork user/repo] [--watch] [--interval 5] [--reviews-only] [--cron] [--dry-run] [--model glm-5] [--notify-channel -1002381931352]</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/gh-issues/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>github</name>\n    <description>GitHub operations via `gh` CLI: issues, PRs, CI runs, code review, API queries. Use when: (1) checking PR status or CI, (2) creating/commenting on issues, (3) listing/filtering PRs or issues, (4) viewing run logs. NOT for: complex web UI interactions requiring manual browser flows (use browser tooling when available), bulk operations across many repos (script with gh api), or when gh auth is not configured.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/github/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>gog</name>\n    <description>Google Workspace CLI for Gmail, Calendar, Drive, Contacts, Sheets, and Docs.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/gog/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>healthcheck</name>\n    <description>Host security hardening and risk-tolerance configuration for OpenClaw deployments. Use when a user asks for security audits, firewall/SSH/update hardening, risk posture, exposure review, OpenClaw cron scheduling for periodic checks, or version status checks on a machine running OpenClaw (laptop, workstation, Pi, VPS).</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/healthcheck/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>himalaya</name>\n    <description>CLI to manage emails via IMAP/SMTP. Use `himalaya` to list, read, write, reply, forward, search, and organize emails from the terminal. Supports multiple accounts and message composition with MML (MIME Meta Language).</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/himalaya/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>node-connect</name>\n    <description>Diagnose OpenClaw node connection and pairing failures for Android, iOS, and macOS companion apps. Use when QR/setup code/manual connect fails, local Wi-Fi works but VPS/tailnet does not, or errors mention pairing required, unauthorized, bootstrap token invalid or expired, gateway.bind, gateway.remote.url, Tailscale, or plugins.entries.device-pair.config.publicUrl.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/node-connect/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-creator</name>\n    <description>Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude&apos;s capabilities with specialized knowledge, workflows, or tool integrations.</description>\n    <location>~/.agents/skills/skill-creator-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>summarize</name>\n    <description>Summarize or extract text/transcripts from URLs, podcasts, and local files (great fallback for “transcribe this YouTube/video”).</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/summarize/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>tmux</name>\n    <description>Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.</description>\n    <location>~/.agents/skills/tmux-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>video-frames</name>\n    <description>Extract frames or short clips from videos using ffmpeg.</description>\n    <location>~/.agents/skills/video-frames-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>weather</name>\n    <description>Get current weather and forecasts via wttr.in or Open-Meteo. Use when: user asks about weather, temperature, or forecasts for any location. NOT for: historical weather data, severe weather alerts, or detailed meteorological analysis. No API key needed.</description>\n    <location>/opt/homebrew/lib/node_modules/openclaw/skills/weather/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>a-stock-analysis</name>\n    <description>A股实时行情与分时量能分析。获取沪深股票实时价格、涨跌、成交量，分析分时量能分布（早盘/尾盘放量）、主力动向（抢筹/出货信号）、涨停封单。支持持仓管理和盈亏分析。Use when: (1) 查询A股实时行情, (2) 分析主力资金动向, (3) 查看分时成交量分布, (4) 管理股票持仓, (5) 分析持仓盈亏。</description>\n    <location>~/.agents/skills/a-stock-analysis-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>self-reflection</name>\n    <description>Periodic self-reflection on recent sessions. Analyzes what went well, what went wrong, and writes concise, actionable insights to the appropriate workspace files. Designed to run as a cron job.</description>\n    <location>~/.agents/skills/agent-self-reflection-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>aminer-data-search</name>\n    <description>使用 AMiner 开放平台 API 进行学术数据查询与分析。当用户需要查询学者信息、论文详情、机构数据、期刊内容或专利信息时使用此 skill。 触发场景：提到 AMiner、学术数据查询、查论文/学者/机构/期刊/专利、学术问答搜索、引用分析、科研机构分析、学者画像、论文引用链、期刊投稿分析等。 支持 6 大组合工作流（学者全景分析、论文深度挖掘、机构研究力分析、期刊论文监控、学术智能问答、专利链分析）以及 28 个独立 API 的直接调用。 即使用户只说&quot;帮我查一下 XXX 学者&quot;或&quot;找找关于 XXX 的论文&quot;，也应主动使用此 skill。</description>\n    <location>~/.agents/skills/aminer-open-academic-1.0.5/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>architecture-designer</name>\n    <description>Use when designing new system architecture, reviewing existing designs, or making architectural decisions. Invoke for system design, architecture review, design patterns, ADRs, scalability planning.</description>\n    <location>~/.agents/skills/architecture-designer-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>autoglm-deepresearch</name>\n    <description>对用户提出的课题进行深度研究和调研，输出结构化的深度报告。当用户需要深入了解某个话题、做行业调研、专题研究、竞品分析等场景时使用此 skill。 与普通搜索不同，deepresearch 会先做少量定向搜索，再对少量关键页面进行深度阅读，过程中优先展示中间发现，最后再做总结，避免因调用次数过多导致响应过慢。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。</description>\n    <location>~/.agents/skills/autoglm-deepresearch/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>autoglm-generate-image</name>\n    <description>使用 AutoGLM 文生图接口，根据用户输入的文字描述生成图片。当用户需要生成图片、文字转图片、AI绘图等场景时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。</description>\n    <location>~/.agents/skills/autoglm-generate-image/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>autoglm-open-link</name>\n    <description>使用 AutoGLM Open Link 接口打开指定网页并提取页面正文内容。当用户需要读取某个网页详情、提取文章全文、抓取页面正文做摘要或分析时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。</description>\n    <location>~/.agents/skills/autoglm-open-link/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>autoglm-search-image</name>\n    <description>使用 AutoGLM 搜图接口，根据用户输入的关键词搜索相关图片。当用户需要搜索图片、查找图片素材等场景时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。</description>\n    <location>~/.agents/skills/autoglm-search-image/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>autoglm-websearch</name>\n    <description>使用 AutoGLM Web Search 接口进行网络信息搜索。当用户需要联网搜索、查询最新资讯、检索网页内容或获取实时信息时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。</description>\n    <location>~/.agents/skills/autoglm-websearch/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>automation-workflows</name>\n    <description>Design and implement automation workflows to save time and scale operations as a solopreneur. Use when identifying repetitive tasks to automate, building workflows across tools, setting up triggers and actions, or optimizing existing automations. Covers automation opportunity identification, workflow design, tool selection (Zapier, Make, n8n), testing, and maintenance. Trigger on &quot;automate&quot;, &quot;automation&quot;, &quot;workflow automation&quot;, &quot;save time&quot;, &quot;reduce manual work&quot;, &quot;automate my business&quot;, &quot;no-code automation&quot;.</description>\n    <location>~/.agents/skills/automation-workflows-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>backtest-expert</name>\n    <description>Expert guidance for systematic backtesting of trading strategies. Use when developing, testing, stress-testing, or validating quantitative trading strategies. Covers &quot;beating ideas to death&quot; methodology, parameter robustness testing, slippage modeling, bias prevention, and interpreting backtest results. Applicable when user asks about backtesting, strategy validation, robustness testing, avoiding overfitting, or systematic trading development.</description>\n    <location>~/.agents/skills/backtest-expert-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>blog-writer</name>\n    <description>This skill should be used when writing blog posts, articles, or long-form content in the writer&apos;s distinctive writing style. It produces authentic, opinionated content that matches the writer&apos;s voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer&apos;s perspective on AI, productivity, sales, marketing, or technology topics.</description>\n    <location>~/.agents/skills/blog-writer-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>brainstorming</name>\n    <description>You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.</description>\n    <location>~/.agents/skills/brainstorming-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>clawdefender</name>\n    <description>Security scanner and input sanitizer for AI agents. Detects prompt injection, command injection, SSRF, credential exfiltration, and path traversal attacks. Use when (1) installing new skills from ClawHub, (2) processing external input like emails, calendar events, Trello cards, or API responses, (3) validating URLs before fetching, (4) running security audits on your workspace. Protects agents from malicious content in untrusted data sources.</description>\n    <location>~/.agents/skills/clawdefender-1/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>clawhub-skill-vetting</name>\n    <description>Vet ClawHub skills before installation. Use when the user asks about evaluating, auditing, or safely installing OpenClaw/ClawHub skills, or when a skill’s trustworthiness is in question.</description>\n    <location>~/.agents/skills/clawhub-skill-vetting/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>Code</name>\n    <description>Coding workflow with planning, implementation, verification, and testing for clean software development.</description>\n    <location>~/.agents/skills/code-1.0.4/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>content-strategy</name>\n    <description>Build and execute a content marketing strategy for a solopreneur business. Use when planning what content to create, deciding on content formats and channels, building a content calendar, measuring content performance, or systematizing content production. Covers audience research for content, content pillars, distribution strategy, repurposing workflows, and metrics. Trigger on &quot;content strategy&quot;, &quot;content marketing&quot;, &quot;what content should I create&quot;, &quot;content plan&quot;, &quot;content calendar&quot;, &quot;content ideas&quot;, &quot;content distribution&quot;, &quot;grow through content&quot;.</description>\n    <location>~/.agents/skills/content-strategy-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>copywriting</name>\n    <description>Write persuasive copy for landing pages, emails, ads, sales pages, and marketing materials. Use when you need to write headlines, CTAs, product descriptions, ad copy, email sequences, or any text meant to drive action. Covers copywriting formulas (AIDA, PAS, FAB), headline writing, emotional triggers, objection handling in copy, and A/B testing. Trigger on &quot;write copy&quot;, &quot;copywriting&quot;, &quot;landing page copy&quot;, &quot;headline&quot;, &quot;write a sales page&quot;, &quot;ad copy&quot;, &quot;email copy&quot;, &quot;persuasive writing&quot;, &quot;how to write [marketing text]&quot;.</description>\n    <location>~/.agents/skills/copywriting-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>executing-plans</name>\n    <description>Use when you have a written implementation plan to execute in a separate session with review checkpoints</description>\n    <location>~/.agents/skills/executing-plans-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-chat-history</name>\n    <description>Fetch and summarize Feishu group chat history. Use when the user asks to read, review, or summarize messages from a Feishu group chat. Triggers: &quot;看群聊记录&quot;, &quot;群里聊了啥&quot;, &quot;帮我看看这个群&quot;, &quot;群消息历史&quot;, &quot;chat history&quot;, &quot;what did the group discuss&quot;. NOT for: sending messages (use message tool), reading documents (use feishu-doc skill), or wiki operations (use feishu-wiki skill).</description>\n    <location>~/.agents/skills/feishu-chat-history/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-cron-reminder</name>\n    <description>Create cron jobs that reliably deliver reminders to Feishu (飞书) chats. Use when the user asks to set up scheduled reminders, periodic notifications, or any recurring task that should send messages to a Feishu conversation. Triggers: &apos;飞书定时提醒&apos;, &apos;定时任务发飞书&apos;, &apos;cron reminder to feishu&apos;, &apos;每小时提醒&apos;, &apos;scheduled feishu message&apos;.</description>\n    <location>~/.agents/skills/feishu-cron-reminder/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-screenshot</name>\n    <description>Capture macOS screenshots and send to Feishu. Use when the user asks to take a screenshot and share it via Feishu. Triggers: &quot;截个屏发飞书&quot;, &quot;截屏&quot;, &quot;screenshot&quot;, &quot;take a screenshot and send&quot;. NOT for: sending existing files (use feishu-send-file skill), or sending text messages (use message tool).</description>\n    <location>~/.agents/skills/feishu-screenshot/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>feishu-send-file</name>\n    <description>Send files to a Feishu group or user via REST API. Use when the user explicitly asks to send a file, attachment, or document to a Feishu chat/group. Triggers: &quot;发文件到飞书&quot;, &quot;把这个文件发到群里&quot;, &quot;send file to feishu&quot;, &quot;发个附件&quot;. NOT for: sending text messages (use message tool), sending images/screenshots (use feishu-screenshot skill), or reading documents (use feishu-doc skill).</description>\n    <location>~/.agents/skills/feishu-send-file/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>FFmpeg Video Editor</name>\n    <description>Generate FFmpeg commands from natural language video editing requests - cut, trim, convert, compress, change aspect ratio, extract audio, and more.</description>\n    <location>~/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>find-skills</name>\n    <description>Helps users discover and install agent skills when they ask questions like &quot;how do I do X&quot;, &quot;find a skill for X&quot;, &quot;is there a skill that can...&quot;, or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.</description>\n    <location>~/.agents/skills/find-skills/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>frontend-design</name>\n    <description>Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when building web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.</description>\n    <location>~/.agents/skills/frontend-design-3-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>git-essentials</name>\n    <description>Essential Git commands and workflows for version control, branching, and collaboration.</description>\n    <location>~/.agents/skills/git-essentials-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>interview-designer</name>\n    <description>Analyze resumes and design interview strategies using evidence-based methodology. Transforms interview prep from &quot;read resume → ask questions&quot; into &quot;define standard → forensic evidence → future simulation&quot;. Combines Geoff Smart&apos;s Topgrading, Lou Adler&apos;s performance-based hiring, and Daniel Kahneman&apos;s bias control. Use when preparing for interviews, creating structured interview guides, or designing questions to validate candidate competencies.</description>\n    <location>~/.agents/skills/interview-designer-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>Market Research</name>\n    <description>Size markets, analyze competitors, and validate opportunities with practical frameworks and free data sources.</description>\n    <location>~/.agents/skills/market-research-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>Memory</name>\n    <description>Infinite organized memory that complements your agent&apos;s built-in memory with unlimited categorized storage.</description>\n    <location>~/.agents/skills/memory-1.0.2/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>notion-api</name>\n    <description>This skill provides comprehensive instructions for interacting with the Notion API via REST calls. This skill should be used whenever the user asks to interact with Notion, including reading, creating, updating, or deleting pages, databases, blocks, comments, or any other Notion content. The skill covers authentication, all available endpoints, pagination, error handling, and best practices.</description>\n    <location>~/.agents/skills/notion-api/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>obsidian-ontology-sync</name>\n    <description>Bidirectional sync between Obsidian PKM (human-friendly notes) and structured ontology (machine-queryable graph). Automatically extracts entities and relationships from markdown, maintains ontology graph, and provides feedback to improve note structure. Run sync every few hours via cron.</description>\n    <location>~/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>opencode-controller</name>\n    <description>Control and operate Opencode via slash commands. Use this skill to manage sessions, select models, switch agents (plan/build), and coordinate coding through Opencode.</description>\n    <location>~/.agents/skills/opencode-controller-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>research-paper-writer</name>\n    <description>Creates formal academic research papers following IEEE/ACM formatting standards with proper structure, citations, and scholarly writing style. Use when the user asks to write a research paper, academic paper, or conference paper on any topic.</description>\n    <location>~/.agents/skills/research-paper-writer-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>security-auditor</name>\n    <description>Use when reviewing code for security vulnerabilities, implementing authentication flows, auditing OWASP Top 10, configuring CORS/CSP headers, handling secrets, input validation, SQL injection prevention, XSS protection, or any security-related code review.</description>\n    <location>~/.agents/skills/security-auditor-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>Self-Improving Agent (With Self-Reflection)</name>\n    <description>Self-reflection + Self-criticism + learning from corrections. Agent evaluates its own work, catches mistakes, and improves permanently.</description>\n    <location>~/.agents/skills/self-improving-1.1.3/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>self-improving-agent</name>\n    <description>A universal self-improving agent that learns from ALL skill experiences. Uses multi-memory architecture (semantic + episodic + working) to continuously evolve the codebase. Auto-triggers on skill completion/error with hooks-based self-correction.</description>\n    <location>~/.agents/skills/self-improving-agent/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>SEO (Site Audit + Content Writer + Competitor Analysis)</name>\n    <description>SEO specialist agent with site audits, content writing, keyword research, technical fixes, link building, and ranking strategies.</description>\n    <location>~/.agents/skills/seo-1.0.3/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>seo-content-writer</name>\n    <description>Use when the user asks to &quot;write SEO content&quot;, &quot;create a blog post&quot;, &quot;write an article&quot;, &quot;content writing&quot;, &quot;draft optimized content&quot;, &quot;write me an article&quot;, &quot;create a blog post about&quot;, &quot;help me write SEO content&quot;, or &quot;draft content for&quot;. Creates high-quality, SEO-optimized content that ranks in search engines. Applies on-page SEO best practices, keyword optimization, and content structure for maximum visibility and engagement. For AI citation optimization, see geo-content-optimizer. For updating existing content, see content-refresher.</description>\n    <location>~/.agents/skills/seo-content-writer-2.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-vetter</name>\n    <description>Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns.</description>\n    <location>~/.agents/skills/skill-vetter-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>social-content</name>\n    <description>When the user wants help creating, scheduling, or optimizing social media content for LinkedIn, Twitter/X, Instagram, TikTok, Facebook, or other platforms. Also use when the user mentions &apos;LinkedIn post,&apos; &apos;Twitter thread,&apos; &apos;social media,&apos; &apos;content calendar,&apos; &apos;social scheduling,&apos; &apos;engagement,&apos; or &apos;viral content.&apos; This skill covers content creation, repurposing, and platform-specific strategies.</description>\n    <location>~/.agents/skills/social-content-generator-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>Social Media Scheduler</name>\n    <description>Plan, draft, and organize social media content across platforms. Create content calendars, write platform-optimized posts, and maintain consistent posting schedules.</description>\n    <location>~/.agents/skills/social-media-scheduler-1.0.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>supabase-postgres-best-practices</name>\n    <description>Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.</description>\n    <location>~/.agents/skills/supabase-postgres-best-practices/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>tavily-search</name>\n    <description>Tavily AI search API - Optimized search for AI agents. Use when searching the web for current information, news, facts, or any task requiring real-time data.</description>\n    <location>~/.agents/skills/tavily-search/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>ui-ux-pro-max</name>\n    <description>UI/UX design intelligence and implementation guidance for building polished interfaces. Use when the user asks for UI design, UX flows, information architecture, visual style direction, design systems/tokens, component specs, copy/microcopy, accessibility, or to generate/critique/refine frontend UI (HTML/CSS/JS, React, Next.js, Vue, Svelte, Tailwind). Includes workflows for (1) generating new UI layouts and styling, (2) improving existing UI/UX, (3) producing design-system tokens and component guidelines, and (4) turning UX recommendations into concrete code changes.</description>\n    <location>~/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>writing-plans</name>\n    <description>Use when you have a spec or requirements for a multi-step task, before touching code</description>\n    <location>~/.agents/skills/writing-plans-0.1.0/SKILL.md</location>\n  </skill>\n</available_skills>",
+      "skills": [
+        {
+          "name": "feishu-doc"
+        },
+        {
+          "name": "feishu-drive"
+        },
+        {
+          "name": "feishu-perm"
+        },
+        {
+          "name": "feishu-wiki"
+        },
+        {
+          "name": "1password"
+        },
+        {
+          "name": "apple-notes",
+          "requiredEnv": []
+        },
+        {
+          "name": "clawflow"
+        },
+        {
+          "name": "clawflow-inbox-triage"
+        },
+        {
+          "name": "gh-issues",
+          "primaryEnv": "GH_TOKEN",
+          "requiredEnv": []
+        },
+        {
+          "name": "github",
+          "requiredEnv": []
+        },
+        {
+          "name": "gog",
+          "requiredEnv": []
+        },
+        {
+          "name": "healthcheck"
+        },
+        {
+          "name": "himalaya",
+          "requiredEnv": []
+        },
+        {
+          "name": "node-connect"
+        },
+        {
+          "name": "skill-creator"
+        },
+        {
+          "name": "summarize",
+          "requiredEnv": []
+        },
+        {
+          "name": "tmux"
+        },
+        {
+          "name": "video-frames"
+        },
+        {
+          "name": "weather",
+          "requiredEnv": []
+        },
+        {
+          "name": "a-stock-analysis"
+        },
+        {
+          "name": "self-reflection"
+        },
+        {
+          "name": "aminer-data-search"
+        },
+        {
+          "name": "architecture-designer"
+        },
+        {
+          "name": "autoglm-deepresearch"
+        },
+        {
+          "name": "autoglm-generate-image"
+        },
+        {
+          "name": "autoglm-open-link"
+        },
+        {
+          "name": "autoglm-search-image"
+        },
+        {
+          "name": "autoglm-websearch"
+        },
+        {
+          "name": "automation-workflows"
+        },
+        {
+          "name": "backtest-expert"
+        },
+        {
+          "name": "blog-writer"
+        },
+        {
+          "name": "brainstorming"
+        },
+        {
+          "name": "clawdefender"
+        },
+        {
+          "name": "clawhub-skill-vetting"
+        },
+        {
+          "name": "Code"
+        },
+        {
+          "name": "content-strategy"
+        },
+        {
+          "name": "copywriting"
+        },
+        {
+          "name": "executing-plans"
+        },
+        {
+          "name": "feishu-chat-history"
+        },
+        {
+          "name": "feishu-cron-reminder"
+        },
+        {
+          "name": "feishu-screenshot"
+        },
+        {
+          "name": "feishu-send-file"
+        },
+        {
+          "name": "FFmpeg Video Editor"
+        },
+        {
+          "name": "find-skills"
+        },
+        {
+          "name": "frontend-design"
+        },
+        {
+          "name": "git-essentials"
+        },
+        {
+          "name": "interview-designer"
+        },
+        {
+          "name": "Market Research"
+        },
+        {
+          "name": "Memory"
+        },
+        {
+          "name": "notion-api"
+        },
+        {
+          "name": "obsidian-ontology-sync",
+          "requiredEnv": []
+        },
+        {
+          "name": "opencode-controller"
+        },
+        {
+          "name": "research-paper-writer"
+        },
+        {
+          "name": "security-auditor"
+        },
+        {
+          "name": "Self-Improving Agent (With Self-Reflection)"
+        },
+        {
+          "name": "self-improving-agent"
+        },
+        {
+          "name": "SEO (Site Audit + Content Writer + Competitor Analysis)"
+        },
+        {
+          "name": "seo-content-writer"
+        },
+        {
+          "name": "skill-vetter"
+        },
+        {
+          "name": "social-content"
+        },
+        {
+          "name": "Social Media Scheduler"
+        },
+        {
+          "name": "supabase-postgres-best-practices"
+        },
+        {
+          "name": "tavily-search"
+        },
+        {
+          "name": "ui-ux-pro-max"
+        },
+        {
+          "name": "writing-plans"
+        }
+      ],
+      "resolvedSkills": [
+        {
+          "name": "feishu-doc",
+          "description": "Fetch content from Feishu (Lark) Wiki, Docs, Sheets, and Bitable. Automatically resolves Wiki URLs to real entities and converts content to Markdown.",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-doc-1.2.7"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-drive",
+          "description": "飞书云空间文件管理 Skill。上传/下载/移动/搜索文件、创建文件夹、获取元数据等。当需要管理飞书云空间中的文件和文件夹时使用此 Skill。",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-drive-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-perm",
+          "description": "Feishu permission management for documents and files. Activate when user mentions sharing, permissions, collaborators.",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-perm",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-perm/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-perm"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-wiki",
+          "description": "Feishu knowledge base navigation. Activate when user mentions knowledge base, wiki, or wiki links.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/dist/extensions/feishu/skills/feishu-wiki/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/dist/extensions/feishu/skills/feishu-wiki",
+          "source": "openclaw-extra",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/dist/extensions/feishu/skills/feishu-wiki/SKILL.md",
+            "source": "openclaw-extra",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/dist/extensions/feishu/skills/feishu-wiki"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "1password",
+          "description": "Set up and use 1Password CLI (op). Use when installing the CLI, enabling desktop app integration, signing in (single or multi-account), or reading/injecting/running secrets via op.",
+          "filePath": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/1password-1.0.1",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/1password-1.0.1/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/1password-1.0.1"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "apple-notes",
+          "description": "Manage Apple Notes via the `memo` CLI on macOS (create, view, edit, delete, search, move, and export notes). Use when a user asks OpenClaw to add a note, list notes, search notes, or manage note folders.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/apple-notes/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/apple-notes",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/apple-notes/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/apple-notes"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "clawflow",
+          "description": "Use when work should span one or more detached tasks but still behave like one job with a single owner context. ClawFlow is the runtime substrate under authoring layers like Lobster, acpx, or plain code. Keep conditional logic in the caller; use ClawFlow for flow identity, waiting, outputs, and user-facing emergence.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "clawflow-inbox-triage",
+          "description": "Example ClawFlow authoring pattern for inbox triage. Use when messages need different treatment based on intent, with some routes notifying immediately, some waiting on outside answers, and others rolling into a later summary.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow-inbox-triage/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow-inbox-triage",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow-inbox-triage/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/clawflow-inbox-triage"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "gh-issues",
+          "description": "Fetch GitHub issues, spawn sub-agents to implement fixes and open PRs, then monitor and address PR review comments. Usage: /gh-issues [owner/repo] [--label bug] [--limit 5] [--milestone v1.0] [--assignee @me] [--fork user/repo] [--watch] [--interval 5] [--reviews-only] [--cron] [--dry-run] [--model glm-5] [--notify-channel -1002381931352]",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/gh-issues/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/gh-issues",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/gh-issues/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/gh-issues"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "github",
+          "description": "GitHub operations via `gh` CLI: issues, PRs, CI runs, code review, API queries. Use when: (1) checking PR status or CI, (2) creating/commenting on issues, (3) listing/filtering PRs or issues, (4) viewing run logs. NOT for: complex web UI interactions requiring manual browser flows (use browser tooling when available), bulk operations across many repos (script with gh api), or when gh auth is not configured.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/github/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/github",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/github/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/github"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "gog",
+          "description": "Google Workspace CLI for Gmail, Calendar, Drive, Contacts, Sheets, and Docs.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/gog/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/gog",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/gog/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/gog"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "healthcheck",
+          "description": "Host security hardening and risk-tolerance configuration for OpenClaw deployments. Use when a user asks for security audits, firewall/SSH/update hardening, risk posture, exposure review, OpenClaw cron scheduling for periodic checks, or version status checks on a machine running OpenClaw (laptop, workstation, Pi, VPS).",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/healthcheck/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/healthcheck",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/healthcheck/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/healthcheck"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "himalaya",
+          "description": "CLI to manage emails via IMAP/SMTP. Use `himalaya` to list, read, write, reply, forward, search, and organize emails from the terminal. Supports multiple accounts and message composition with MML (MIME Meta Language).",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/himalaya/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/himalaya",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/himalaya/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/himalaya"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "node-connect",
+          "description": "Diagnose OpenClaw node connection and pairing failures for Android, iOS, and macOS companion apps. Use when QR/setup code/manual connect fails, local Wi-Fi works but VPS/tailnet does not, or errors mention pairing required, unauthorized, bootstrap token invalid or expired, gateway.bind, gateway.remote.url, Tailscale, or plugins.entries.device-pair.config.publicUrl.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/node-connect/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/node-connect",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/node-connect/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/node-connect"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "skill-creator",
+          "description": "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.",
+          "filePath": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/skill-creator-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/skill-creator-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/skill-creator-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "summarize",
+          "description": "Summarize or extract text/transcripts from URLs, podcasts, and local files (great fallback for “transcribe this YouTube/video”).",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/summarize/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/summarize",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/summarize/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/summarize"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "tmux",
+          "description": "Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.",
+          "filePath": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/tmux-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/tmux-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/tmux-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "video-frames",
+          "description": "Extract frames or short clips from videos using ffmpeg.",
+          "filePath": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/video-frames-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/video-frames-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/video-frames-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "weather",
+          "description": "Get current weather and forecasts via wttr.in or Open-Meteo. Use when: user asks about weather, temperature, or forecasts for any location. NOT for: historical weather data, severe weather alerts, or detailed meteorological analysis. No API key needed.",
+          "filePath": "/opt/homebrew/lib/node_modules/openclaw/skills/weather/SKILL.md",
+          "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/weather",
+          "source": "openclaw-bundled",
+          "sourceInfo": {
+            "path": "/opt/homebrew/lib/node_modules/openclaw/skills/weather/SKILL.md",
+            "source": "openclaw-bundled",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/opt/homebrew/lib/node_modules/openclaw/skills/weather"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "a-stock-analysis",
+          "description": "A股实时行情与分时量能分析。获取沪深股票实时价格、涨跌、成交量，分析分时量能分布（早盘/尾盘放量）、主力动向（抢筹/出货信号）、涨停封单。支持持仓管理和盈亏分析。Use when: (1) 查询A股实时行情, (2) 分析主力资金动向, (3) 查看分时成交量分布, (4) 管理股票持仓, (5) 分析持仓盈亏。",
+          "filePath": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/a-stock-analysis-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "self-reflection",
+          "description": "Periodic self-reflection on recent sessions. Analyzes what went well, what went wrong, and writes concise, actionable insights to the appropriate workspace files. Designed to run as a cron job.",
+          "filePath": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/agent-self-reflection-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "aminer-data-search",
+          "description": "使用 AMiner 开放平台 API 进行学术数据查询与分析。当用户需要查询学者信息、论文详情、机构数据、期刊内容或专利信息时使用此 skill。 触发场景：提到 AMiner、学术数据查询、查论文/学者/机构/期刊/专利、学术问答搜索、引用分析、科研机构分析、学者画像、论文引用链、期刊投稿分析等。 支持 6 大组合工作流（学者全景分析、论文深度挖掘、机构研究力分析、期刊论文监控、学术智能问答、专利链分析）以及 28 个独立 API 的直接调用。 即使用户只说\"帮我查一下 XXX 学者\"或\"找找关于 XXX 的论文\"，也应主动使用此 skill。",
+          "filePath": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/aminer-open-academic-1.0.5"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "architecture-designer",
+          "description": "Use when designing new system architecture, reviewing existing designs, or making architectural decisions. Invoke for system design, architecture review, design patterns, ADRs, scalability planning.",
+          "filePath": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/architecture-designer-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "autoglm-deepresearch",
+          "description": "对用户提出的课题进行深度研究和调研，输出结构化的深度报告。当用户需要深入了解某个话题、做行业调研、专题研究、竞品分析等场景时使用此 skill。 与普通搜索不同，deepresearch 会先做少量定向搜索，再对少量关键页面进行深度阅读，过程中优先展示中间发现，最后再做总结，避免因调用次数过多导致响应过慢。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。",
+          "filePath": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/autoglm-deepresearch",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/autoglm-deepresearch/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/autoglm-deepresearch"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "autoglm-generate-image",
+          "description": "使用 AutoGLM 文生图接口，根据用户输入的文字描述生成图片。当用户需要生成图片、文字转图片、AI绘图等场景时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。",
+          "filePath": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/autoglm-generate-image",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/autoglm-generate-image/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/autoglm-generate-image"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "autoglm-open-link",
+          "description": "使用 AutoGLM Open Link 接口打开指定网页并提取页面正文内容。当用户需要读取某个网页详情、提取文章全文、抓取页面正文做摘要或分析时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。",
+          "filePath": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/autoglm-open-link",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/autoglm-open-link/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/autoglm-open-link"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "autoglm-search-image",
+          "description": "使用 AutoGLM 搜图接口，根据用户输入的关键词搜索相关图片。当用户需要搜索图片、查找图片素材等场景时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。",
+          "filePath": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/autoglm-search-image",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/autoglm-search-image/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/autoglm-search-image"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "autoglm-websearch",
+          "description": "使用 AutoGLM Web Search 接口进行网络信息搜索。当用户需要联网搜索、查询最新资讯、检索网页内容或获取实时信息时使用此 skill。 Token 通过本地服务 http://127.0.0.1:53699/get_token 自动获取，无需手动配置环境变量。",
+          "filePath": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/autoglm-websearch",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/autoglm-websearch/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/autoglm-websearch"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "automation-workflows",
+          "description": "Design and implement automation workflows to save time and scale operations as a solopreneur. Use when identifying repetitive tasks to automate, building workflows across tools, setting up triggers and actions, or optimizing existing automations. Covers automation opportunity identification, workflow design, tool selection (Zapier, Make, n8n), testing, and maintenance. Trigger on \"automate\", \"automation\", \"workflow automation\", \"save time\", \"reduce manual work\", \"automate my business\", \"no-code automation\".",
+          "filePath": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/automation-workflows-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "backtest-expert",
+          "description": "Expert guidance for systematic backtesting of trading strategies. Use when developing, testing, stress-testing, or validating quantitative trading strategies. Covers \"beating ideas to death\" methodology, parameter robustness testing, slippage modeling, bias prevention, and interpreting backtest results. Applicable when user asks about backtesting, strategy validation, robustness testing, avoiding overfitting, or systematic trading development.",
+          "filePath": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/backtest-expert-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "blog-writer",
+          "description": "This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics.",
+          "filePath": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/blog-writer-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/blog-writer-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/blog-writer-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "brainstorming",
+          "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+          "filePath": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/brainstorming-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/brainstorming-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/brainstorming-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "clawdefender",
+          "description": "Security scanner and input sanitizer for AI agents. Detects prompt injection, command injection, SSRF, credential exfiltration, and path traversal attacks. Use when (1) installing new skills from ClawHub, (2) processing external input like emails, calendar events, Trello cards, or API responses, (3) validating URLs before fetching, (4) running security audits on your workspace. Protects agents from malicious content in untrusted data sources.",
+          "filePath": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/clawdefender-1",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/clawdefender-1/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/clawdefender-1"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "clawhub-skill-vetting",
+          "description": "Vet ClawHub skills before installation. Use when the user asks about evaluating, auditing, or safely installing OpenClaw/ClawHub skills, or when a skill’s trustworthiness is in question.",
+          "filePath": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/clawhub-skill-vetting",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/clawhub-skill-vetting/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/clawhub-skill-vetting"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "Code",
+          "description": "Coding workflow with planning, implementation, verification, and testing for clean software development.",
+          "filePath": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/code-1.0.4",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/code-1.0.4/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/code-1.0.4"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "content-strategy",
+          "description": "Build and execute a content marketing strategy for a solopreneur business. Use when planning what content to create, deciding on content formats and channels, building a content calendar, measuring content performance, or systematizing content production. Covers audience research for content, content pillars, distribution strategy, repurposing workflows, and metrics. Trigger on \"content strategy\", \"content marketing\", \"what content should I create\", \"content plan\", \"content calendar\", \"content ideas\", \"content distribution\", \"grow through content\".",
+          "filePath": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/content-strategy-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/content-strategy-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/content-strategy-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "copywriting",
+          "description": "Write persuasive copy for landing pages, emails, ads, sales pages, and marketing materials. Use when you need to write headlines, CTAs, product descriptions, ad copy, email sequences, or any text meant to drive action. Covers copywriting formulas (AIDA, PAS, FAB), headline writing, emotional triggers, objection handling in copy, and A/B testing. Trigger on \"write copy\", \"copywriting\", \"landing page copy\", \"headline\", \"write a sales page\", \"ad copy\", \"email copy\", \"persuasive writing\", \"how to write [marketing text]\".",
+          "filePath": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/copywriting-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/copywriting-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/copywriting-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "executing-plans",
+          "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+          "filePath": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/executing-plans-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/executing-plans-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/executing-plans-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-chat-history",
+          "description": "Fetch and summarize Feishu group chat history. Use when the user asks to read, review, or summarize messages from a Feishu group chat. Triggers: \"看群聊记录\", \"群里聊了啥\", \"帮我看看这个群\", \"群消息历史\", \"chat history\", \"what did the group discuss\". NOT for: sending messages (use message tool), reading documents (use feishu-doc skill), or wiki operations (use feishu-wiki skill).",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-chat-history",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-chat-history/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-chat-history"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-cron-reminder",
+          "description": "Create cron jobs that reliably deliver reminders to Feishu (飞书) chats. Use when the user asks to set up scheduled reminders, periodic notifications, or any recurring task that should send messages to a Feishu conversation. Triggers: '飞书定时提醒', '定时任务发飞书', 'cron reminder to feishu', '每小时提醒', 'scheduled feishu message'.",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-cron-reminder",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-cron-reminder/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-cron-reminder"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-screenshot",
+          "description": "Capture macOS screenshots and send to Feishu. Use when the user asks to take a screenshot and share it via Feishu. Triggers: \"截个屏发飞书\", \"截屏\", \"screenshot\", \"take a screenshot and send\". NOT for: sending existing files (use feishu-send-file skill), or sending text messages (use message tool).",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-screenshot",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-screenshot/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-screenshot"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "feishu-send-file",
+          "description": "Send files to a Feishu group or user via REST API. Use when the user explicitly asks to send a file, attachment, or document to a Feishu chat/group. Triggers: \"发文件到飞书\", \"把这个文件发到群里\", \"send file to feishu\", \"发个附件\". NOT for: sending text messages (use message tool), sending images/screenshots (use feishu-screenshot skill), or reading documents (use feishu-doc skill).",
+          "filePath": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/feishu-send-file",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/feishu-send-file/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/feishu-send-file"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "FFmpeg Video Editor",
+          "description": "Generate FFmpeg commands from natural language video editing requests - cut, trim, convert, compress, change aspect ratio, extract audio, and more.",
+          "filePath": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/ffmpeg-video-editor-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "find-skills",
+          "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.",
+          "filePath": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/find-skills",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/find-skills/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/find-skills"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "frontend-design",
+          "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when building web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.",
+          "filePath": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/frontend-design-3-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "git-essentials",
+          "description": "Essential Git commands and workflows for version control, branching, and collaboration.",
+          "filePath": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/git-essentials-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/git-essentials-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/git-essentials-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "interview-designer",
+          "description": "Analyze resumes and design interview strategies using evidence-based methodology. Transforms interview prep from \"read resume → ask questions\" into \"define standard → forensic evidence → future simulation\". Combines Geoff Smart's Topgrading, Lou Adler's performance-based hiring, and Daniel Kahneman's bias control. Use when preparing for interviews, creating structured interview guides, or designing questions to validate candidate competencies.",
+          "filePath": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/interview-designer-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/interview-designer-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/interview-designer-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "Market Research",
+          "description": "Size markets, analyze competitors, and validate opportunities with practical frameworks and free data sources.",
+          "filePath": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/market-research-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/market-research-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/market-research-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "Memory",
+          "description": "Infinite organized memory that complements your agent's built-in memory with unlimited categorized storage.",
+          "filePath": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/memory-1.0.2",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/memory-1.0.2/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/memory-1.0.2"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "notion-api",
+          "description": "This skill provides comprehensive instructions for interacting with the Notion API via REST calls. This skill should be used whenever the user asks to interact with Notion, including reading, creating, updating, or deleting pages, databases, blocks, comments, or any other Notion content. The skill covers authentication, all available endpoints, pagination, error handling, and best practices.",
+          "filePath": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/notion-api",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/notion-api/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/notion-api"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "obsidian-ontology-sync",
+          "description": "Bidirectional sync between Obsidian PKM (human-friendly notes) and structured ontology (machine-queryable graph). Automatically extracts entities and relationships from markdown, maintains ontology graph, and provides feedback to improve note structure. Run sync every few hours via cron.",
+          "filePath": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/obsidian-ontology-sync-1.0.1"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "opencode-controller",
+          "description": "Control and operate Opencode via slash commands. Use this skill to manage sessions, select models, switch agents (plan/build), and coordinate coding through Opencode.",
+          "filePath": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/opencode-controller-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "research-paper-writer",
+          "description": "Creates formal academic research papers following IEEE/ACM formatting standards with proper structure, citations, and scholarly writing style. Use when the user asks to write a research paper, academic paper, or conference paper on any topic.",
+          "filePath": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/research-paper-writer-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "security-auditor",
+          "description": "Use when reviewing code for security vulnerabilities, implementing authentication flows, auditing OWASP Top 10, configuring CORS/CSP headers, handling secrets, input validation, SQL injection prevention, XSS protection, or any security-related code review.",
+          "filePath": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/security-auditor-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/security-auditor-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/security-auditor-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "Self-Improving Agent (With Self-Reflection)",
+          "description": "Self-reflection + Self-criticism + learning from corrections. Agent evaluates its own work, catches mistakes, and improves permanently.",
+          "filePath": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/self-improving-1.1.3",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/self-improving-1.1.3/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/self-improving-1.1.3"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "self-improving-agent",
+          "description": "A universal self-improving agent that learns from ALL skill experiences. Uses multi-memory architecture (semantic + episodic + working) to continuously evolve the codebase. Auto-triggers on skill completion/error with hooks-based self-correction.",
+          "filePath": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/self-improving-agent",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/self-improving-agent/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/self-improving-agent"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "SEO (Site Audit + Content Writer + Competitor Analysis)",
+          "description": "SEO specialist agent with site audits, content writing, keyword research, technical fixes, link building, and ranking strategies.",
+          "filePath": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/seo-1.0.3",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/seo-1.0.3/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/seo-1.0.3"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "seo-content-writer",
+          "description": "Use when the user asks to \"write SEO content\", \"create a blog post\", \"write an article\", \"content writing\", \"draft optimized content\", \"write me an article\", \"create a blog post about\", \"help me write SEO content\", or \"draft content for\". Creates high-quality, SEO-optimized content that ranks in search engines. Applies on-page SEO best practices, keyword optimization, and content structure for maximum visibility and engagement. For AI citation optimization, see geo-content-optimizer. For updating existing content, see content-refresher.",
+          "filePath": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/seo-content-writer-2.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "skill-vetter",
+          "description": "Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns.",
+          "filePath": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/skill-vetter-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "social-content",
+          "description": "When the user wants help creating, scheduling, or optimizing social media content for LinkedIn, Twitter/X, Instagram, TikTok, Facebook, or other platforms. Also use when the user mentions 'LinkedIn post,' 'Twitter thread,' 'social media,' 'content calendar,' 'social scheduling,' 'engagement,' or 'viral content.' This skill covers content creation, repurposing, and platform-specific strategies.",
+          "filePath": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/social-content-generator-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "Social Media Scheduler",
+          "description": "Plan, draft, and organize social media content across platforms. Create content calendars, write platform-optimized posts, and maintain consistent posting schedules.",
+          "filePath": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/social-media-scheduler-1.0.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "supabase-postgres-best-practices",
+          "description": "Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.",
+          "filePath": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/supabase-postgres-best-practices"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "tavily-search",
+          "description": "Tavily AI search API - Optimized search for AI agents. Use when searching the web for current information, news, facts, or any task requiring real-time data.",
+          "filePath": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/tavily-search",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/tavily-search/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/tavily-search"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "ui-ux-pro-max",
+          "description": "UI/UX design intelligence and implementation guidance for building polished interfaces. Use when the user asks for UI design, UX flows, information architecture, visual style direction, design systems/tokens, component specs, copy/microcopy, accessibility, or to generate/critique/refine frontend UI (HTML/CSS/JS, React, Next.js, Vue, Svelte, Tailwind). Includes workflows for (1) generating new UI layouts and styling, (2) improving existing UI/UX, (3) producing design-system tokens and component guidelines, and (4) turning UX recommendations into concrete code changes.",
+          "filePath": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/ui-ux-pro-max-0.1.0"
+          },
+          "disableModelInvocation": false
+        },
+        {
+          "name": "writing-plans",
+          "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+          "filePath": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+          "baseDir": "/Users/binkerking/.agents/skills/writing-plans-0.1.0",
+          "source": "agents-skills-personal",
+          "sourceInfo": {
+            "path": "/Users/binkerking/.agents/skills/writing-plans-0.1.0/SKILL.md",
+            "source": "agents-skills-personal",
+            "scope": "project",
+            "origin": "top-level",
+            "baseDir": "/Users/binkerking/.agents/skills/writing-plans-0.1.0"
+          },
+          "disableModelInvocation": false
+        }
+      ],
+      "version": 0
+    },
+    "sessionFile": "/Users/binkerking/.openclaw/agents/shangshu/sessions/5b2bd2d5-9fda-4511-8efb-4b06051ba371.jsonl",
+    "status": "done",
+    "startedAt": 1775371582268,
+    "abortedLastRun": false,
+    "contextTokens": 16000,
+    "modelProvider": "bailian-cn",
+    "model": "qwen3-coder-plus",
+    "systemPromptReport": {
+      "source": "run",
+      "generatedAt": 1775371835654,
+      "sessionId": "5b2bd2d5-9fda-4511-8efb-4b06051ba371",
+      "sessionKey": "agent:shangshu:main",
+      "provider": "bailian-cn",
+      "model": "qwen3-coder-plus",
+      "workspaceDir": "/Users/binkerking/.openclaw/workspace-shangshu",
+      "bootstrapMaxChars": 20000,
+      "bootstrapTotalMaxChars": 150000,
+      "bootstrapTruncation": {
+        "warningMode": "once",
+        "warningShown": false,
+        "truncatedFiles": 0,
+        "nearLimitFiles": 0,
+        "totalNearLimit": false
+      },
+      "sandbox": {
+        "mode": "off",
+        "sandboxed": false
+      },
+      "systemPrompt": {
+        "chars": 43211,
+        "projectContextChars": 6556,
+        "nonProjectContextChars": 36655
+      },
+      "injectedWorkspaceFiles": [
+        {
+          "name": "AGENTS.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/AGENTS.md",
+          "missing": false,
+          "rawChars": 118,
+          "injectedChars": 118,
+          "truncated": false
+        },
+        {
+          "name": "SOUL.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/SOUL.md",
+          "missing": false,
+          "rawChars": 2212,
+          "injectedChars": 2212,
+          "truncated": false
+        },
+        {
+          "name": "TOOLS.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/TOOLS.md",
+          "missing": false,
+          "rawChars": 850,
+          "injectedChars": 850,
+          "truncated": false
+        },
+        {
+          "name": "IDENTITY.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/IDENTITY.md",
+          "missing": false,
+          "rawChars": 633,
+          "injectedChars": 633,
+          "truncated": false
+        },
+        {
+          "name": "USER.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/USER.md",
+          "missing": false,
+          "rawChars": 474,
+          "injectedChars": 474,
+          "truncated": false
+        },
+        {
+          "name": "HEARTBEAT.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/HEARTBEAT.md",
+          "missing": false,
+          "rawChars": 167,
+          "injectedChars": 167,
+          "truncated": false
+        },
+        {
+          "name": "BOOTSTRAP.md",
+          "path": "/Users/binkerking/.openclaw/workspace-shangshu/BOOTSTRAP.md",
+          "missing": false,
+          "rawChars": 1449,
+          "injectedChars": 1449,
+          "truncated": false
+        }
+      ],
+      "skills": {
+        "promptChars": 27549,
+        "entries": [
+          {
+            "name": "feishu-doc",
+            "blockChars": 295
+          },
+          {
+            "name": "feishu-drive",
+            "blockChars": 222
+          },
+          {
+            "name": "feishu-perm",
+            "blockChars": 260
+          },
+          {
+            "name": "feishu-wiki",
+            "blockChars": 293
+          },
+          {
+            "name": "1password",
+            "blockChars": 324
+          },
+          {
+            "name": "apple-notes",
+            "blockChars": 375
+          },
+          {
+            "name": "clawflow",
+            "blockChars": 484
+          },
+          {
+            "name": "clawflow-inbox-triage",
+            "blockChars": 418
+          },
+          {
+            "name": "gh-issues",
+            "blockChars": 508
+          },
+          {
+            "name": "github",
+            "blockChars": 572
+          },
+          {
+            "name": "gog",
+            "blockChars": 232
+          },
+          {
+            "name": "healthcheck",
+            "blockChars": 491
+          },
+          {
+            "name": "himalaya",
+            "blockChars": 383
+          },
+          {
+            "name": "node-connect",
+            "blockChars": 541
+          },
+          {
+            "name": "skill-creator",
+            "blockChars": 383
+          },
+          {
+            "name": "summarize",
+            "blockChars": 296
+          },
+          {
+            "name": "tmux",
+            "blockChars": 231
+          },
+          {
+            "name": "video-frames",
+            "blockChars": 205
+          },
+          {
+            "name": "weather",
+            "blockChars": 416
+          },
+          {
+            "name": "a-stock-analysis",
+            "blockChars": 315
+          },
+          {
+            "name": "self-reflection",
+            "blockChars": 355
+          },
+          {
+            "name": "aminer-data-search",
+            "blockChars": 460
+          },
+          {
+            "name": "architecture-designer",
+            "blockChars": 366
+          },
+          {
+            "name": "autoglm-deepresearch",
+            "blockChars": 377
+          },
+          {
+            "name": "autoglm-generate-image",
+            "blockChars": 294
+          },
+          {
+            "name": "autoglm-open-link",
+            "blockChars": 300
+          },
+          {
+            "name": "autoglm-search-image",
+            "blockChars": 286
+          },
+          {
+            "name": "autoglm-websearch",
+            "blockChars": 291
+          },
+          {
+            "name": "automation-workflows",
+            "blockChars": 748
+          },
+          {
+            "name": "backtest-expert",
+            "blockChars": 613
+          },
+          {
+            "name": "blog-writer",
+            "blockChars": 697
+          },
+          {
+            "name": "brainstorming",
+            "blockChars": 350
+          },
+          {
+            "name": "clawdefender",
+            "blockChars": 592
+          },
+          {
+            "name": "clawhub-skill-vetting",
+            "blockChars": 348
+          },
+          {
+            "name": "Code",
+            "blockChars": 238
+          },
+          {
+            "name": "content-strategy",
+            "blockChars": 792
+          },
+          {
+            "name": "copywriting",
+            "blockChars": 760
+          },
+          {
+            "name": "executing-plans",
+            "blockChars": 260
+          },
+          {
+            "name": "feishu-chat-history",
+            "blockChars": 578
+          },
+          {
+            "name": "feishu-cron-reminder",
+            "blockChars": 527
+          },
+          {
+            "name": "feishu-screenshot",
+            "blockChars": 485
+          },
+          {
+            "name": "feishu-send-file",
+            "blockChars": 558
+          },
+          {
+            "name": "FFmpeg Video Editor",
+            "blockChars": 311
+          },
+          {
+            "name": "find-skills",
+            "blockChars": 475
+          },
+          {
+            "name": "frontend-design",
+            "blockChars": 378
+          },
+          {
+            "name": "git-essentials",
+            "blockChars": 241
+          },
+          {
+            "name": "interview-designer",
+            "blockChars": 644
+          },
+          {
+            "name": "Market Research",
+            "blockChars": 266
+          },
+          {
+            "name": "Memory",
+            "blockChars": 250
+          },
+          {
+            "name": "notion-api",
+            "blockChars": 534
+          },
+          {
+            "name": "obsidian-ontology-sync",
+            "blockChars": 458
+          },
+          {
+            "name": "opencode-controller",
+            "blockChars": 330
+          },
+          {
+            "name": "research-paper-writer",
+            "blockChars": 410
+          },
+          {
+            "name": "security-auditor",
+            "blockChars": 414
+          },
+          {
+            "name": "Self-Improving Agent (With Self-Reflection)",
+            "blockChars": 318
+          },
+          {
+            "name": "self-improving-agent",
+            "blockChars": 406
+          },
+          {
+            "name": "SEO (Site Audit + Content Writer + Competitor Analysis)",
+            "blockChars": 313
+          },
+          {
+            "name": "seo-content-writer",
+            "blockChars": 794
+          },
+          {
+            "name": "skill-vetter",
+            "blockChars": 331
+          },
+          {
+            "name": "social-content",
+            "blockChars": 630
+          },
+          {
+            "name": "Social Media Scheduler",
+            "blockChars": 335
+          },
+          {
+            "name": "supabase-postgres-best-practices",
+            "blockChars": 367
+          },
+          {
+            "name": "tavily-search",
+            "blockChars": 303
+          },
+          {
+            "name": "ui-ux-pro-max",
+            "blockChars": 725
+          },
+          {
+            "name": "writing-plans",
+            "blockChars": 236
+          }
+        ]
+      },
+      "tools": {
+        "listChars": 1909,
+        "schemaChars": 14247,
+        "entries": [
+          {
+            "name": "read",
+            "summaryChars": 298,
+            "schemaChars": 574,
+            "propertiesCount": 6
+          },
+          {
+            "name": "edit",
+            "summaryChars": 326,
+            "schemaChars": 1103,
+            "propertiesCount": 5
+          },
+          {
+            "name": "write",
+            "summaryChars": 127,
+            "schemaChars": 497,
+            "propertiesCount": 5
+          },
+          {
+            "name": "exec",
+            "summaryChars": 181,
+            "schemaChars": 1098,
+            "propertiesCount": 12
+          },
+          {
+            "name": "process",
+            "summaryChars": 85,
+            "schemaChars": 961,
+            "propertiesCount": 12
+          },
+          {
+            "name": "cron",
+            "summaryChars": 3570,
+            "schemaChars": 6761,
+            "propertiesCount": 13
+          },
+          {
+            "name": "sessions_list",
+            "summaryChars": 54,
+            "schemaChars": 212,
+            "propertiesCount": 4
+          },
+          {
+            "name": "sessions_history",
+            "summaryChars": 36,
+            "schemaChars": 161,
+            "propertiesCount": 3
+          },
+          {
+            "name": "sessions_send",
+            "summaryChars": 84,
+            "schemaChars": 274,
+            "propertiesCount": 5
+          },
+          {
+            "name": "sessions_yield",
+            "summaryChars": 97,
+            "schemaChars": 60,
+            "propertiesCount": 1
+          },
+          {
+            "name": "sessions_spawn",
+            "summaryChars": 198,
+            "schemaChars": 1179,
+            "propertiesCount": 17
+          },
+          {
+            "name": "subagents",
+            "summaryChars": 105,
+            "schemaChars": 191,
+            "propertiesCount": 4
+          },
+          {
+            "name": "session_status",
+            "summaryChars": 262,
+            "schemaChars": 89,
+            "propertiesCount": 2
+          },
+          {
+            "name": "web_search",
+            "summaryChars": 93,
+            "schemaChars": 446,
+            "propertiesCount": 4
+          },
+          {
+            "name": "web_fetch",
+            "summaryChars": 129,
+            "schemaChars": 374,
+            "propertiesCount": 3
+          },
+          {
+            "name": "memory_search",
+            "summaryChars": 334,
+            "schemaChars": 139,
+            "propertiesCount": 3
+          },
+          {
+            "name": "memory_get",
+            "summaryChars": 151,
+            "schemaChars": 128,
+            "propertiesCount": 3
+          }
+        ]
+      }
+    },
+    "endedAt": 1775371591560,
+    "runtimeMs": 9292
+  }
+}

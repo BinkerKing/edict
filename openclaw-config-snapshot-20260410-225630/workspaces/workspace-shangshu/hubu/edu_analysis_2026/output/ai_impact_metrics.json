@@ -1,0 +1,32 @@
+{
+  "overall_enrollment_rate": 100.0,
+  "ai_tool_adoption_rate": 60.28,
+  "avg_academic_improvement_with_ai": 0.4410974046586631,
+  "avg_digital_literacy_with_ai": 64.67947115386687,
+  "avg_digital_literacy_without_ai": 64.39875756644646,
+  "avg_creativity_with_ai": 69.51943659764827,
+  "avg_creativity_without_ai": 68.92168413640456,
+  "avg_critical_thinking_with_ai": 68.49976487570164,
+  "avg_critical_thinking_without_ai": 67.87954254517996,
+  "avg_learning_engagement_with_ai": 72.16931103177261,
+  "avg_learning_engagement_without_ai": 71.76357870678778,
+  "ai_usage_by_region": {
+    "一线城市": 0.5913978494623656,
+    "三线城市": 0.6037215713301172,
+    "二线城市": 0.612558450233801,
+    "农村": 0.5986394557823129
+  },
+  "ai_usage_by_grade": {
+    "初中": 0.5975609756097561,
+    "小学": 0.61083984375,
+    "高中": 0.5965447154471545
+  },
+  "teacher_ai_training_distribution": {
+    "中级": 1769,
+    "初级": 1464,
+    "无": 1020,
+    "高级": 747
+  },
+  "correlation_ai_usage_academic_performance": -0.020381612357807343,
+  "correlation_traditional_study_academic_performance": -0.006841660247364869
+}
