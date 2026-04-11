@@ -1,4 +1,4 @@
-<h1 align="center">⚔️ Edict · Multi-Agent Orchestration</h1>
+<h1 align="center">⚔️ 一人世界 · Multi-Agent Orchestration</h1>
 
 <p align="center">
   <strong>I modeled an AI multi-agent system after China's 1,300-year-old imperial governance.<br>Turns out, ancient bureaucracy understood separation of powers better than modern AI frameworks.</strong>
@@ -46,7 +46,7 @@
 <details>
 <summary>📸 GIF Preview (loads faster)</summary>
 <p align="center">
-  <img src="docs/demo.gif" alt="Edict Demo" width="100%">
+  <img src="docs/demo.gif" alt="一人世界 Demo" width="100%">
   <br>
   <sub>Issue edict → Crown Prince triage → Planning → Review → Ministries execute → Report back (30s)</sub>
 </p>
@@ -58,7 +58,7 @@
 
 ## 💡 The Idea
 
-Most multi-agent frameworks let AI agents talk freely, producing opaque results you can't audit or intervene in. **Edict** takes a radically different approach — borrowing the governance system that ran China for 1,400 years:
+Most multi-agent frameworks let AI agents talk freely, producing opaque results you can't audit or intervene in. **一人世界** takes a radically different approach — borrowing the governance system that ran China for 1,400 years:
 
 ```
 You (Emperor) → Crown Prince (Triage) → Planning Dept → Review Dept → Dispatch Dept → 6 Ministries → Report Back
@@ -77,11 +77,11 @@ This isn't a cute metaphor. It's **real separation of powers** for AI:
 
 ---
 
-## 🤔 Why Edict?
+## 🤔 Why 一人世界?
 
 > **"Instead of one AI doing everything wrong, 9 specialized agents check each other's work."**
 
-| | CrewAI | MetaGPT | AutoGen | **Edict** |
+| | CrewAI | MetaGPT | AutoGen | **一人世界** |
 |---|:---:|:---:|:---:|:---:|
 | **Built-in review/veto** | ❌ | ⚠️ | ⚠️ | **✅ Dedicated reviewer** |
 | **Real-time Kanban** | ❌ | ❌ | ❌ | **✅ 10-panel dashboard** |
@@ -102,7 +102,7 @@ This isn't a cute metaphor. It's **real separation of powers** for AI:
 
 CrewAI and AutoGen agents work in a **"done, ship it"** mode — no one checks output quality. It's like a company with no QA department where engineers push code straight to production.
 
-Edict's **Review Department (门下省)** exists specifically for this:
+一人世界's **Review Department (门下省)** exists specifically for this:
 
 - 📋 **Audit plan quality** — Is the Planning Department's decomposition complete and sound?
 - 🚫 **Veto subpar output** — Not a warning. A hard reject that forces re-planning.
@@ -110,7 +110,7 @@ Edict's **Review Department (门下省)** exists specifically for this:
 
 This isn't an optional plugin — **it's part of the architecture**. Every command must pass through Review. No exceptions.
 
-This is why Edict produces reliable results on complex tasks: there's a mandatory quality gate before anything reaches execution. Emperor Taizong figured this out 1,300 years ago — **unchecked power inevitably produces errors**.
+This is why 一人世界 produces reliable results on complex tasks: there's a mandatory quality gate before anything reaches execution. Emperor Taizong figured this out 1,300 years ago — **unchecked power inevitably produces errors**.
 
 </details>
 
@@ -130,10 +130,10 @@ This is why Edict produces reliable results on complex tasks: there's a mandator
 
 | Panel | Description |
 |-------|------------|
-| 📋 **Edicts Kanban** | Task cards by state, filters, search, heartbeat badges, stop/cancel/resume |
+| 📋 **Task Kanban** | Task cards by state, filters, search, heartbeat badges, stop/cancel/resume |
 | 🔭 **Department Monitor** | Pipeline visualization, distribution charts, health cards |
 | 📜 **Memorial Archive** | Auto-generated archives with 5-phase timeline |
-| 📜 **Edict Templates** | 9 presets with parameter forms, cost estimates, one-click dispatch |
+| 📜 **一人世界 Templates** | 9 presets with parameter forms, cost estimates, one-click dispatch |
 | 👥 **Officials Overview** | Token leaderboard, activity stats |
 | 📰 **Daily Briefing** | Auto-curated news, subscription management, Feishu push |
 | ⚙️ **Model Config** | Per-agent LLM switching, automatic Gateway restart |
@@ -145,7 +145,7 @@ This is why Edict produces reliable results on complex tasks: there's a mandator
 
 ## 🖼️ Screenshots
 
-### Edicts Kanban
+### Task Kanban
 ![Kanban](docs/screenshots/01-kanban-main.png)
 
 <details>
@@ -355,13 +355,13 @@ edict/
 - [x] Real-time dashboard (10 panels)
 - [x] Task stop / cancel / resume
 - [x] Memorial archive (5-phase timeline)
-- [x] Edict template library (9 presets)
+- [x] Template library (9 presets)
 - [x] Court ceremony animation
 - [x] Daily news + Feishu webhook push
 - [x] Hot-swap LLM models + skill management
 - [x] Officials overview + token stats
 - [x] Session monitoring
-- [x] Edict data sanitization (title/remark cleaning, dirty data rejection)
+- [x] Data sanitization (title/remark cleaning, dirty data rejection)
 - [x] Duplicate task overwrite protection
 - [x] E2E kanban tests (17 assertions)
 

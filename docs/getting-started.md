@@ -212,7 +212,7 @@ openclaw gateway restart
 
 ## 📚 更多资源
 
-- [🏠 项目首页](https://github.com/cft0808/edict)
+- [🏠 项目首页（一人世界）](https://github.com/cft0808/edict)
 - [📖 README](../README.md)
 - [🤝 贡献指南](../CONTRIBUTING.md)
 - [💬 OpenClaw 文档](https://docs.openclaw.ai)
