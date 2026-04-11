@@ -963,6 +963,11 @@
     .jzg-cal-d.has{border-color:#3f6aa8;background:#132446;color:#d7e7ff}
     .jzg-cal-d.sel{border-color:#f5c842aa;background:#2a2412;color:#f5d67a}
     .pm-q{font-size:11px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#0f1628;margin-bottom:6px}
+    .pm-clarify-item{margin-bottom:6px}
+    .pm-clarify-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .pm-clarify-question{font-size:11px;line-height:1.55;flex:1 1 auto;color:#cfd8ea}
+    .pm-clarify-reply{margin-top:5px;width:100%;height:24px;min-height:24px;max-height:180px;resize:none;overflow:hidden;background:rgba(20,29,44,.45);border:1px solid rgba(148,166,199,.25);border-radius:6px;padding:4px 7px;color:#d9e3f5;font-size:11px;line-height:1.35;outline:none}
+    .pm-clarify-reply:focus{border-color:rgba(133,170,230,.58);background:rgba(20,29,44,.62)}
     .pm-plan{font-size:11px;line-height:1.6;padding-left:16px}
     .pm-empty{text-align:center;color:var(--muted);font-size:12px;padding:20px}
     .pm-design-list{display:flex;flex-direction:column;gap:8px}
@@ -2900,6 +2905,7 @@ let pmVersionGenerating = false;
 let pmGongbuReviewing = false;
 let pmGongbuReviewMode = '';
 let pmGongbuReviewItemId = '';
+const pmQuestionReplyDrafts = {};
 let jzgProjects = [];
 let selectedJzgProjectId = '';
 let selectedJzgFolderId = 'JZG-FOLLOWUP';
@@ -2945,6 +2951,7 @@ const PM_STATUS_CLASS = {
   blocked:'st-Blocked',
   done:'st-Done',
 };
+const pmClarifySaveTimers = {};
 let pmDesignSection = 'requirements';
 
 function pmFmt(ts){
@@ -3547,12 +3554,37 @@ function pmRenderItemDetail(project, item){
   const typeOpts = ['bug','req','opt'];
   const priorityOpts = ['P0','P1','P2','P3'];
   const isReviewBusy = pmGongbuReviewing && pmGongbuReviewItemId===item.id;
+  const canShowGongbuActions = String(item.status||'').trim().toLowerCase() !== 'done';
   const reviewText = isReviewBusy
     ? (pmGongbuReviewMode==='execute' ? '催办中…' : '复审中…')
     : '工部复审';
   const executeText = isReviewBusy
     ? (pmGongbuReviewMode==='execute' ? '催办中…' : '工部催办')
     : '工部催办';
+  const replyMap = (item && item.clarifyReplies && typeof item.clarifyReplies==='object') ? item.clarifyReplies : {};
+  const renderQuestion = (q, idx)=>{
+    const draftKey = `${String(item.id||'')}::${String(q||'').trim()}`;
+    const qKey = String(q||'').trim();
+    const hasDraft = Object.prototype.hasOwnProperty.call(pmQuestionReplyDrafts, draftKey);
+    const savedText = String(replyMap[qKey] || '');
+    const draftText = hasDraft ? String(pmQuestionReplyDrafts[draftKey] || '') : savedText;
+    return `
+      <div class="pm-q pm-clarify-item">
+        <div class="pm-clarify-head">
+          <div class="pm-clarify-question">❓ ${esc(q)}</div>
+          <button class="btn btn-g" style="font-size:11px;padding:4px 8px" onclick="pmIgnoreQuestion(${idx})">忽略</button>
+        </div>
+        <textarea
+          id="pm-question-reply-${idx}"
+          class="pm-clarify-reply"
+          rows="1"
+          placeholder="在这里填写针对该问题的澄清回复"
+          onfocus="pmAutoGrowTextarea(this)"
+          oninput="pmAutoGrowTextarea(this); pmUpdateQuestionDraft(${idx}, this.value, true)"
+        >${esc(draftText)}</textarea>
+      </div>
+    `;
+  };
   return `
     <div class="pm-head">
       <div class="tt">${esc(item.title||item.id)}</div>
@@ -3610,14 +3642,16 @@ function pmRenderItemDetail(project, item){
     <div class="pm-gov-card">
       <div class="pm-gov-head">
         <div class="pm-gov-title">工部行动建议</div>
-        <div class="pm-actions pm-actions-sm pm-actions-inline">
-          <button class="btn btn-p ${isReviewBusy && pmGongbuReviewMode==='review'?'btn-generating':''}" ${isReviewBusy?'disabled':''} onclick="pmGongbuReview('review')">${reviewText}</button>
-          <button class="btn btn-g ${isReviewBusy && pmGongbuReviewMode==='execute'?'btn-generating':''}" ${isReviewBusy?'disabled':''} onclick="pmGongbuReview('execute')">${executeText}</button>
-        </div>
+        ${canShowGongbuActions ? `
+          <div class="pm-actions pm-actions-sm pm-actions-inline">
+            <button class="btn btn-p ${isReviewBusy && pmGongbuReviewMode==='review'?'btn-generating':''}" ${isReviewBusy?'disabled':''} onclick="pmGongbuReview('review')">${reviewText}</button>
+            <button class="btn btn-g ${isReviewBusy && pmGongbuReviewMode==='execute'?'btn-generating':''}" ${isReviewBusy?'disabled':''} onclick="pmGongbuReview('execute')">${executeText}</button>
+          </div>
+        ` : ''}
       </div>
       <div class="pm-gov-block">
         <div class="pm-gov-label">待澄清问题</div>
-        ${questions.length ? questions.map(q=>`<div class="pm-q">❓ ${esc(q)}</div>`).join('') : '<div class="pm-gov-empty">暂无待澄清问题</div>'}
+        ${questions.length ? questions.map((q, idx)=>renderQuestion(q, idx)).join('') : '<div class="pm-gov-empty">暂无待澄清问题</div>'}
       </div>
       <div class="pm-gov-block">
         <div class="pm-gov-label">执行计划</div>
@@ -3632,7 +3666,6 @@ function pmRenderItemDetail(project, item){
     <textarea id="pm-reply-text" class="pm-text" placeholder="补充信息，或回复工部疑问"></textarea>
     <div class="pm-actions">
       <button class="btn btn-g" style="font-size:12px;padding:6px 10px" onclick="pmAddReply(false)">提交回复</button>
-      <button class="btn btn-p" style="font-size:12px;padding:6px 10px" onclick="pmAddReply(true)">回复并让工部继续</button>
     </div>
   `;
 }
@@ -4483,6 +4516,113 @@ async function pmSaveDescription(){
     toast('描述已保存','ok');
   }catch(e){
     toast('保存失败: '+e.message,'err');
+  }
+}
+
+function pmQuestionDraftKey(itemId, questionText){
+  return `${String(itemId||'')}::${String(questionText||'').trim()}`;
+}
+
+function pmAutoGrowTextarea(el){
+  if(!el) return;
+  el.style.height = '24px';
+  const h = Math.max(24, Math.min(180, el.scrollHeight || 24));
+  el.style.height = `${h}px`;
+}
+
+function pmUpdateQuestionDraft(questionIdx, value, autoSave){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!item) return;
+  const questions = Array.isArray(item.questions) ? item.questions : [];
+  const questionText = String(questions[questionIdx] || '').trim();
+  if(!questionText) return;
+  pmQuestionReplyDrafts[pmQuestionDraftKey(item.id, questionText)] = String(value || '');
+  if(autoSave){
+    pmScheduleQuestionReplySave(item.id, questionText);
+  }
+}
+
+function pmScheduleQuestionReplySave(itemId, questionText){
+  const k = pmQuestionDraftKey(itemId, questionText);
+  if(pmClarifySaveTimers[k]) clearTimeout(pmClarifySaveTimers[k]);
+  pmClarifySaveTimers[k] = setTimeout(()=>{ pmAutoSaveQuestionReply(itemId, questionText); }, 450);
+}
+
+async function pmAutoSaveQuestionReply(itemId, questionText){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item) return;
+  if(String(item.id||'') !== String(itemId||'')) return;
+  const q = String(questionText||'').trim();
+  if(!q) return;
+  const draftValue = String(pmQuestionReplyDrafts[pmQuestionDraftKey(item.id, q)] || '').trim();
+  const currentReplies = (item.clarifyReplies && typeof item.clarifyReplies==='object') ? {...item.clarifyReplies} : {};
+  if(draftValue) currentReplies[q] = draftValue;
+  else delete currentReplies[q];
+  try{
+    const r = await postJ(API+'/pm/item-update', {
+      projectId: project.id,
+      itemId: item.id,
+      clarifyReplies: currentReplies,
+    });
+    if(!r || !r.ok) return;
+    const latest = (r.item && typeof r.item==='object') ? r.item : null;
+    if(latest){
+      item.clarifyReplies = (latest.clarifyReplies && typeof latest.clarifyReplies==='object') ? latest.clarifyReplies : {};
+      item.updatedAt = latest.updatedAt || item.updatedAt;
+    }
+  }catch(e){
+    // 自动保存失败时不打断输入
+  }
+}
+
+async function pmIgnoreQuestion(questionIdx){
+  const project = _getSelectedPmProject();
+  const item = _getSelectedPmItem(project);
+  if(!project || !item){ toast('请先选择问题单','err'); return; }
+  const questions = Array.isArray(item.questions) ? item.questions : [];
+  const qText = String(questions[questionIdx] || '').trim();
+  if(!qText){ toast('待澄清问题不存在','err'); return; }
+  const nextQuestions = questions.filter((_, idx)=>idx !== questionIdx);
+  const currentReplies = (item.clarifyReplies && typeof item.clarifyReplies==='object') ? {...item.clarifyReplies} : {};
+  delete currentReplies[qText];
+  try{
+    const commentText = `【忽略澄清】${qText}`;
+    const rr = await postJ(API+'/pm/item-reply', {
+      projectId: project.id,
+      itemId: item.id,
+      text: commentText,
+      role: 'user',
+    });
+    if(!rr || !rr.ok){
+      toast((rr&&rr.error) || '忽略备注提交失败','err');
+      return;
+    }
+    const r = await postJ(API+'/pm/item-update', {
+      projectId: project.id,
+      itemId: item.id,
+      questions: nextQuestions,
+      clarifyReplies: currentReplies,
+    });
+    if(!r.ok){ toast(r.error||'忽略失败','err'); return; }
+    const serverQuestions = Array.isArray((((r||{}).item)||{}).questions) ? r.item.questions : null;
+    if(Array.isArray(serverQuestions) && serverQuestions.some(x=>String(x||'').trim()===qText)){
+      toast('忽略未生效：后端仍在使用旧逻辑，请重启服务后重试','err');
+      return;
+    }
+    delete pmQuestionReplyDrafts[pmQuestionDraftKey(item.id, qText)];
+    await loadPm();
+    const latestProject = _getSelectedPmProject();
+    const latestItem = _getSelectedPmItem(latestProject);
+    const latestQuestions = Array.isArray((latestItem||{}).questions) ? latestItem.questions : [];
+    if(latestQuestions.some(x=>String(x||'').trim()===qText)){
+      toast('忽略未生效：请重启服务后再试','err');
+      return;
+    }
+    toast('已忽略该待澄清问题','ok');
+  }catch(e){
+    toast('忽略失败: '+e.message,'err');
   }
 }
 

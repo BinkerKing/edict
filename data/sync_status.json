@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "lastSyncAt": "2026-04-11 02:09:01",
-  "durationMs": 15,
+  "lastSyncAt": "2026-04-11 08:15:41",
+  "durationMs": 14,
   "source": "openclaw_runtime_sessions",
-  "recordCount": 5,
+  "recordCount": 1,
   "scannedSessionFiles": 6,
   "missingFields": {},
   "error": null

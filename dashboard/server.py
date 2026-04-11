@@ -1818,6 +1818,7 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
         'qa': [],
         'plan': [],
         'questions': [],
+        'clarifyReplies': {},
         'resolution': '',
         'createdAt': now_iso(),
         'updatedAt': now_iso(),
@@ -1828,7 +1829,7 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
     return {'ok': True, 'item': item, 'project': project}
 
 
-def pm_update_item(project_id, item_id, status=None, priority=None, resolution=None, item_type=None, description=None, folder_id=None):
+def pm_update_item(project_id, item_id, status=None, priority=None, resolution=None, item_type=None, description=None, folder_id=None, questions=None, clarify_replies=None):
     data = _load_pm_data()
     project = _find_project(data, project_id)
     if not project:
@@ -1859,6 +1860,41 @@ def pm_update_item(project_id, item_id, status=None, priority=None, resolution=N
             item['folderId'] = fid
     if resolution is not None:
         item['resolution'] = str(resolution or '').strip()[:8000]
+    if questions is not None:
+        if isinstance(questions, list):
+            normalized_questions = []
+            for q in questions:
+                s = str(q or '').strip()
+                if not s:
+                    continue
+                normalized_questions.append(s[:500])
+            item['questions'] = normalized_questions[:20]
+            if isinstance(item.get('clarifyReplies'), dict):
+                allowed = set(item['questions'])
+                item['clarifyReplies'] = {
+                    str(k): str(v)
+                    for k, v in item.get('clarifyReplies', {}).items()
+                    if str(k) in allowed and str(v).strip()
+                }
+    if clarify_replies is not None:
+        if isinstance(clarify_replies, dict):
+            allowed_questions = set(
+                str(q or '').strip()
+                for q in (item.get('questions') or [])
+                if str(q or '').strip()
+            )
+            normalized_replies = {}
+            for k, v in clarify_replies.items():
+                q = str(k or '').strip()[:500]
+                a = str(v or '').strip()[:3000]
+                if not q or not a:
+                    continue
+                if allowed_questions and q not in allowed_questions:
+                    continue
+                normalized_replies[q] = a
+                if len(normalized_replies) >= 30:
+                    break
+            item['clarifyReplies'] = normalized_replies
     item['updatedAt'] = now_iso()
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
@@ -2357,20 +2393,20 @@ def _build_pm_gongbu_prompt(project, item, mode='review'):
     resolution = _clip_text(item.get('resolution', ''), 500)
     return (
         "你是工部尚书，负责软件项目的问题治理、流程优化和推进提醒。\n"
-        "请根据项目问题单进行评审或继续推进。\n"
+        "请根据项目问题单直接给出可执行的实现建议与拆分步骤。\n"
         "只输出 JSON 对象，不要 markdown。\n"
         "格式：\n"
         "{\n"
         "  \"summary\":\"一句话结论\",\n"
-        "  \"status\":\"clarify|in_progress|done|blocked\",\n"
-        "  \"questions\":[\"需要用户回答的问题1\",\"问题2\"],\n"
+        "  \"status\":\"in_progress|done|blocked\",\n"
+        "  \"questions\":[],\n"
         "  \"plan\":[\"下一步1\",\"下一步2\"],\n"
         "  \"resolution\":\"若已完成，给出修复/实现说明，否则留空\"\n"
         "}\n"
         "约束：\n"
-        "1) 若信息不足，status 必须为 clarify，且 questions 至少1条。\n"
-        "2) 若可执行，status 用 in_progress，并给出 plan。\n"
-        "3) 仅在确有结论时用 done。\n\n"
+        "1) 无论信息是否完整，都不要输出待澄清问题，不要要求用户确认。\n"
+        "2) 必须优先给出如何实现需求的建议与可落地拆分步骤。\n"
+        "3) status 默认用 in_progress；仅在确有结论时用 done；确实无法推进时才用 blocked。\n\n"
         f"模式: {mode}\n"
         f"项目: {project.get('name','')}\n"
         f"问题单ID: {item.get('id','')}\n"
@@ -2429,11 +2465,12 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
             "你是工部尚书。请只输出 JSON。\n"
             "{\n"
             "  \"summary\":\"一句话结论\",\n"
-            "  \"status\":\"clarify|in_progress|done|blocked\",\n"
-            "  \"questions\":[\"问题1\"],\n"
+            "  \"status\":\"in_progress|done|blocked\",\n"
+            "  \"questions\":[],\n"
             "  \"plan\":[\"步骤1\"],\n"
             "  \"resolution\":\"完成结论或空\"\n"
             "}\n"
+            "要求：不要提待澄清问题，直接输出实现建议与拆分步骤。\n"
             f"模式: {mode}\n"
             f"项目: {project.get('name','')}\n"
             f"问题单ID: {item.get('id','')}\n"
@@ -2457,15 +2494,17 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
         return {'ok': False, 'error': f"工部复审失败: 输出非JSON（{raw[:120]}）"}
 
     status = str(parsed.get('status') or '').strip().lower()
-    if status not in {'clarify', 'in_progress', 'done', 'blocked'}:
+    if status not in {'in_progress', 'done', 'blocked'}:
         status = 'in_progress'
-    questions = parsed.get('questions') if isinstance(parsed.get('questions'), list) else []
+    questions = []
     plan = parsed.get('plan') if isinstance(parsed.get('plan'), list) else []
     summary = str(parsed.get('summary') or '').strip()
     resolution = str(parsed.get('resolution') or '').strip()
 
     item['status'] = status
     item['questions'] = [str(x).strip() for x in questions if str(x).strip()][:12]
+    old_replies = item.get('clarifyReplies') if isinstance(item.get('clarifyReplies'), dict) else {}
+    item['clarifyReplies'] = {q: str(old_replies.get(q, '')).strip()[:3000] for q in item['questions'] if str(old_replies.get(q, '')).strip()}
     item['plan'] = [str(x).strip() for x in plan if str(x).strip()][:20]
     if resolution:
         item['resolution'] = resolution[:8000]
@@ -5448,6 +5487,8 @@ class Handler(BaseHTTPRequestHandler):
                 item_type=body.get('type', None),
                 description=body.get('description', None),
                 folder_id=body.get('folderId', None),
+                questions=body.get('questions', None),
+                clarify_replies=body.get('clarifyReplies', None),
             ))
             return
 

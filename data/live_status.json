@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11 02:09:02",
+  "generatedAt": "2026-04-11 08:15:42",
   "taskSource": "tasks_source.json",
   "officials": [
     {
@@ -98,7 +98,7 @@
         "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 1,
+      "tasks_active": 0,
       "flow_participations": 3,
       "participated_edicts": [
         {
@@ -237,12 +237,12 @@
       "cost_cny": 0.0,
       "last_active": "2026-04-11 01:34",
       "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 33分钟",
-        "ageSec": 1985
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 3,
+      "tasks_active": 0,
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,
@@ -835,236 +835,6 @@
         "lastModified": null
       },
       "heartbeat": null
-    },
-    {
-      "id": "OC-gongbu__pm__version-generate__bd197492-8e805ac2",
-      "title": "工部会话",
-      "official": "工部尚书",
-      "org": "工部",
-      "state": "Review",
-      "now": "思考中: # 三省六部总控台 - 版本更新日志",
-      "eta": "2026-04-11 01:51:21",
-      "block": "无",
-      "output": "/Users/binlian/.openclaw/agents/gongbu__pm__version-generate__bd197492/sessions/8e805ac2-7f02-4420-9fdd-17f56f87989a.jsonl",
-      "flow": {
-        "draft": "agent=gongbu__pm__version-generate__bd197492",
-        "review": "updatedAt=2026-04-11 01:51:21",
-        "dispatch": "sessionKey=agent:gongbu__pm__version-generate__bd197492:main"
-      },
-      "ac": "来自 OpenClaw runtime sessions 的实时映射",
-      "activity": [
-        {
-          "at": "2026-04-10T17:51:21.383Z",
-          "kind": "assistant",
-          "text": "# 三省六部总控台 - 版本更新日志"
-        },
-        {
-          "at": "2026-04-10T17:51:19.293Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:51 GMT+8] 你是工部尚书，负责输出版本更改清单。\n请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n要求：\n1) 输出 Markdown。\n2) 优..."
-        },
-        {
-          "at": "2026-04-10T17:47:15.093Z",
-          "kind": "assistant",
-          "text": "OK"
-        },
-        {
-          "at": "2026-04-10T17:47:12.648Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:47 GMT+8] 请仅回复OK..."
-        }
-      ],
-      "sourceMeta": {
-        "agentId": "gongbu__pm__version-generate__bd197492",
-        "sessionKey": "agent:gongbu__pm__version-generate__bd197492:main",
-        "sessionId": "8e805ac2-7f02-4420-9fdd-17f56f87989a",
-        "updatedAt": 1775843481403,
-        "ageMs": 1060515,
-        "systemSent": false,
-        "abortedLastRun": false,
-        "inputTokens": null,
-        "outputTokens": null,
-        "totalTokens": null
-      },
-      "outputMeta": {
-        "exists": true,
-        "lastModified": "2026-04-11 01:51:21"
-      },
-      "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 17分钟",
-        "ageSec": 1060
-      }
-    },
-    {
-      "id": "OC-gongbu__pm__gongbu-review-review__9707bc4c-cc4380e2",
-      "title": "工部会话",
-      "official": "工部尚书",
-      "org": "工部",
-      "state": "Review",
-      "now": "思考中: {",
-      "eta": "2026-04-11 01:50:01",
-      "block": "无",
-      "output": "/Users/binlian/.openclaw/agents/gongbu__pm__gongbu-review-review__9707bc4c/sessions/cc4380e2-6cdc-4765-91cb-989c39b60f75.jsonl",
-      "flow": {
-        "draft": "agent=gongbu__pm__gongbu-review-review__9707bc4c",
-        "review": "updatedAt=2026-04-11 01:50:01",
-        "dispatch": "sessionKey=agent:gongbu__pm__gongbu-review-review__9707bc4c:main"
-      },
-      "ac": "来自 OpenClaw runtime sessions 的实时映射",
-      "activity": [
-        {
-          "at": "2026-04-10T17:50:01.172Z",
-          "kind": "assistant",
-          "text": "{"
-        },
-        {
-          "at": "2026-04-10T17:49:58.413Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:49 GMT+8] 你是工部尚书，负责软件项目的问题治理、流程优化和推进提醒。\n请根据项目问题单进行评审或继续推进。\n只输出 JSON 对象，不要 markdow..."
-        }
-      ],
-      "sourceMeta": {
-        "agentId": "gongbu__pm__gongbu-review-review__9707bc4c",
-        "sessionKey": "agent:gongbu__pm__gongbu-review-review__9707bc4c:main",
-        "sessionId": "cc4380e2-6cdc-4765-91cb-989c39b60f75",
-        "updatedAt": 1775843401197,
-        "ageMs": 1140721,
-        "systemSent": false,
-        "abortedLastRun": false,
-        "inputTokens": null,
-        "outputTokens": null,
-        "totalTokens": null
-      },
-      "outputMeta": {
-        "exists": true,
-        "lastModified": "2026-04-11 01:50:01"
-      },
-      "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 19分钟",
-        "ageSec": 1141
-      }
-    },
-    {
-      "id": "OC-gongbu_iso_test-b25076d9",
-      "title": "尚书省会话",
-      "official": "尚书令",
-      "org": "尚书省",
-      "state": "Review",
-      "now": "思考中: OK",
-      "eta": "2026-04-11 01:42:57",
-      "block": "无",
-      "output": "/Users/binlian/.openclaw/agents/gongbu_iso_test/sessions/b25076d9-b46f-4b92-808f-3f1dff4636dd.jsonl",
-      "flow": {
-        "draft": "agent=gongbu_iso_test",
-        "review": "updatedAt=2026-04-11 01:42:57",
-        "dispatch": "sessionKey=agent:gongbu_iso_test:main"
-      },
-      "ac": "来自 OpenClaw runtime sessions 的实时映射",
-      "activity": [
-        {
-          "at": "2026-04-10T17:42:57.531Z",
-          "kind": "assistant",
-          "text": "OK"
-        },
-        {
-          "at": "2026-04-10T17:42:55.207Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:42 GMT+8] 请仅回复OK..."
-        }
-      ],
-      "sourceMeta": {
-        "agentId": "gongbu_iso_test",
-        "sessionKey": "agent:gongbu_iso_test:main",
-        "sessionId": "b25076d9-b46f-4b92-808f-3f1dff4636dd",
-        "updatedAt": 1775842977558,
-        "ageMs": 1564360,
-        "systemSent": false,
-        "abortedLastRun": false,
-        "inputTokens": null,
-        "outputTokens": null,
-        "totalTokens": null
-      },
-      "outputMeta": {
-        "exists": true,
-        "lastModified": "2026-04-11 01:42:57"
-      },
-      "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 26分钟",
-        "ageSec": 1564
-      }
-    },
-    {
-      "id": "OC-gongbu-1fbaca5d",
-      "title": "工部会话",
-      "official": "工部尚书",
-      "org": "工部",
-      "state": "Review",
-      "now": "思考中: OK",
-      "eta": "2026-04-11 01:34:56",
-      "block": "无",
-      "output": "/Users/binlian/.openclaw/agents/gongbu/sessions/1fbaca5d-64bd-47d1-be3a-c9c14efc3c27.jsonl",
-      "flow": {
-        "draft": "agent=gongbu",
-        "review": "updatedAt=2026-04-11 01:34:56",
-        "dispatch": "sessionKey=agent:gongbu:main"
-      },
-      "ac": "来自 OpenClaw runtime sessions 的实时映射",
-      "activity": [
-        {
-          "at": "2026-04-10T17:34:56.368Z",
-          "kind": "assistant",
-          "text": "OK"
-        },
-        {
-          "at": "2026-04-10T17:34:54.653Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:34 GMT+8] 请仅回复OK。sid=pm-test-f7562389..."
-        },
-        {
-          "at": "2026-04-10T17:32:44.330Z",
-          "kind": "assistant",
-          "text": "# 三省六部总控台版本更新日志"
-        },
-        {
-          "at": "2026-04-10T17:32:39.953Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:32 GMT+8] 你是工部尚书，负责输出版本更改清单。\n请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n要求：\n1) 输出 Markdown。\n2) 优..."
-        },
-        {
-          "at": "2026-04-10T17:30:23.792Z",
-          "kind": "assistant",
-          "text": "{"
-        },
-        {
-          "at": "2026-04-10T17:30:18.531Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:30 GMT+8] 你是工部尚书，负责软件项目的问题治理、流程优化和推进提醒。\n请根据项目问题单进行评审或继续推进。\n只输出 JSON 对象，不要 markdow..."
-        }
-      ],
-      "sourceMeta": {
-        "agentId": "gongbu",
-        "sessionKey": "agent:gongbu:main",
-        "sessionId": "1fbaca5d-64bd-47d1-be3a-c9c14efc3c27",
-        "updatedAt": 1775842496388,
-        "ageMs": 2045530,
-        "systemSent": false,
-        "abortedLastRun": false,
-        "inputTokens": null,
-        "outputTokens": null,
-        "totalTokens": null
-      },
-      "outputMeta": {
-        "exists": true,
-        "lastModified": "2026-04-11 01:34:56"
-      },
-      "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 34分钟",
-        "ageSec": 2045
-      }
     }
   ],
   "history": [
@@ -1080,22 +850,22 @@
     "officialCount": 11,
     "todayDone": 0,
     "totalDone": 1,
-    "inProgress": 4,
+    "inProgress": 0,
     "blocked": 0
   },
   "syncStatus": {
     "ok": true,
-    "lastSyncAt": "2026-04-11 02:09:01",
-    "durationMs": 15,
+    "lastSyncAt": "2026-04-11 08:15:41",
+    "durationMs": 14,
     "source": "openclaw_runtime_sessions",
-    "recordCount": 5,
+    "recordCount": 1,
     "scannedSessionFiles": 6,
     "missingFields": {},
     "error": null
   },
   "health": {
     "syncOk": true,
-    "syncLatencyMs": 15,
+    "syncLatencyMs": 14,
     "missingFieldCount": 0
   }
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11 02:09:02",
+  "generatedAt": "2026-04-11 08:15:41",
   "officials": [
     {
       "id": "zhongshu",
@@ -97,7 +97,7 @@
         "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 1,
+      "tasks_active": 0,
       "flow_participations": 3,
       "participated_edicts": [
         {
@@ -236,12 +236,12 @@
       "cost_cny": 0.0,
       "last_active": "2026-04-11 01:34",
       "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 33分钟",
-        "ageSec": 1985
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 3,
+      "tasks_active": 0,
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,
