@@ -1,4 +1,4 @@
-# Edict Agent 架构重设计文档
+# 一人世界 Agent 架构重设计文档
 
 ## 1. 设计目标
 - **可观测性**：Dashboard 能实时显示每个 agent 的思考流（thoughts）和 todo 变更。
@@ -185,4 +185,3 @@ sequenceDiagram
 
 ---
 **备注**：此文档为可直接下载参考的架构设计，包含事件规范、WebSocket 协议、时序图和 JSON Schema，可用于实现实时 agent 可观测系统。
-

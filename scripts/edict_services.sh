@@ -1,5 +1,5 @@
 #!/bin/bash
-# Unified service control for Edict local runtime (terminal/nohup mode).
+# Unified service control for 一人世界 local runtime (terminal/nohup mode).
 # Usage:
 #   bash scripts/edict_services.sh start|stop|restart|status
 
