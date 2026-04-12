@@ -36,8 +36,8 @@ export const PIPE_STATE_IDX: Record<string, number> = {
 
 export const DEPT_COLOR: Record<string, string> = {
   '太子': '#e8a040', '中书省': '#a07aff', '门下省': '#6a9eff', '尚书省': '#6aef9a',
-  '礼部': '#f5c842', '户部': '#ff9a6a', '兵部': '#ff5270', '刑部': '#cc4444',
-  '工部': '#44aaff', '吏部': '#9b59b6', '皇上': '#ffd700', '回奏': '#2ecc8a',
+  '藏经阁': '#f5c842', '户部': '#ff9a6a', '兵部': '#ff5270', '刑部': '#cc4444',
+  '研发部': '#44aaff', '吏部': '#9b59b6', '皇上': '#ffd700', '回奏': '#2ecc8a',
 };
 
 export const STATE_LABEL: Record<string, string> = {
@@ -105,11 +105,11 @@ export const DEPTS = [
   { id: 'zhongshu', label: '中书省', emoji: '📜', role: '中书令',   rank: '正一品' },
   { id: 'menxia',   label: '门下省', emoji: '🔍', role: '侍中',     rank: '正一品' },
   { id: 'shangshu', label: '尚书省', emoji: '📮', role: '尚书令',   rank: '正一品' },
-  { id: 'libu',     label: '礼部',   emoji: '📝', role: '礼部尚书', rank: '正二品' },
+  { id: 'libu',     label: '藏经阁', emoji: '📝', role: '扫地僧', rank: '正二品' },
   { id: 'hubu',     label: '户部',   emoji: '💰', role: '户部尚书', rank: '正二品' },
   { id: 'bingbu',   label: '兵部',   emoji: '⚔️', role: '兵部尚书', rank: '正二品' },
   { id: 'xingbu',   label: '刑部',   emoji: '⚖️', role: '刑部尚书', rank: '正二品' },
-  { id: 'gongbu',   label: '工部',   emoji: '🔧', role: '工部尚书', rank: '正二品' },
+  { id: 'rnd',      label: '研发部', emoji: '💻', role: '研发总监', rank: '正二品' },
   { id: 'libu_hr',  label: '吏部',   emoji: '👔', role: '吏部尚书', rank: '正二品' },
   { id: 'zaochao',  label: '钦天监', emoji: '📰', role: '朝报官',   rank: '正三品' },
 ];
@@ -142,7 +142,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'tpl-weekly-report', cat: '日常办公', icon: '📝', name: '周报生成',
     desc: '基于本周看板数据和各部产出，自动生成结构化周报',
-    depts: ['户部', '礼部'], est: '~10分钟', cost: '¥0.5',
+    depts: ['户部', '藏经阁'], est: '~10分钟', cost: '¥0.5',
     params: [
       { key: 'date_range', label: '报告周期', type: 'text', default: '本周', required: true },
       { key: 'focus', label: '重点关注（逗号分隔）', type: 'text', default: '项目进展,下周计划' },
@@ -175,7 +175,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'tpl-competitor', cat: '数据分析', icon: '📊', name: '竞品分析',
     desc: '爬取竞品网站数据，分析对比，生成结构化报告',
-    depts: ['兵部', '户部', '礼部'], est: '~60分钟', cost: '¥5',
+    depts: ['兵部', '户部', '藏经阁'], est: '~60分钟', cost: '¥5',
     params: [
       { key: 'targets', label: '竞品名称/URL（每行一个）', type: 'textarea', required: true },
       { key: 'dimensions', label: '分析维度', type: 'text', default: '产品功能,定价策略,用户评价' },
@@ -186,7 +186,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'tpl-data-report', cat: '数据分析', icon: '📈', name: '数据报告',
     desc: '对给定数据集进行清洗、分析、可视化，输出分析报告',
-    depts: ['户部', '礼部'], est: '~30分钟', cost: '¥2',
+    depts: ['户部', '藏经阁'], est: '~30分钟', cost: '¥2',
     params: [
       { key: 'data_source', label: '数据源描述/路径', type: 'text', required: true },
       { key: 'questions', label: '分析问题（每行一个）', type: 'textarea' },
@@ -197,7 +197,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'tpl-blog', cat: '内容创作', icon: '✍️', name: '博客文章',
     desc: '给定主题和要求，生成高质量博客文章',
-    depts: ['礼部'], est: '~15分钟', cost: '¥1',
+    depts: ['藏经阁'], est: '~15分钟', cost: '¥1',
     params: [
       { key: 'topic', label: '文章主题', type: 'text', required: true },
       { key: 'audience', label: '目标读者', type: 'text', default: '技术人员' },
@@ -209,7 +209,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'tpl-deploy', cat: '工程开发', icon: '🚀', name: '部署方案',
     desc: '生成完整的部署检查单、Docker配置、CI/CD流程',
-    depts: ['兵部', '工部'], est: '~25分钟', cost: '¥2',
+    depts: ['兵部', '研发部'], est: '~25分钟', cost: '¥2',
     params: [
       { key: 'project', label: '项目名称/描述', type: 'text', required: true },
       { key: 'env', label: '部署环境', type: 'select', options: ['Docker', 'K8s', 'VPS', 'Serverless'], default: 'Docker' },
@@ -220,7 +220,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'tpl-email', cat: '内容创作', icon: '📧', name: '邮件/通知文案',
     desc: '根据场景和目的，生成专业邮件或通知文案',
-    depts: ['礼部'], est: '~5分钟', cost: '¥0.3',
+    depts: ['藏经阁'], est: '~5分钟', cost: '¥0.3',
     params: [
       { key: 'scenario', label: '使用场景', type: 'select', options: ['商务邮件', '产品发布', '客户通知', '内部公告'], default: '商务邮件' },
       { key: 'purpose', label: '目的/内容', type: 'textarea', required: true },

@@ -1,0 +1,170 @@
+{
+  "updatedAt": "2026-04-12 00:00:00",
+  "scopes": {
+    "rnd": [
+      {
+        "entry": "项目设计 · 研发部生成",
+        "service": "围绕 PRD 生成或重写需求/架构/功能设计文档。",
+        "invoke": "agent",
+        "bindingId": "rnd_design_generate",
+        "match": [
+          "项目设计-需求说明生成",
+          "项目设计-架构设计生成",
+          "项目设计-功能设计生成",
+          "design-generate"
+        ]
+      },
+      {
+        "entry": "版本控制 · 更新版本",
+        "service": "按项目变更汇总版本记录，输出更新说明与发布清单。",
+        "invoke": "agent",
+        "bindingId": "rnd_version_generate",
+        "match": [
+          "版本控制-更新版本触发",
+          "version-generate",
+          "更新版本"
+        ]
+      },
+      {
+        "entry": "问题详情 · 研发部复审",
+        "service": "对问题给出实现拆分建议、技术路径与落地步骤。",
+        "invoke": "agent",
+        "bindingId": "rnd_review",
+        "match": [
+          "问题详情-研发部复审触发",
+          "研发部复审触发",
+          "rnd-review",
+          "复审"
+        ]
+      },
+      {
+        "entry": "问题详情 · 研发部催办",
+        "service": "针对长时间未推进问题发起催办并推动状态流转。",
+        "invoke": "agent",
+        "bindingId": "rnd_execute",
+        "match": [
+          "问题详情-研发部催办触发",
+          "研发部催办触发",
+          "execute",
+          "催办"
+        ]
+      }
+    ],
+    "bingbu": [
+      {
+        "entry": "PM小组 · 专家小组策议",
+        "service": "协助拆解需求优先级、方案路径与阶段目标。",
+        "invoke": "agent"
+      },
+      {
+        "entry": "PM小组 · 项目跟进",
+        "service": "输出当日待办推进建议与项目节奏提醒。",
+        "invoke": "agent"
+      },
+      {
+        "entry": "PM小组 · 版本协同",
+        "service": "支持版本计划梳理与发布前协同检查。",
+        "invoke": "agent"
+      }
+    ],
+    "libu": [
+      {
+        "entry": "藏经阁 · 细化目录",
+        "service": "将学习主题拆为可执行目录与阶段化学习路线。",
+        "invoke": "agent"
+      },
+      {
+        "entry": "藏经阁 · 扫地僧问答",
+        "service": "围绕主题提供问答、总结与知识回写建议。",
+        "invoke": "agent"
+      },
+      {
+        "entry": "藏经阁 · 主题笔记",
+        "service": "沉淀学习笔记结构，形成长期可复用知识资产。",
+        "invoke": "ui"
+      }
+    ],
+    "libu_hr": [
+      {
+        "entry": "人事部 · 部门详情",
+        "service": "维护各 Agent 的模型、SOUL、技能与职责配置。",
+        "invoke": "ui"
+      },
+      {
+        "entry": "人事部 · 会话治理",
+        "service": "查看会话概览并支持按会话进入对话面板。",
+        "invoke": "ui"
+      },
+      {
+        "entry": "人事部 · 组织编排",
+        "service": "维护部门列表排序与人员治理结构。",
+        "invoke": "ui"
+      },
+      {
+        "entry": "人事部 · SOUL重新整理",
+        "service": "基于接口映射与会话触发记录，自动整理并生成可保存的 SOUL 草案。",
+        "invoke": "agent",
+        "bindingId": "hr_soul_reorganize",
+        "match": [
+          "soul重新整理",
+          "重整soul",
+          "人事部-soul重新整理触发"
+        ]
+      }
+    ],
+    "taizi": [
+      {
+        "entry": "任务统筹 · 新建旨意",
+        "service": "接收需求并发起任务流转，推进跨部门协作。",
+        "invoke": "agent"
+      },
+      {
+        "entry": "任务统筹 · 状态流转",
+        "service": "根据任务状态触发部门承接与后续处理流程。",
+        "invoke": "agent"
+      }
+    ],
+    "zhongshu": [
+      {
+        "entry": "文书治理 · 模板输出",
+        "service": "规范文书结构与记录格式，保证信息可追溯。",
+        "invoke": "agent"
+      }
+    ],
+    "menxia": [
+      {
+        "entry": "审校治理 · 质检复核",
+        "service": "审查交付完整性，提出修正意见与风险提示。",
+        "invoke": "agent"
+      }
+    ],
+    "shangshu": [
+      {
+        "entry": "中枢调度 · 统筹协同",
+        "service": "协调多部门执行节奏，保障关键事项闭环。",
+        "invoke": "agent"
+      }
+    ],
+    "hubu": [
+      {
+        "entry": "资源治理 · 成本视图",
+        "service": "汇总资源投入与关键消耗数据，提供决策参考。",
+        "invoke": "agent"
+      }
+    ],
+    "xingbu": [
+      {
+        "entry": "规则治理 · 风险约束",
+        "service": "维护流程边界与规则检查，提示异常风险。",
+        "invoke": "agent"
+      }
+    ],
+    "zaochao": [
+      {
+        "entry": "朝报治理 · 摘要播报",
+        "service": "汇总当日关键信息并形成可读简报。",
+        "invoke": "agent"
+      }
+    ]
+  }
+}

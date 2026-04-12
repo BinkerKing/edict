@@ -47,16 +47,16 @@ def detect_official(agent_id):
         'taizi':   ('储君', '太子'),
         'zhongshu': ('中书令', '中书省'),
         'menxia':  ('侍中', '门下省'),
-        'shangshu': ('尚书令', '尚书省'),
+        'shangshu': ('能效部长', '能效部'),
         'hubu':    ('户部尚书', '户部'),
-        'libu':    ('礼部尚书', '礼部'),
-        'bingbu':  ('兵部尚书', '兵部'),
+        'libu':    ('扫地僧', '藏经阁'),
+        'bingbu':  ('项目经理', 'PM小组'),
         'xingbu':  ('刑部尚书', '刑部'),
-        'gongbu':  ('工部尚书', '工部'),
-        'libu_hr': ('吏部尚书', '吏部'),
+        'rnd':  ('研发总监', '研发部'),
+        'libu_hr': ('人事经理', '人事部'),
         'zaochao': ('钦天监', '钦天监'),
     }
-    return mapping.get(base_id, ('尚书令', '尚书省'))
+    return mapping.get(base_id, ('能效部长', '能效部'))
 
 
 def load_activity(session_file, limit=12):

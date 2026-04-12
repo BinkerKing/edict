@@ -82,7 +82,7 @@ except Exception as e:
 
 AGENTS_TO_REMOVE = {
     "taizi", "zhongshu", "menxia", "shangshu",
-    "hubu", "libu", "bingbu", "xingbu", "gongbu",
+    "hubu", "libu", "bingbu", "xingbu", "rnd",
     "libu_hr", "zaochao"
 }
 
@@ -103,7 +103,7 @@ PYEOF
 remove_workspaces() {
   info "清除 Agent Workspace 目录..."
 
-  AGENTS=(taizi zhongshu menxia shangshu hubu libu bingbu xingbu gongbu libu_hr zaochao)
+  AGENTS=(taizi zhongshu menxia shangshu hubu libu bingbu xingbu rnd libu_hr zaochao)
   removed=0
   for agent in "${AGENTS[@]}"; do
     ws="$OC_HOME/workspace-$agent"

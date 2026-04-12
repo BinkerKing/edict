@@ -278,7 +278,7 @@ open http://127.0.0.1:7891
 | 📝 **Documentation** | `libu` | Docs, standards, reports | Tech writing, API docs |
 | ⚔️ **Engineering** | `bingbu` | Code, algorithms, checks | Development, code review |
 | ⚖️ **Compliance** | `xingbu` | Security, compliance, audit | Security scanning |
-| 🔧 **Infrastructure** | `gongbu` | CI/CD, deploy, tooling | Docker, pipelines |
+| 🔧 **Infrastructure** | `rnd` | CI/CD, deploy, tooling | Docker, pipelines |
 | 📋 **HR** | `libu_hr` | Agent management, training | Registration, permissions |
 | 🌅 **Briefing** | `zaochao` | Daily briefing, news | Scheduled reports, summaries |
 
@@ -312,7 +312,7 @@ edict/
 │   ├── menxia/                 #   Review Dept
 │   ├── shangshu/               #   Dispatch Dept
 │   ├── hubu/ libu/ bingbu/     #   Finance / Docs / Engineering
-│   ├── xingbu/ gongbu/         #   Compliance / Infrastructure
+│   ├── xingbu/ rnd/         #   Compliance / Infrastructure
 │   ├── libu_hr/                #   HR Dept
 │   └── zaochao/                #   Morning Briefing
 ├── dashboard/

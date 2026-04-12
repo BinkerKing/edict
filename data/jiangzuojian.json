@@ -4,7 +4,7 @@
       "id": "JZG-20260410125150616",
       "name": "首都银行-一表通",
       "description": "",
-      "owner": "libu_hr",
+      "owner": "bingbu",
       "followups": {
         "items": [
           {
@@ -458,14 +458,52 @@
       },
       "strategy": {
         "topics": [],
-        "updatedAt": "2026-04-10T04:51:50.616276Z"
+        "updatedAt": "2026-04-12T11:53:45.764856Z",
+        "docs": {
+          "folders": [
+            {
+              "id": "JZG-DOC-DEFAULT",
+              "name": "未分类",
+              "order": 0,
+              "createdAt": "2026-04-12T10:51:57.223308Z",
+              "updatedAt": "2026-04-12T11:33:02.386444Z"
+            },
+            {
+              "id": "JFD-20260412192308309",
+              "name": "监管发文",
+              "order": 1,
+              "createdAt": "2026-04-12T11:23:08.309213Z",
+              "updatedAt": "2026-04-12T11:33:02.386444Z"
+            }
+          ],
+          "items": [
+            {
+              "id": "JDC-20260412195345764",
+              "name": "2017年上半年.pdf",
+              "folderId": "JZG-DOC-DEFAULT",
+              "ext": "pdf",
+              "size": 439527,
+              "uploader": "user",
+              "content": "文件来源：拖拽上传\n原始文件名：2017年上半年.pdf\n备注：该文件为二进制或超大文本，内容未内嵌。",
+              "storagePath": "/Users/binlian/Documents/Github/edict/data/external_docs/JZG-20260410125150616/JDC-20260412195345764__2017年上半年.pdf",
+              "summary": "",
+              "tags": [],
+              "analysisStatus": "pending",
+              "analysisBy": "",
+              "analysisAt": "",
+              "createdAt": "2026-04-12T11:53:45.764856Z",
+              "updatedAt": "2026-04-12T11:53:45.764856Z"
+            }
+          ],
+          "updatedAt": "2026-04-12T11:53:45.764856Z"
+        }
       },
       "board": {
         "reminders": [],
         "updatedAt": "2026-04-10T04:51:50.616277Z"
       },
       "createdAt": "2026-04-10T04:51:50.616278Z",
-      "updatedAt": "2026-04-10T11:02:09.130612Z",
+      "updatedAt": "2026-04-12T11:53:45.764856Z",
       "folders": [
         {
           "id": "JZG-FOLLOWUP",
@@ -485,7 +523,7 @@
       "id": "JZG-20260410120059065",
       "name": "将作监测试项目",
       "description": "用于验证基础功能",
-      "owner": "libu_hr",
+      "owner": "bingbu",
       "followups": {
         "items": [
           {
@@ -567,7 +605,20 @@
             "updatedAt": "2026-04-10T04:00:59.068379Z"
           }
         ],
-        "updatedAt": "2026-04-10T04:00:59.068379Z"
+        "updatedAt": "2026-04-10T04:00:59.068379Z",
+        "docs": {
+          "folders": [
+            {
+              "id": "JZG-DOC-DEFAULT",
+              "name": "未分类",
+              "order": 0,
+              "createdAt": "2026-04-12T10:51:57.223751Z",
+              "updatedAt": "2026-04-12T10:51:57.223751Z"
+            }
+          ],
+          "items": [],
+          "updatedAt": "2026-04-12T10:51:57.223751Z"
+        }
       },
       "board": {
         "reminders": [

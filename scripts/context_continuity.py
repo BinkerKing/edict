@@ -443,7 +443,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
             agent_ids.add(agent_dir.name)
     global_index = load_sessions_index(sessions_root / "sessions.json")
     for key in global_index.keys():
-        # key 示例：agent:gongbu:main
+        # key 示例：agent:rnd:main
         parts = str(key).split(":")
         if len(parts) >= 3 and parts[0] == "agent":
             agent_ids.add(parts[1])
@@ -502,7 +502,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     c1 = sub.add_parser("capture", help="Capture one agent session into a context capsule.")
-    c1.add_argument("--agent", required=True, help="Agent id, e.g. gongbu.")
+    c1.add_argument("--agent", required=True, help="Agent id, e.g. rnd.")
     c1.add_argument("--session-key", default="", help="Session key. Default: latest session.")
     c1.add_argument("--task-id", default="", help="Optional task id for naming and trace.")
     c1.add_argument("--max-events", type=int, default=4000, help="Max jsonl lines to parse.")

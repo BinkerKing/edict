@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11 08:15:42",
+  "generatedAt": "2026-04-12 21:09:43",
   "taskSource": "tasks_source.json",
   "officials": [
     {
@@ -75,42 +75,6 @@
       "merit_rank": 2
     },
     {
-      "id": "shangshu",
-      "label": "尚书省",
-      "role": "尚书令",
-      "emoji": "📮",
-      "rank": "正一品",
-      "model": "bailian-cn/qwen3-coder-plus",
-      "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
-      "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
-      "heartbeat": {
-        "status": "idle",
-        "label": "⚪ 待命",
-        "ageSec": null
-      },
-      "tasks_done": 0,
-      "tasks_active": 0,
-      "flow_participations": 3,
-      "participated_edicts": [
-        {
-          "id": "JJC-20260407-102939384",
-          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
-          "state": "Done"
-        }
-      ],
-      "merit_score": 6,
-      "merit_rank": 3
-    },
-    {
       "id": "taizi",
       "label": "太子",
       "role": "太子",
@@ -119,15 +83,15 @@
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
       "sessions": 2,
-      "tokens_in": 40782,
-      "tokens_out": 956,
-      "cache_read": 20273,
-      "cache_write": 163,
-      "tokens_total": 41738,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
       "messages": 0,
-      "cost_usd": 0.1434,
-      "cost_cny": 1.04,
-      "last_active": "2026-04-10 23:50",
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": "2026-04-12 14:45",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -144,12 +108,12 @@
         }
       ],
       "merit_score": 4,
-      "merit_rank": 4
+      "merit_rank": 3
     },
     {
       "id": "libu",
-      "label": "礼部",
-      "role": "礼部尚书",
+      "label": "藏经阁",
+      "role": "扫地僧",
       "emoji": "📝",
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -180,7 +144,7 @@
         }
       ],
       "merit_score": 2,
-      "merit_rank": 5
+      "merit_rank": 4
     },
     {
       "id": "hubu",
@@ -216,26 +180,56 @@
         }
       ],
       "merit_score": 2,
+      "merit_rank": 5
+    },
+    {
+      "id": "shangshu",
+      "label": "能效部",
+      "role": "能效部长",
+      "emoji": "📮",
+      "rank": "正一品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 1,
+      "tokens_in": 597,
+      "tokens_out": 181,
+      "cache_read": 19200,
+      "cache_write": 0,
+      "tokens_total": 778,
+      "messages": 3,
+      "cost_usd": 0.0103,
+      "cost_cny": 0.07,
+      "last_active": "2026-04-12 21:04",
+      "heartbeat": {
+        "status": "active",
+        "label": "🟢 活跃 4分钟前",
+        "ageSec": 276
+      },
+      "tasks_done": 0,
+      "tasks_active": 1,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 1,
       "merit_rank": 6
     },
     {
-      "id": "gongbu",
-      "label": "工部",
-      "role": "工部尚书",
-      "emoji": "🔧",
+      "id": "bingbu",
+      "label": "兵部",
+      "role": "兵部尚书",
+      "emoji": "⚔️",
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
       "sessions": 1,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
+      "tokens_in": 18199,
+      "tokens_out": 61,
+      "cache_read": 64,
       "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 3,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": "2026-04-11 01:34",
+      "tokens_total": 18260,
+      "messages": 1,
+      "cost_usd": 0.0555,
+      "cost_cny": 0.4,
+      "last_active": "2026-04-12 18:55",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -249,23 +243,23 @@
       "merit_rank": 7
     },
     {
-      "id": "bingbu",
-      "label": "兵部",
-      "role": "兵部尚书",
-      "emoji": "⚔️",
+      "id": "rnd",
+      "label": "研发部",
+      "role": "研发总监",
+      "emoji": "💻",
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
+      "sessions": 1,
+      "tokens_in": 19361,
+      "tokens_out": 1,
+      "cache_read": 64,
       "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
+      "tokens_total": 19362,
+      "messages": 4,
+      "cost_usd": 0.0581,
+      "cost_cny": 0.42,
+      "last_active": "2026-04-12 14:38",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -275,7 +269,7 @@
       "tasks_active": 0,
       "flow_participations": 0,
       "participated_edicts": [],
-      "merit_score": 0,
+      "merit_score": 1,
       "merit_rank": 8
     },
     {
@@ -439,7 +433,7 @@
         {
           "at": "2026-04-07T03:11:10.793525Z",
           "from": "尚书省",
-          "to": "礼部",
+          "to": "藏经阁",
           "remark": "派发：碳循环减脂计划文档制定",
           "agent": "shangshu",
           "agentLabel": "尚书省"
@@ -715,7 +709,7 @@
           "at": "2026-04-07T03:11:13.505515Z",
           "agent": "shangshu",
           "agentLabel": "尚书省",
-          "text": "已派发户部进行数据分析，礼部制定计划文档",
+          "text": "已派发户部进行数据分析，藏经阁制定计划文档",
           "todos": [
             {
               "id": "1",
@@ -729,7 +723,7 @@
             },
             {
               "id": "3",
-              "title": "派发礼部",
+              "title": "派发藏经阁",
               "status": "completed"
             },
             {
@@ -755,7 +749,7 @@
           "at": "2026-04-07T03:11:32.463085Z",
           "agent": "shangshu",
           "agentLabel": "尚书省",
-          "text": "户部和礼部已完成执行，正在汇总结果",
+          "text": "户部和藏经阁已完成执行，正在汇总结果",
           "todos": [
             {
               "id": "1",
@@ -769,7 +763,7 @@
             },
             {
               "id": "3",
-              "title": "派发礼部",
+              "title": "派发藏经阁",
               "status": "completed"
             },
             {
@@ -835,6 +829,76 @@
         "lastModified": null
       },
       "heartbeat": null
+    },
+    {
+      "id": "OC-shangshu-df885b76",
+      "title": "能效部会话",
+      "official": "能效部长",
+      "org": "能效部",
+      "state": "Review",
+      "now": "思考中: {",
+      "eta": "2026-04-12 21:04:06",
+      "block": "无",
+      "output": "/Users/binlian/.openclaw/agents/shangshu/sessions/df885b76-14a9-4488-babb-63b780cb3144.jsonl",
+      "flow": {
+        "draft": "agent=shangshu",
+        "review": "updatedAt=2026-04-12 21:04:06",
+        "dispatch": "sessionKey=agent:shangshu:main"
+      },
+      "ac": "来自 OpenClaw runtime sessions 的实时映射",
+      "activity": [
+        {
+          "at": "2026-04-12T13:04:06.387Z",
+          "kind": "assistant",
+          "text": "{"
+        },
+        {
+          "at": "2026-04-12T13:04:03.255Z",
+          "kind": "user",
+          "text": "User: [Sun 2026-04-12 21:04 GMT+8] 你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n只输出 JSON 对象，不要 markdown，不要解..."
+        },
+        {
+          "at": "2026-04-12T12:59:03.601Z",
+          "kind": "assistant",
+          "text": "{"
+        },
+        {
+          "at": "2026-04-12T12:59:00.866Z",
+          "kind": "user",
+          "text": "User: [Sun 2026-04-12 20:58 GMT+8] 你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n只输出 JSON 对象，不要 markdown，不要解..."
+        },
+        {
+          "at": "2026-04-12T12:54:53.826Z",
+          "kind": "assistant",
+          "text": "{"
+        },
+        {
+          "at": "2026-04-12T12:54:49.727Z",
+          "kind": "user",
+          "text": "User: [Sun 2026-04-12 20:54 GMT+8] 你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n只输出 JSON 对象，不要 markdown，不要解..."
+        }
+      ],
+      "sourceMeta": {
+        "agentId": "shangshu",
+        "sessionKey": "agent:shangshu:main",
+        "sessionId": "df885b76-14a9-4488-babb-63b780cb3144",
+        "updatedAt": 1775999046456,
+        "ageMs": 336749,
+        "systemSent": false,
+        "abortedLastRun": false,
+        "inputTokens": 597,
+        "outputTokens": 181,
+        "totalTokens": 19797
+      },
+      "outputMeta": {
+        "exists": true,
+        "lastModified": "2026-04-12 21:04:06"
+      },
+      "heartbeat": {
+        "status": "warn",
+        "label": "🟡 可能停滞 5分钟前",
+        "ageSec": 337
+      }
     }
   ],
   "history": [
@@ -850,22 +914,22 @@
     "officialCount": 11,
     "todayDone": 0,
     "totalDone": 1,
-    "inProgress": 0,
+    "inProgress": 1,
     "blocked": 0
   },
   "syncStatus": {
     "ok": true,
-    "lastSyncAt": "2026-04-11 08:15:41",
-    "durationMs": 14,
+    "lastSyncAt": "2026-04-12 21:09:43",
+    "durationMs": 16,
     "source": "openclaw_runtime_sessions",
-    "recordCount": 1,
-    "scannedSessionFiles": 6,
+    "recordCount": 2,
+    "scannedSessionFiles": 11,
     "missingFields": {},
     "error": null
   },
   "health": {
     "syncOk": true,
-    "syncLatencyMs": 14,
+    "syncLatencyMs": 16,
     "missingFieldCount": 0
   }
 }

@@ -111,7 +111,7 @@
         "libu",
         "bingbu",
         "xingbu",
-        "gongbu"
+        "rnd"
       ]
     },
     {
@@ -184,8 +184,8 @@
     },
     {
       "id": "libu",
-      "label": "礼部",
-      "role": "礼部尚书",
+      "label": "藏经阁",
+      "role": "扫地僧",
       "duty": "文档/汇报/规范",
       "emoji": "📝",
       "model": "anthropic/claude-sonnet-4-6",
@@ -249,19 +249,19 @@
       ]
     },
     {
-      "id": "gongbu",
-      "label": "工部",
-      "role": "工部尚书",
+      "id": "rnd",
+      "label": "研发部",
+      "role": "研发总监",
       "duty": "工程交付与自动化",
       "emoji": "🔧",
       "model": "anthropic/claude-sonnet-4-6",
       "defaultModel": "anthropic/claude-sonnet-4-6",
       "isDefaultModel": true,
-      "workspace": "/Users/bingsen/.openclaw/workspace-gongbu",
+      "workspace": "/Users/bingsen/.openclaw/workspace-rnd",
       "skills": [
         {
           "name": "ops",
-          "path": "/Users/bingsen/.openclaw/workspace-gongbu/skills/ops/SKILL.md",
+          "path": "/Users/bingsen/.openclaw/workspace-rnd/skills/ops/SKILL.md",
           "exists": true,
           "description": "---"
         }

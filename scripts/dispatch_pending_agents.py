@@ -19,10 +19,12 @@ SESSIONS_ROOT = pathlib.Path.home() / ".openclaw" / "agents"
 ORG_AGENT_MAP = {
     "尚书省": "shangshu",
     "礼部": "libu",
+    "藏经阁": "libu",
     "户部": "hubu",
     "兵部": "bingbu",
     "刑部": "xingbu",
-    "工部": "gongbu",
+    "工部": "rnd",
+    "研发部": "rnd",
     "吏部": "libu_hr",
 }
 STATE_AGENT_MAP = {

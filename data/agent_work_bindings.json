@@ -1,0 +1,25 @@
+{
+  "updatedAt": "2026-04-12 00:00:00",
+  "bindings": {
+    "rnd_design_generate": {
+      "agentId": "rnd",
+      "source": "dashboard.html::pmGenerateDesign -> POST /api/pm/design-generate"
+    },
+    "rnd_version_generate": {
+      "agentId": "rnd",
+      "source": "dashboard.html::pmGenerateVersion -> POST /api/pm/version-generate"
+    },
+    "rnd_review": {
+      "agentId": "rnd",
+      "source": "dashboard.html::pmRndReview(review) -> POST /api/pm/rnd-review"
+    },
+    "rnd_execute": {
+      "agentId": "rnd",
+      "source": "dashboard.html::pmRndReview(execute) -> POST /api/pm/rnd-review"
+    },
+    "hr_soul_reorganize": {
+      "agentId": "libu_hr",
+      "source": "dashboard.html::reorganizeSoul -> POST /api/agent-soul/reorganize"
+    }
+  }
+}

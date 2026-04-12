@@ -163,7 +163,7 @@ cd edict && ./install.sh            # 自动同步到所有 Agent
 
 # 方法二：手动复制 auth 文件
 MAIN_AUTH=$(find ~/.openclaw/agents -name auth-profiles.json | head -1)
-for agent in taizi zhongshu menxia shangshu hubu libu bingbu xingbu gongbu; do
+for agent in taizi zhongshu menxia shangshu hubu libu bingbu xingbu rnd; do
   mkdir -p ~/.openclaw/agents/$agent/agent
   cp "$MAIN_AUTH" ~/.openclaw/agents/$agent/agent/auth-profiles.json
 done

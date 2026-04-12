@@ -76,7 +76,7 @@ function Backup-Existing {
 function Create-Workspaces {
     Info "创建 Agent Workspace..."
 
-    $agents = @("taizi","zhongshu","menxia","shangshu","hubu","libu","bingbu","xingbu","gongbu","libu_hr","zaochao")
+    $agents = @("taizi","zhongshu","menxia","shangshu","hubu","libu","bingbu","xingbu","rnd","libu_hr","zaochao")
     foreach ($agent in $agents) {
         $ws = Join-Path $OC_HOME "workspace-$agent"
         New-Item -ItemType Directory -Path (Join-Path $ws "skills") -Force | Out-Null
@@ -125,12 +125,12 @@ AGENTS = [
     {"id": "taizi",    "subagents": {"allowAgents": ["zhongshu"]}},
     {"id": "zhongshu", "subagents": {"allowAgents": ["menxia", "shangshu"]}},
     {"id": "menxia",   "subagents": {"allowAgents": ["shangshu", "zhongshu"]}},
-    {"id": "shangshu", "subagents": {"allowAgents": ["zhongshu", "menxia", "hubu", "libu", "bingbu", "xingbu", "gongbu", "libu_hr"]}},
+    {"id": "shangshu", "subagents": {"allowAgents": ["zhongshu", "menxia", "hubu", "libu", "bingbu", "xingbu", "rnd", "libu_hr"]}},
     {"id": "hubu",     "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "libu",     "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "bingbu",   "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "xingbu",   "subagents": {"allowAgents": ["shangshu"]}},
-    {"id": "gongbu",   "subagents": {"allowAgents": ["shangshu"]}},
+    {"id": "rnd",   "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "libu_hr",  "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "zaochao",  "subagents": {"allowAgents": []}},
 ]
@@ -186,7 +186,7 @@ function Init-Data {
 function Link-Resources {
     Info "创建 data/scripts 目录连接..."
     $linked = 0
-    $agents = @("taizi","zhongshu","menxia","shangshu","hubu","libu","bingbu","xingbu","gongbu","libu_hr","zaochao")
+    $agents = @("taizi","zhongshu","menxia","shangshu","hubu","libu","bingbu","xingbu","rnd","libu_hr","zaochao")
     foreach ($agent in $agents) {
         $ws = Join-Path $OC_HOME "workspace-$agent"
         New-Item -ItemType Directory -Path $ws -Force | Out-Null

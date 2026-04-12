@@ -61,16 +61,17 @@ _STATE_AGENT_MAP = {
 }
 
 _ORG_AGENT_MAP = {
-    '礼部': 'libu', '户部': 'hubu', '兵部': 'bingbu',
-    '刑部': 'xingbu', '工部': 'gongbu', '吏部': 'libu_hr',
+    '礼部': 'libu', '藏经阁': 'libu', '户部': 'hubu', '兵部': 'bingbu',
+    'PM小组': 'bingbu',
+    '刑部': 'xingbu', '工部': 'rnd', '研发部': 'rnd', '吏部': 'libu_hr', '人事部': 'libu_hr',
     '中书省': 'zhongshu', '门下省': 'menxia', '尚书省': 'shangshu',
 }
 
 _AGENT_LABELS = {
     'main': '太子', 'taizi': '太子',
     'zhongshu': '中书省', 'menxia': '门下省', 'shangshu': '尚书省',
-    'libu': '礼部', 'hubu': '户部', 'bingbu': '兵部', 'xingbu': '刑部',
-    'gongbu': '工部', 'libu_hr': '吏部', 'zaochao': '钦天监',
+    'libu': '藏经阁', 'hubu': '户部', 'bingbu': 'PM小组', 'xingbu': '刑部',
+    'rnd': '研发部', 'libu_hr': '人事部', 'zaochao': '钦天监',
 }
 
 _TERMINAL_STATES = {'Done', 'Cancelled'}

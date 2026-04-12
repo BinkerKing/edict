@@ -24,12 +24,12 @@ ID_LABEL = {
     'zhongshu': {'label': '中书省', 'role': '中书令',   'duty': '起草任务令与优先级',  'emoji': '📜'},
     'menxia':   {'label': '门下省', 'role': '侍中',     'duty': '审议与退回机制',      'emoji': '🔍'},
     'shangshu': {'label': '尚书省', 'role': '尚书令',   'duty': '派单与升级裁决',      'emoji': '📮'},
-    'libu':     {'label': '礼部',   'role': '礼部尚书', 'duty': '文档/汇报/规范',      'emoji': '📝'},
+    'libu':     {'label': '藏经阁', 'role': '扫地僧', 'duty': '学习路径与知识沉淀',      'emoji': '📝'},
     'hubu':     {'label': '户部',   'role': '户部尚书', 'duty': '资源/预算/成本',      'emoji': '💰'},
-    'bingbu':   {'label': '兵部',   'role': '兵部尚书', 'duty': '工程实现与架构设计',  'emoji': '⚔️'},
+    'bingbu':   {'label': 'PM小组',   'role': '项目经理', 'duty': '工程实现与架构设计',  'emoji': '⚔️'},
     'xingbu':   {'label': '刑部',   'role': '刑部尚书', 'duty': '合规/审计/红线',      'emoji': '⚖️'},
-    'gongbu':   {'label': '工部',   'role': '工部尚书', 'duty': '基础设施与部署运维',  'emoji': '🔧'},
-    'libu_hr':  {'label': '吏部',   'role': '吏部尚书', 'duty': '人事/培训/Agent管理',  'emoji': '👔'},
+    'rnd':   {'label': '研发部', 'role': '研发总监', 'duty': '工程实现与架构设计',  'emoji': '💻'},
+    'libu_hr':  {'label': '人事部',   'role': '人事经理', 'duty': '人事/培训/Agent管理',  'emoji': '👔'},
     'zaochao':  {'label': '钦天监', 'role': '朝报官',   'duty': '每日新闻采集与简报',  'emoji': '📰'},
 }
 
@@ -194,7 +194,7 @@ def main():
         'taizi':   {'model': default_model, 'workspace': str(project_workspace('taizi')),
                     'allowAgents': ['zhongshu']},
         'main':    {'model': default_model, 'workspace': str(project_workspace('main')),
-                    'allowAgents': ['zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','libu_hr']},
+                    'allowAgents': ['zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','rnd','libu_hr']},
         'zaochao': {'model': default_model, 'workspace': str(project_workspace('zaochao')),
                     'allowAgents': []},
         'libu_hr': {'model': default_model, 'workspace': str(project_workspace('libu_hr')),
@@ -204,7 +204,7 @@ def main():
         'menxia': {'model': default_model, 'workspace': str(project_workspace('menxia')),
                     'allowAgents': ['shangshu', 'zhongshu']},
         'shangshu': {'model': default_model, 'workspace': str(project_workspace('shangshu')),
-                    'allowAgents': ['zhongshu','menxia','hubu','libu','bingbu','xingbu','gongbu','libu_hr']},
+                    'allowAgents': ['zhongshu','menxia','hubu','libu','bingbu','xingbu','rnd','libu_hr']},
         'libu': {'model': default_model, 'workspace': str(project_workspace('libu')),
                     'allowAgents': ['shangshu']},
         'hubu': {'model': default_model, 'workspace': str(project_workspace('hubu')),
@@ -213,7 +213,7 @@ def main():
                     'allowAgents': ['shangshu']},
         'xingbu': {'model': default_model, 'workspace': str(project_workspace('xingbu')),
                     'allowAgents': ['shangshu']},
-        'gongbu': {'model': default_model, 'workspace': str(project_workspace('gongbu')),
+        'rnd': {'model': default_model, 'workspace': str(project_workspace('rnd')),
                     'allowAgents': ['shangshu']},
     }
     for ag_id, extra in EXTRA_AGENTS.items():
@@ -267,7 +267,7 @@ _SOUL_DEPLOY_MAP = {
     'hubu': 'hubu',
     'bingbu': 'bingbu',
     'xingbu': 'xingbu',
-    'gongbu': 'gongbu',
+    'rnd': 'rnd',
     'libu_hr': 'libu_hr',
     'zaochao': 'zaochao',
 }

@@ -68,7 +68,7 @@
       {
         "at": "2026-04-07T03:11:10.793525Z",
         "from": "尚书省",
-        "to": "礼部",
+        "to": "藏经阁",
         "remark": "派发：碳循环减脂计划文档制定",
         "agent": "shangshu",
         "agentLabel": "尚书省"
@@ -344,7 +344,7 @@
         "at": "2026-04-07T03:11:13.505515Z",
         "agent": "shangshu",
         "agentLabel": "尚书省",
-        "text": "已派发户部进行数据分析，礼部制定计划文档",
+        "text": "已派发户部进行数据分析，藏经阁制定计划文档",
         "todos": [
           {
             "id": "1",
@@ -358,7 +358,7 @@
           },
           {
             "id": "3",
-            "title": "派发礼部",
+            "title": "派发藏经阁",
             "status": "completed"
           },
           {
@@ -384,7 +384,7 @@
         "at": "2026-04-07T03:11:32.463085Z",
         "agent": "shangshu",
         "agentLabel": "尚书省",
-        "text": "户部和礼部已完成执行，正在汇总结果",
+        "text": "户部和藏经阁已完成执行，正在汇总结果",
         "todos": [
           {
             "id": "1",
@@ -398,7 +398,7 @@
           },
           {
             "id": "3",
-            "title": "派发礼部",
+            "title": "派发藏经阁",
             "status": "completed"
           },
           {
@@ -468,6 +468,67 @@
           "lastModified": "2026-04-07 11:11:18"
         }
       ]
+    }
+  },
+  {
+    "id": "OC-shangshu-df885b76",
+    "title": "能效部会话",
+    "official": "能效部长",
+    "org": "能效部",
+    "state": "Review",
+    "now": "思考中: {",
+    "eta": "2026-04-12 21:04:06",
+    "block": "无",
+    "output": "/Users/binlian/.openclaw/agents/shangshu/sessions/df885b76-14a9-4488-babb-63b780cb3144.jsonl",
+    "flow": {
+      "draft": "agent=shangshu",
+      "review": "updatedAt=2026-04-12 21:04:06",
+      "dispatch": "sessionKey=agent:shangshu:main"
+    },
+    "ac": "来自 OpenClaw runtime sessions 的实时映射",
+    "activity": [
+      {
+        "at": "2026-04-12T13:04:06.387Z",
+        "kind": "assistant",
+        "text": "{"
+      },
+      {
+        "at": "2026-04-12T13:04:03.255Z",
+        "kind": "user",
+        "text": "User: [Sun 2026-04-12 21:04 GMT+8] 你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n只输出 JSON 对象，不要 markdown，不要解..."
+      },
+      {
+        "at": "2026-04-12T12:59:03.601Z",
+        "kind": "assistant",
+        "text": "{"
+      },
+      {
+        "at": "2026-04-12T12:59:00.866Z",
+        "kind": "user",
+        "text": "User: [Sun 2026-04-12 20:58 GMT+8] 你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n只输出 JSON 对象，不要 markdown，不要解..."
+      },
+      {
+        "at": "2026-04-12T12:54:53.826Z",
+        "kind": "assistant",
+        "text": "{"
+      },
+      {
+        "at": "2026-04-12T12:54:49.727Z",
+        "kind": "user",
+        "text": "User: [Sun 2026-04-12 20:54 GMT+8] 你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n只输出 JSON 对象，不要 markdown，不要解..."
+      }
+    ],
+    "sourceMeta": {
+      "agentId": "shangshu",
+      "sessionKey": "agent:shangshu:main",
+      "sessionId": "df885b76-14a9-4488-babb-63b780cb3144",
+      "updatedAt": 1775999046456,
+      "ageMs": 336749,
+      "systemSent": false,
+      "abortedLastRun": false,
+      "inputTokens": 597,
+      "outputTokens": 181,
+      "totalTokens": 19797
     }
   }
 ]

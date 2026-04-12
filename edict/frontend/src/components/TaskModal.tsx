@@ -15,11 +15,11 @@ const AGENT_LABELS: Record<string, string> = {
   zhongshu: '中书省',
   menxia: '门下省',
   shangshu: '尚书省',
-  libu: '礼部',
+  libu: '藏经阁',
   hubu: '户部',
   bingbu: '兵部',
   xingbu: '刑部',
-  gongbu: '工部',
+  rnd: '研发部',
   libu_hr: '吏部',
   zaochao: '钦天监',
 };
@@ -465,8 +465,8 @@ function LiveActivitySection({
   const maxDur = Math.max(...phaseDurations.map((p) => p.durationSec || 1), 1);
   const phaseColors: Record<string, string> = {
     '皇上': '#eab308', '太子': '#f97316', '中书省': '#3b82f6', '门下省': '#8b5cf6',
-    '尚书省': '#10b981', '六部': '#06b6d4', '礼部': '#ec4899', '户部': '#f59e0b',
-    '兵部': '#ef4444', '刑部': '#6366f1', '工部': '#14b8a6', '吏部': '#d946ef',
+    '尚书省': '#10b981', '六部': '#06b6d4', '藏经阁': '#ec4899', '户部': '#f59e0b',
+    '兵部': '#ef4444', '刑部': '#6366f1', '研发部': '#14b8a6', '吏部': '#d946ef',
   };
 
   // Todos summary

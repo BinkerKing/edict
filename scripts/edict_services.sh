@@ -6,7 +6,14 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="${EDICT_PYTHON_BIN:-$(command -v python3)}"
+if [[ -n "${EDICT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="$EDICT_PYTHON_BIN"
+elif [[ -x "/opt/homebrew/bin/python3" ]]; then
+  # macOS/Homebrew: 优先使用 Homebrew Python，避免系统 Python 在受限目录下偶发权限问题
+  PYTHON_BIN="/opt/homebrew/bin/python3"
+else
+  PYTHON_BIN="$(command -v python3)"
+fi
 
 DASHBOARD_HOST="${EDICT_DASHBOARD_HOST:-127.0.0.1}"
 DASHBOARD_PORT="${EDICT_DASHBOARD_PORT:-7891}"
@@ -68,7 +75,13 @@ start_loop() {
 }
 
 stop_dashboard() {
-  pkill -f "$dashboard_pattern" >/dev/null 2>&1 || true
+  # 兼容历史启动参数差异：不依赖固定 "--host --port" 参数串匹配
+  pkill -f "${ROOT_DIR}/dashboard/server.py" >/dev/null 2>&1 || true
+  local pids
+  pids="$(lsof -tiTCP:"$DASHBOARD_PORT" -sTCP:LISTEN 2>/dev/null || true)"
+  if [[ -n "$pids" ]]; then
+    echo "$pids" | xargs kill >/dev/null 2>&1 || true
+  fi
   echo "[dashboard] stopped"
 }
 
@@ -111,7 +124,7 @@ case "$cmd" in
   start)
     start_gateway
     start_dashboard
-    start_loop
+    start_loop || echo "[loop] warning: failed to start (dashboard remains available)"
     status_all
     ;;
   stop)
@@ -124,7 +137,7 @@ case "$cmd" in
     stop_dashboard
     start_gateway
     start_dashboard
-    start_loop
+    start_loop || echo "[loop] warning: failed to start (dashboard remains available)"
     status_all
     ;;
   status)

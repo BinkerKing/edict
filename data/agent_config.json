@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11 08:15:41",
+  "generatedAt": "2026-04-12 21:09:43",
   "defaultModel": "bailian-cn/qwen3-coder-plus",
   "knownModels": [
     {
@@ -1499,7 +1499,7 @@
         "libu",
         "bingbu",
         "xingbu",
-        "gongbu",
+        "rnd",
         "libu_hr"
       ]
     },
@@ -1856,9 +1856,9 @@
     },
     {
       "id": "libu",
-      "label": "礼部",
-      "role": "礼部尚书",
-      "duty": "文档/汇报/规范",
+      "label": "藏经阁",
+      "role": "扫地僧",
+      "duty": "学习路径与知识沉淀",
       "emoji": "📝",
       "model": "bailian-cn/qwen3-coder-plus",
       "defaultModel": "bailian-cn/qwen3-coder-plus",
@@ -2207,8 +2207,8 @@
     },
     {
       "id": "bingbu",
-      "label": "兵部",
-      "role": "兵部尚书",
+      "label": "PM小组",
+      "role": "项目经理",
       "duty": "工程实现与架构设计",
       "emoji": "⚔️",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -2908,14 +2908,14 @@
       ]
     },
     {
-      "id": "gongbu",
-      "label": "工部",
-      "role": "工部尚书",
-      "duty": "基础设施与部署运维",
-      "emoji": "🔧",
+      "id": "rnd",
+      "label": "研发部",
+      "role": "研发总监",
+      "duty": "工程实现与架构设计",
+      "emoji": "💻",
       "model": "bailian-cn/qwen3-coder-plus",
       "defaultModel": "bailian-cn/qwen3-coder-plus",
-      "workspace": "/Users/binlian/.openclaw/workspace-gongbu",
+      "workspace": "/Users/binlian/.openclaw/workspace-rnd",
       "skills": [
         {
           "name": "aspnet-core",
@@ -3260,8 +3260,8 @@
     },
     {
       "id": "libu_hr",
-      "label": "吏部",
-      "role": "吏部尚书",
+      "label": "人事部",
+      "role": "人事经理",
       "duty": "人事/培训/Agent管理",
       "emoji": "👔",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -4313,7 +4313,7 @@
         "libu",
         "bingbu",
         "xingbu",
-        "gongbu",
+        "rnd",
         "libu_hr"
       ],
       "isDefaultModel": true

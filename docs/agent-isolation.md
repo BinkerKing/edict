@@ -21,7 +21,7 @@
 
 - `projectId`
 - `domain`（如 `pm`）
-- `action`（如 `design-requirements` / `version-generate` / `gongbu-review-review`）
+- `action`（如 `design-requirements` / `version-generate` / `rnd-review-review`）
 
 Scope key：
 
@@ -39,8 +39,8 @@ Scope key：
 
 例如：
 
-- `gongbu__pm__design-requirements__8a21f3c1`
-- `gongbu__pm__version-generate__e39082af`
+- `rnd__pm__design-requirements__8a21f3c1`
+- `rnd__pm__version-generate__e39082af`
 
 ### 2.3 Registry 约定
 
@@ -63,13 +63,13 @@ Scope key：
 
 ## 3. 当前接入点（v1）
 
-已接入以下 PM 入口（base agent = `gongbu`）：
+已接入以下 PM 入口（base agent = `rnd`）：
 
 - 工部生成（设计文档）：按 `design-{section}` 路由
 - 更新版本：按 `version-generate` 路由
-- 工部复审：按 `gongbu-review-{mode}` 路由
+- 工部复审：按 `rnd-review-{mode}` 路由
 
-说明：这三类操作现在会落到不同 runtime agent，不再共用 `gongbu main` 会话。
+说明：这三类操作现在会落到不同 runtime agent，不再共用 `rnd main` 会话。
 
 ---
 

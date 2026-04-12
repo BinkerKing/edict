@@ -28,8 +28,8 @@
       "duty": "资源/预算/成本"
     },
     {
-      "name": "礼部尚书",
-      "org": "礼部",
+      "name": "扫地僧",
+      "org": "藏经阁",
       "duty": "文档/汇报/规范"
     },
     {
@@ -43,8 +43,8 @@
       "duty": "合规/审计/红线"
     },
     {
-      "name": "工部尚书",
-      "org": "工部",
+      "name": "研发总监",
+      "org": "研发部",
       "duty": "工程交付与自动化"
     }
   ],
@@ -84,7 +84,7 @@
           "at": "2026-02-24T14:10:41.895659Z",
           "from": "尚书省",
           "to": "中书省",
-          "remark": "Week1回奏：礼部README已推送(87f0313)，工部Dockerfile本地就绪，兵部截图已生成。待决策：Docker Hub授权 + GIF录制方式"
+          "remark": "Week1回奏：藏经阁README已推送(87f0313)，研发部Dockerfile本地就绪，兵部截图已生成。待决策：Docker Hub授权 + GIF录制方式"
         }
       ],
       "updatedAt": "2026-02-24T14:10:41.895659Z",
@@ -160,11 +160,11 @@
           "at": "2026-02-23T16:10:11.354802Z",
           "from": "尚书省",
           "to": "六部",
-          "remark": "📮 派发：礼部→采集脚本，工部→看板Tab+定时触发"
+          "remark": "📮 派发：藏经阁→采集脚本，研发部→看板Tab+定时触发"
         },
         {
           "at": "2026-02-23T16:18:33.625030Z",
-          "from": "工部",
+          "from": "研发部",
           "to": "尚书省",
           "remark": "✅ 完成：早朝Tab上线，zaochao cron已注册每日6:00，20条新闻采集成功"
         },
@@ -211,7 +211,7 @@
           "at": "2026-02-23T15:56:00.668461Z",
           "from": "门下省",
           "to": "中书省",
-          "remark": "⚠️ 附条件准奏：①吏部漏列②礼部自审矛盾③审计漏洞④数据源不明"
+          "remark": "⚠️ 附条件准奏：①吏部漏列②藏经阁自审矛盾③审计漏洞④数据源不明"
         },
         {
           "at": "2026-02-23T15:56:00.668461Z",
@@ -223,11 +223,11 @@
           "at": "2026-02-23T15:56:00.668461Z",
           "from": "尚书省",
           "to": "六部",
-          "remark": "📮 三路并行派发：礼部→六部SOUL模板；工部→省部调度重设计+审计字段"
+          "remark": "📮 三路并行派发：藏经阁→六部SOUL模板；研发部→省部调度重设计+审计字段"
         },
         {
           "at": "2026-02-23T15:58:06.705347Z",
-          "from": "工部",
+          "from": "研发部",
           "to": "皇上",
           "remark": "✅ 回奏：①六部SOUL.md已补正（强制look板更新+罚俸机制）②省部调度改为当班一览③中书省续流铁律已写入SOUL"
         }
@@ -279,12 +279,12 @@
         {
           "at": "2026-02-23T15:42:33.704207Z",
           "from": "尚书省",
-          "to": "工部",
+          "to": "研发部",
           "remark": "📮 派发：官员总览重设计，含布局重构/Token扫描修复/历史旨意反查"
         },
         {
           "at": "2026-02-23T15:46:00.352147Z",
-          "from": "工部",
+          "from": "研发部",
           "to": "皇上",
           "remark": "✅ 回奏：官员总览重设计完成，含品级排行榜/旨意参与/Token/缓存费用拆分，请皇上御览"
         }
@@ -329,12 +329,12 @@
         {
           "at": "2026-02-23T14:59:05Z",
           "from": "尚书省",
-          "to": "工部",
-          "remark": "📮 派发：工部负责构建官员统计同步脚本与看板Tab"
+          "to": "研发部",
+          "remark": "📮 派发：研发部负责构建官员统计同步脚本与看板Tab"
         },
         {
           "at": "2026-02-23T15:16:00Z",
-          "from": "工部",
+          "from": "研发部",
           "to": "尚书省",
           "remark": "完成：scripts/sync_officials_stats.py + 官员总览Tab，API已验证"
         },
@@ -373,13 +373,13 @@
         {
           "at": "2026-02-23T14:53:00Z",
           "from": "中书省",
-          "to": "工部",
+          "to": "研发部",
           "remark": "执行：构建 dashboard.html + server.py + 全套脚本"
         },
         {
           "at": "2026-02-23T15:00:00Z",
-          "from": "工部",
-          "to": "礼部",
+          "from": "研发部",
+          "to": "藏经阁",
           "remark": "执行：撰写 README.md（中英双版）"
         },
         {
@@ -423,7 +423,7 @@
           "at": "2026-02-23T12:43:00Z",
           "from": "中书省",
           "to": "门下省",
-          "remark": "规划方案提交审核（户部→兵部串行+礼部并行）"
+          "remark": "规划方案提交审核（户部→兵部串行+藏经阁并行）"
         },
         {
           "at": "2026-02-23T12:55:00Z",
@@ -440,7 +440,7 @@
         {
           "at": "2026-02-23T12:57:00Z",
           "from": "尚书省",
-          "to": "礼部",
+          "to": "藏经阁",
           "remark": "并行派发：起草算法说明文档框架"
         },
         {
@@ -452,7 +452,7 @@
         {
           "at": "2026-02-23T13:21:50.426121+00:00",
           "from": "尚书省",
-          "to": "礼部",
+          "to": "藏经阁",
           "remark": "正式派发（并行）：撰写算法说明文档"
         },
         {
@@ -463,7 +463,7 @@
         },
         {
           "at": "2026-02-23T13:26:44.518730+00:00",
-          "from": "礼部",
+          "from": "藏经阁",
           "to": "尚书省",
           "remark": "✅ 完成：algorithm_report.md"
         },
@@ -778,7 +778,7 @@
         {
           "at": "2026-02-24T14:08:35.038Z",
           "kind": "assistant",
-          "text": "📜 **奏折 · JJC-20260224-014 Week1 全部完成**  A计划——三省六部 GitHub 爆款项目打造，四项任务已全部交付：  ---  **① ✅ Docker 演示镜像（工部）** - `junjichu-v2/"
+          "text": "📜 **奏折 · JJC-20260224-014 Week1 全部完成**  A计划——三省六部 GitHub 爆款项目打造，四项任务已全部交付：  ---  **① ✅ Docker 演示镜像（研发部）** - `junjichu-v2/"
         },
         {
           "at": "2026-02-24T14:08:35.061Z",
@@ -834,19 +834,19 @@
       }
     },
     {
-      "id": "OC-gongbu-77f5e08c",
-      "title": "agent:gongbu:subagent:de641ed5-fefa-4d35-9ca1-6895fa103447 会话",
-      "official": "工部尚书",
-      "org": "工部",
+      "id": "OC-rnd-77f5e08c",
+      "title": "agent:rnd:subagent:de641ed5-fefa-4d35-9ca1-6895fa103447 会话",
+      "official": "研发总监",
+      "org": "研发部",
       "state": "Review",
       "now": "webchat/- · 模型 claude-sonnet-4-6",
       "eta": "2026-02-24 22:07:50",
       "block": "无",
-      "output": "/Users/bingsen/.openclaw/agents/gongbu/sessions/77f5e08c-e75c-4094-b4db-071eae702f7d.jsonl",
+      "output": "/Users/bingsen/.openclaw/agents/rnd/sessions/77f5e08c-e75c-4094-b4db-071eae702f7d.jsonl",
       "flow": {
-        "draft": "agent=gongbu",
+        "draft": "agent=rnd",
         "review": "updatedAt=2026-02-24 22:07:50",
-        "dispatch": "sessionKey=agent:gongbu:subagent:de641ed5-fefa-4d35-9ca1-6895fa103447"
+        "dispatch": "sessionKey=agent:rnd:subagent:de641ed5-fefa-4d35-9ca1-6895fa103447"
       },
       "ac": "来自 OpenClaw runtime sessions 的实时映射",
       "activity": [
@@ -898,12 +898,12 @@
         {
           "at": "2026-02-24T14:07:50.919Z",
           "kind": "assistant",
-          "text": "---  ✅ **工部完成** **任务ID: JJC-20260224-014**  ---  **① Docker 演示镜像**  | 文件 | 路径 | |------|------| | Dockerfile | `/Users/b"
+          "text": "---  ✅ **研发部完成** **任务ID: JJC-20260224-014**  ---  **① Docker 演示镜像**  | 文件 | 路径 | |------|------| | Dockerfile | `/Users/b"
         }
       ],
       "sourceMeta": {
-        "agentId": "gongbu",
-        "sessionKey": "agent:gongbu:subagent:de641ed5-fefa-4d35-9ca1-6895fa103447",
+        "agentId": "rnd",
+        "sessionKey": "agent:rnd:subagent:de641ed5-fefa-4d35-9ca1-6895fa103447",
         "sessionId": "77f5e08c-e75c-4094-b4db-071eae702f7d",
         "updatedAt": 1771942070958,
         "ageMs": 315609,
@@ -926,8 +926,8 @@
     {
       "id": "OC-libu-2f31143a",
       "title": "agent:libu:subagent:9a63ae48-0851-4d63-8a37-0326007a24ff 会话",
-      "official": "礼部尚书",
-      "org": "礼部",
+      "official": "扫地僧",
+      "org": "藏经阁",
       "state": "Review",
       "now": "webchat/- · 模型 claude-sonnet-4-6",
       "eta": "2026-02-24 22:07:43",
@@ -983,7 +983,7 @@
         {
           "at": "2026-02-24T14:07:43.725Z",
           "kind": "assistant",
-          "text": "推送成功。  ---  ✅ 礼部完成 **任务ID**: JJC-20260224-014 **产出**: README.md 已更新并推送至 `main` 分支（commit `87f0313`）  **变更说明**：  1. **🆚 竞"
+          "text": "推送成功。  ---  ✅ 藏经阁完成 **任务ID**: JJC-20260224-014 **产出**: README.md 已更新并推送至 `main` 分支（commit `87f0313`）  **变更说明**：  1. **🆚 竞"
         }
       ],
       "sourceMeta": {
@@ -1307,8 +1307,8 @@
     {
       "id": "OC-main-de50c4d8",
       "title": "褚凤天 会话",
-      "official": "工部尚书",
-      "org": "工部",
+      "official": "研发总监",
+      "org": "研发部",
       "state": "Next",
       "now": "feishu/direct · 模型 gpt-5.3-codex",
       "eta": "2026-02-23 15:20:53",

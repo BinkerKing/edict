@@ -453,7 +453,7 @@ _STATE_AGENT_MAP = {
     {
       "id": "shangshu",
       "label": "尚书省",
-      "allowAgents": ["libu", "hubu", "bingbu", "xingbu", "gongbu", "libu_hr"]
+      "allowAgents": ["libu", "hubu", "bingbu", "xingbu", "rnd", "libu_hr"]
     },
     {
       "id": "libu",

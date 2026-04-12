@@ -8,6 +8,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export EDICT_HOME="${EDICT_HOME:-$(dirname "$SCRIPT_DIR")}"
+if [[ -n "${EDICT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="$EDICT_PYTHON_BIN"
+elif [[ -x "/opt/homebrew/bin/python3" ]]; then
+  PYTHON_BIN="/opt/homebrew/bin/python3"
+else
+  PYTHON_BIN="$(command -v python3)"
+fi
 INTERVAL="${1:-60}"
 LOG="/tmp/sansheng_liubu_refresh.log"
 PIDFILE="/tmp/sansheng_liubu_refresh.pid"
@@ -52,6 +59,7 @@ echo "   巡检间隔: ${SCAN_INTERVAL}s"
 echo "   脚本超时: ${SCRIPT_TIMEOUT}s"
 echo "   日志: $LOG"
 echo "   PID文件: $PIDFILE"
+echo "   Python: $PYTHON_BIN"
 echo "   按 Ctrl+C 停止"
 
 # ── 安全执行（带超时保护）──
@@ -59,12 +67,13 @@ safe_run() {
   local script="$1"
   local timeout="${2:-$SCRIPT_TIMEOUT}"
   # macOS 默认无 GNU timeout，统一使用 Python 子进程超时，避免循环卡死。
-  python3 - "$script" "$timeout" >> "$LOG" 2>&1 <<'PY'
+  "$PYTHON_BIN" - "$script" "$timeout" "$PYTHON_BIN" >> "$LOG" 2>&1 <<'PY'
 import subprocess, sys
 script = sys.argv[1]
 timeout_sec = int(sys.argv[2])
+python_bin = sys.argv[3]
 try:
-    subprocess.run(["python3", script], check=False, timeout=max(1, timeout_sec))
+    subprocess.run([python_bin, script], check=False, timeout=max(1, timeout_sec))
 except subprocess.TimeoutExpired:
     print(f"[loop] ⚠️ 脚本超时({timeout_sec}s): {script}")
 except Exception as e:

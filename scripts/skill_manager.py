@@ -247,11 +247,11 @@ OFFICIAL_SKILLS_HUB = {
 
 SKILL_AGENT_MAPPING = {
     'code_review': ('bingbu', 'xingbu', 'menxia'),
-    'api_design': ('bingbu', 'gongbu', 'menxia'),
+    'api_design': ('bingbu', 'rnd', 'menxia'),
     'security_audit': ('xingbu', 'menxia'),
     'data_analysis': ('hubu', 'menxia'),
     'doc_generation': ('libu', 'menxia'),
-    'test_framework': ('gongbu', 'xingbu', 'menxia'),
+    'test_framework': ('rnd', 'xingbu', 'menxia'),
 }
 
 

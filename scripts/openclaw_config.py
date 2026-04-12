@@ -23,7 +23,7 @@ AGENT_ORDER = [
     "hubu",
     "bingbu",
     "xingbu",
-    "gongbu",
+    "rnd",
     "libu_hr",
     "zaochao",
 ]
@@ -32,12 +32,12 @@ AGENT_SUBAGENTS: dict[str, list[str]] = {
     "taizi": ["zhongshu"],
     "zhongshu": ["menxia", "shangshu"],
     "menxia": ["shangshu", "zhongshu"],
-    "shangshu": ["zhongshu", "menxia", "hubu", "libu", "bingbu", "xingbu", "gongbu", "libu_hr"],
+    "shangshu": ["zhongshu", "menxia", "hubu", "libu", "bingbu", "xingbu", "rnd", "libu_hr"],
     "libu": ["shangshu"],
     "hubu": ["shangshu"],
     "bingbu": ["shangshu"],
     "xingbu": ["shangshu"],
-    "gongbu": ["shangshu"],
+    "rnd": ["shangshu"],
     "libu_hr": ["shangshu"],
     "zaochao": [],
 }

@@ -90,11 +90,11 @@ body {
 .dt-中书省 { border-color: #a07aff44; color: #a07aff; background: #1a0f38; }
 .dt-门下省 { border-color: #6a9eff44; color: #6a9eff; background: #0f1a38; }
 .dt-尚书省 { border-color: #6aef9a44; color: #6aef9a; background: #0a2018; }
-.dt-礼部 { border-color: #f5c84244; color: #f5c842; background: #201a08; }
+.dt-礼部, .dt-藏经阁 { border-color: #f5c84244; color: #f5c842; background: #201a08; }
 .dt-户部 { border-color: #ff9a6a44; color: #ff9a6a; background: #28100a; }
 .dt-兵部 { border-color: #ff527044; color: #ff5270; background: #280a10; }
 .dt-刑部 { border-color: #cc444444; color: #cc4444; background: #280808; }
-.dt-工部 { border-color: #44aaff44; color: #44aaff; background: #081828; }
+.dt-工部, .dt-研发部 { border-color: #44aaff44; color: #44aaff; background: #081828; }
 
 .ec-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 6px; }
 .hb { font-size: 10px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); }

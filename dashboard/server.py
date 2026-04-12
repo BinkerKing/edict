@@ -11,7 +11,7 @@ Endpoints:
   GET  /api/model-change-log   → data/model_change_log.json
   GET  /api/last-result        → data/last_model_change_result.json
 """
-import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time, uuid, shutil, hashlib
+import json, pathlib, subprocess, sys, threading, argparse, datetime, logging, re, os, socket, time, uuid, shutil, hashlib, base64
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from urllib.request import Request, urlopen
@@ -39,7 +39,7 @@ from channels import get_channel, get_channel_info, CHANNELS as NOTIFICATION_CHA
 OCLAW_HOME = pathlib.Path.home() / '.openclaw'
 OPENCLAW_SKILLS_HOME = OCLAW_HOME / 'skills'
 AGENTS_SKILLS_HOME = pathlib.Path.home() / '.agents' / 'skills'
-MAX_REQUEST_BODY = 1 * 1024 * 1024  # 1 MB
+MAX_REQUEST_BODY = 30 * 1024 * 1024  # 30 MB
 ALLOWED_ORIGIN = None  # Set via --cors; None means restrict to localhost
 _DASHBOARD_PORT = 7891  # Updated at startup from --port arg
 _DEFAULT_ORIGINS = {
@@ -57,8 +57,12 @@ SCRIPTS = BASE.parent / 'scripts'
 _ACTIVE_TASK_DATA_DIR = None
 LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
 PM_FILE = DATA / 'project_management.json'
+AUTOMATION_FILE = DATA / 'automation_tasks.json'
 PM_ISOLATION_FILE = DATA / 'agent_isolation_registry.json'
+AGENT_WORK_SCOPE_FILE = DATA / 'agent_work_scopes.json'
+AGENT_WORK_BINDINGS_FILE = DATA / 'agent_work_bindings.json'
 JZG_FILE = DATA / 'jiangzuojian.json'
+JZG_EXTERNAL_DOCS_DIR = DATA / 'external_docs'
 PM_DESIGN_FOLDER_ID = 'FLD-DESIGN'
 PM_DESIGN_FOLDER_NAME = '项目设计'
 PM_VERSION_FOLDER_ID = 'FLD-VERSION'
@@ -72,6 +76,8 @@ JZG_STRATEGY_FOLDER_ID = 'JZG-STRATEGY'
 JZG_STRATEGY_FOLDER_NAME = '策议司'
 JZG_BOARD_FOLDER_ID = 'JZG-BOARD'
 JZG_BOARD_FOLDER_NAME = '智能看板'
+JZG_DOC_DEFAULT_FOLDER_ID = 'JZG-DOC-DEFAULT'
+JZG_DOC_DEFAULT_FOLDER_NAME = '未分类'
 JZG_DEFAULT_DAILY_TEMPLATE = (
     "【将作监日报】{date}\n"
     "项目：{project_name}\n\n"
@@ -80,7 +86,7 @@ JZG_DEFAULT_DAILY_TEMPLATE = (
     "二、当前未完成\n"
     "{todo_items}\n\n"
     "三、风险与建议\n"
-    "- （由吏部补充）\n"
+    "- （由兵部补充）\n"
 )
 JZG_DEFAULT_WEEKLY_TEMPLATE = (
     "【将作监周报】{start_date} ~ {end_date}\n"
@@ -90,8 +96,110 @@ JZG_DEFAULT_WEEKLY_TEMPLATE = (
     "二、当前未完成\n"
     "{todo_items}\n\n"
     "三、下周计划与提醒\n"
-    "- （由吏部补充）\n"
+    "- （由兵部补充）\n"
 )
+
+AUTOMATION_ALLOWED_AGENTS = {'taizi', 'zhongshu', 'menxia', 'shangshu', 'libu', 'hubu', 'bingbu', 'xingbu', 'rnd', 'libu_hr', 'zaochao'}
+
+DEFAULT_AGENT_WORK_SCOPES = {
+    'rnd': [
+        {
+            'entry': '项目设计 · 研发部生成',
+            'service': '围绕 PRD 生成或重写需求/架构/功能设计文档。',
+            'invoke': 'agent',
+            'bindingId': 'rnd_design_generate',
+            'match': ['项目设计-需求说明生成', '项目设计-架构设计生成', '项目设计-功能设计生成', 'design-generate'],
+        },
+        {
+            'entry': '版本控制 · 更新版本',
+            'service': '按项目变更汇总版本记录，输出更新说明与发布清单。',
+            'invoke': 'agent',
+            'bindingId': 'rnd_version_generate',
+            'match': ['版本控制-更新版本触发', 'version-generate', '更新版本'],
+        },
+        {
+            'entry': '问题详情 · 研发部复审',
+            'service': '对问题给出实现拆分建议、技术路径与落地步骤。',
+            'invoke': 'agent',
+            'bindingId': 'rnd_review',
+            'match': ['问题详情-研发部复审触发', '研发部复审触发', 'rnd-review', '复审'],
+        },
+        {
+            'entry': '问题详情 · 研发部催办',
+            'service': '针对长时间未推进问题发起催办并推动状态流转。',
+            'invoke': 'agent',
+            'bindingId': 'rnd_execute',
+            'match': ['问题详情-研发部催办触发', '研发部催办触发', 'execute', '催办'],
+        },
+    ],
+    'bingbu': [
+        {'entry': 'PM小组 · 专家小组策议', 'service': '协助拆解需求优先级、方案路径与阶段目标。', 'invoke': 'agent'},
+        {'entry': 'PM小组 · 项目跟进', 'service': '输出当日待办推进建议与项目节奏提醒。', 'invoke': 'agent'},
+        {'entry': 'PM小组 · 版本协同', 'service': '支持版本计划梳理与发布前协同检查。', 'invoke': 'agent'},
+    ],
+    'libu': [
+        {'entry': '藏经阁 · 细化目录', 'service': '将学习主题拆为可执行目录与阶段化学习路线。', 'invoke': 'agent'},
+        {'entry': '藏经阁 · 扫地僧问答', 'service': '围绕主题提供问答、总结与知识回写建议。', 'invoke': 'agent'},
+        {'entry': '藏经阁 · 主题笔记', 'service': '沉淀学习笔记结构，形成长期可复用知识资产。', 'invoke': 'ui'},
+    ],
+    'libu_hr': [
+        {'entry': '人事部 · 部门详情', 'service': '维护各 Agent 的模型、SOUL、技能与职责配置。', 'invoke': 'ui'},
+        {'entry': '人事部 · 会话治理', 'service': '查看会话概览并支持按会话进入对话面板。', 'invoke': 'ui'},
+        {'entry': '人事部 · 组织编排', 'service': '维护部门列表排序与人员治理结构。', 'invoke': 'ui'},
+        {
+            'entry': '人事部 · SOUL重新整理',
+            'service': '基于接口映射与会话触发记录，自动整理并生成可保存的 SOUL 草案。',
+            'invoke': 'agent',
+            'bindingId': 'hr_soul_reorganize',
+            'match': ['soul重新整理', '重整soul', '人事部-soul重新整理触发'],
+        },
+    ],
+    'taizi': [
+        {'entry': '任务统筹 · 新建旨意', 'service': '接收需求并发起任务流转，推进跨部门协作。', 'invoke': 'agent'},
+        {'entry': '任务统筹 · 状态流转', 'service': '根据任务状态触发部门承接与后续处理流程。', 'invoke': 'agent'},
+    ],
+    'zhongshu': [
+        {'entry': '文书治理 · 模板输出', 'service': '规范文书结构与记录格式，保证信息可追溯。', 'invoke': 'agent'},
+    ],
+    'menxia': [
+        {'entry': '审校治理 · 质检复核', 'service': '审查交付完整性，提出修正意见与风险提示。', 'invoke': 'agent'},
+    ],
+    'shangshu': [
+        {'entry': '中枢调度 · 统筹协同', 'service': '协调多部门执行节奏，保障关键事项闭环。', 'invoke': 'agent'},
+    ],
+    'hubu': [
+        {'entry': '资源治理 · 成本视图', 'service': '汇总资源投入与关键消耗数据，提供决策参考。', 'invoke': 'agent'},
+    ],
+    'xingbu': [
+        {'entry': '规则治理 · 风险约束', 'service': '维护流程边界与规则检查，提示异常风险。', 'invoke': 'agent'},
+    ],
+    'zaochao': [
+        {'entry': '朝报治理 · 摘要播报', 'service': '汇总当日关键信息并形成可读简报。', 'invoke': 'agent'},
+    ],
+}
+
+DEFAULT_AGENT_WORK_BINDINGS = {
+    'rnd_design_generate': {
+        'agentId': 'rnd',
+        'source': 'dashboard.html::pmGenerateDesign -> POST /api/pm/design-generate',
+    },
+    'rnd_version_generate': {
+        'agentId': 'rnd',
+        'source': 'dashboard.html::pmGenerateVersion -> POST /api/pm/version-generate',
+    },
+    'rnd_review': {
+        'agentId': 'rnd',
+        'source': 'dashboard.html::pmRndReview(review) -> POST /api/pm/rnd-review',
+    },
+    'rnd_execute': {
+        'agentId': 'rnd',
+        'source': 'dashboard.html::pmRndReview(execute) -> POST /api/pm/rnd-review',
+    },
+    'hr_soul_reorganize': {
+        'agentId': 'libu_hr',
+        'source': 'dashboard.html::reorganizeSoul -> POST /api/agent-soul/reorganize',
+    },
+}
 
 # 静态资源 MIME 类型
 _MIME_TYPES = {
@@ -282,13 +390,15 @@ def update_task_todos(task_id, todos):
 def read_skill_content(agent_id, skill_name):
     """Read SKILL.md content for a specific skill."""
     # 输入校验：防止路径遍历
-    if not _SAFE_NAME_RE.match(agent_id) or not _SAFE_SKILL_RE.match(skill_name):
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id) or not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': '参数含非法字符'}
+    agent_id = _normalize_agent_id(requested_agent_id)
     cfg = read_json(DATA / 'agent_config.json', {})
     agents = cfg.get('agents', [])
     ag = next((a for a in agents if a.get('id') == agent_id), None)
     if not ag:
-        return {'ok': False, 'error': f'Agent {agent_id} 不存在'}
+        return {'ok': False, 'error': f'Agent {requested_agent_id} 不存在'}
     sk = next((s for s in ag.get('skills', []) if s.get('name') == skill_name), None)
     if not sk:
         return {'ok': False, 'error': f'技能 {skill_name} 不存在'}
@@ -303,29 +413,36 @@ def read_skill_content(agent_id, skill_name):
     if not any(str(skill_path).startswith(str(root)) for root in allowed_roots):
         return {'ok': False, 'error': '路径不在允许的目录范围内'}
     if not skill_path.exists():
-        return {'ok': True, 'name': skill_name, 'agent': agent_id, 'content': '(SKILL.md 文件不存在)', 'path': str(skill_path)}
+        return {'ok': True, 'name': skill_name, 'agent': requested_agent_id, 'content': '(SKILL.md 文件不存在)', 'path': str(skill_path)}
     try:
         content = skill_path.read_text()
-        return {'ok': True, 'name': skill_name, 'agent': agent_id, 'content': content, 'path': str(skill_path)}
+        return {'ok': True, 'name': skill_name, 'agent': requested_agent_id, 'content': content, 'path': str(skill_path)}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
 
 
-def read_agent_soul(agent_id):
-    """Read agent SOUL.md/soul.md from runtime workspace."""
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
-
+def _candidate_agent_soul_paths(agent_id):
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return None, None, []
+    normalized = _normalize_agent_id(requested_agent_id)
     cfg = read_json(DATA / 'agent_config.json', {})
     agents = cfg.get('agents', []) if isinstance(cfg, dict) else []
-    ag = next((a for a in agents if a.get('id') == agent_id), None)
+    ag = next((a for a in agents if a.get('id') == normalized), None)
 
     candidates = []
     if ag and ag.get('workspace'):
         ws = pathlib.Path(str(ag.get('workspace'))).expanduser()
         candidates.extend([ws / 'soul.md', ws / 'SOUL.md'])
-    ws_default = OCLAW_HOME / f'workspace-{agent_id}'
+    ws_default = OCLAW_HOME / f'workspace-{normalized}'
     candidates.extend([ws_default / 'soul.md', ws_default / 'SOUL.md'])
+    return requested_agent_id, normalized, candidates
+
+
+def _resolve_agent_soul_path(agent_id, must_exist=True):
+    requested_agent_id, normalized, candidates = _candidate_agent_soul_paths(agent_id)
+    if not requested_agent_id:
+        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
 
     allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve())
     for p in candidates:
@@ -335,29 +452,189 @@ def read_agent_soul(agent_id):
             continue
         if not any(str(pr).startswith(str(root)) for root in allowed_roots):
             continue
-        if pr.exists() and pr.is_file():
-            try:
-                content = pr.read_text(encoding='utf-8', errors='ignore')
-                mtime = datetime.datetime.utcfromtimestamp(pr.stat().st_mtime).isoformat() + 'Z'
-                return {
-                    'ok': True,
-                    'agentId': agent_id,
-                    'path': str(pr),
-                    'updatedAt': mtime,
-                    'content': content[:60000],
-                }
-            except Exception as e:
-                return {'ok': False, 'error': f'读取 SOUL 失败: {e}'}
+        if must_exist and (not pr.exists() or not pr.is_file()):
+            continue
+        return {'ok': True, 'agentId': normalized, 'path': str(pr)}
 
-    return {'ok': False, 'error': f'未找到 {agent_id} 的 SOUL 文件'}
+    if must_exist:
+        return {'ok': False, 'error': f'未找到 {requested_agent_id} 的 SOUL 文件'}
+    # 兜底：默认写入 workspace-<agent>/SOUL.md
+    fallback = (OCLAW_HOME / f'workspace-{normalized}' / 'SOUL.md').resolve()
+    if any(str(fallback).startswith(str(root)) for root in allowed_roots):
+        return {'ok': True, 'agentId': normalized, 'path': str(fallback)}
+    return {'ok': False, 'error': f'未找到 {requested_agent_id} 的 SOUL 写入路径'}
+
+
+def read_agent_soul(agent_id):
+    """Read agent SOUL.md/soul.md from runtime workspace."""
+    resolved = _resolve_agent_soul_path(agent_id, must_exist=True)
+    if not resolved.get('ok'):
+        return resolved
+    p = pathlib.Path(resolved.get('path', ''))
+    try:
+        content = p.read_text(encoding='utf-8', errors='ignore')
+        mtime = datetime.datetime.utcfromtimestamp(p.stat().st_mtime).isoformat() + 'Z'
+        return {
+            'ok': True,
+            'agentId': resolved.get('agentId'),
+            'path': str(p),
+            'updatedAt': mtime,
+            'content': content[:60000],
+        }
+    except Exception as e:
+        return {'ok': False, 'error': f'读取 SOUL 失败: {e}'}
+
+
+def write_agent_soul(agent_id, content):
+    """Write agent SOUL.md content to runtime workspace."""
+    text = str(content if content is not None else '')
+    if len(text) > 120000:
+        return {'ok': False, 'error': 'SOUL 内容过长（最多 120000 字符）'}
+    resolved = _resolve_agent_soul_path(agent_id, must_exist=False)
+    if not resolved.get('ok'):
+        return resolved
+    p = pathlib.Path(resolved.get('path', ''))
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding='utf-8')
+        mtime = datetime.datetime.utcfromtimestamp(p.stat().st_mtime).isoformat() + 'Z'
+        return {'ok': True, 'agentId': resolved.get('agentId'), 'path': str(p), 'updatedAt': mtime}
+    except Exception as e:
+        return {'ok': False, 'error': f'保存 SOUL 失败: {e}'}
+
+
+def _strip_markdown_fence(text):
+    raw = str(text or '').strip()
+    if not raw:
+        return ''
+    m = re.match(r'^```(?:markdown|md|text)?\s*([\s\S]*?)\s*```$', raw, re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    return raw
+
+
+def _collect_agent_trigger_summary(agent_id):
+    resp = get_agent_sessions(agent_id)
+    sessions = resp.get('sessions', []) if isinstance(resp, dict) else []
+    if not isinstance(sessions, list):
+        sessions = []
+    agg = {}
+    for s in sessions:
+        if not isinstance(s, dict):
+            continue
+        reason = str(s.get('triggerReason') or '').strip() or '主会话（未标注来源）'
+        row = agg.get(reason) or {'trigger': reason, 'count': 0, 'lastTalkAtTs': 0}
+        row['count'] += 1
+        ts = int(s.get('lastTalkAtTs') or 0) if str(s.get('lastTalkAtTs') or '').strip() else 0
+        if ts > row['lastTalkAtTs']:
+            row['lastTalkAtTs'] = ts
+        agg[reason] = row
+    rows = list(agg.values())
+    rows.sort(key=lambda x: (-(x.get('count') or 0), -(x.get('lastTalkAtTs') or 0), str(x.get('trigger') or '')))
+    return rows
+
+
+def _collect_agent_scope_rows(agent_id):
+    scopes = _load_agent_work_scopes().get('scopes', {})
+    rows = scopes.get(str(agent_id or '').strip(), []) if isinstance(scopes, dict) else []
+    if not isinstance(rows, list):
+        rows = []
+    out = []
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        entry = str(item.get('entry') or '').strip()
+        service = str(item.get('service') or '').strip()
+        if not entry and not service:
+            continue
+        button = entry.split('·', 1)[0].strip() if '·' in entry else entry
+        out.append({
+            'entry': entry,
+            'button': button,
+            'service': service,
+            'match': item.get('match') if isinstance(item.get('match'), list) else [],
+        })
+    return out
+
+
+def reorganize_agent_soul_by_hr(target_agent_id):
+    requested = str(target_agent_id or '').strip()
+    if not requested or not _SAFE_NAME_RE.match(requested):
+        return {'ok': False, 'error': 'invalid agentId'}
+    target_id = _normalize_agent_id(requested)
+    if target_id == 'main':
+        return {'ok': False, 'error': 'main 不支持 SOUL 重整'}
+    # 由人事经理执行
+    if not _check_agent_workspace('libu_hr'):
+        return {'ok': False, 'error': 'libu_hr 工作空间不存在，请先配置人事经理 Agent'}
+    if not _check_gateway_alive():
+        return {'ok': False, 'error': 'Gateway 未启动，请先运行 openclaw gateway start'}
+
+    target_soul = read_agent_soul(target_id)
+    target_soul_text = str(target_soul.get('content') or '').strip() if isinstance(target_soul, dict) and target_soul.get('ok') else ''
+    hr_soul = read_agent_soul('libu_hr')
+    hr_soul_text = str(hr_soul.get('content') or '').strip() if isinstance(hr_soul, dict) and hr_soul.get('ok') else ''
+    scope_rows = _collect_agent_scope_rows(target_id)
+    trigger_rows = _collect_agent_trigger_summary(target_id)
+
+    scope_json = json.dumps(scope_rows, ensure_ascii=False, indent=2)
+    trigger_json = json.dumps(trigger_rows, ensure_ascii=False, indent=2)
+    prompt = (
+        "你是人事经理 Agent（libu_hr）。\n"
+        "任务：根据你自己的 SOUL 执行步骤，重整目标 Agent 的 SOUL 文档。\n\n"
+        "严格要求：\n"
+        "1) 必须优先依据“真实触发记录”与“工作范畴配置”来写，不可虚构页面按钮与能力。\n"
+        "2) 只输出可直接写入 SOUL.md 的 Markdown 正文，不要解释、不要前后缀。\n"
+        "3) 输出结构必须包含以下标题：\n"
+        "   - # 角色定位\n"
+        "   - # 工作范畴\n"
+        "   - # 接口触发映射\n"
+        "   - # 协作边界\n"
+        "   - # 执行规范\n"
+        "   - # 会话策略\n"
+        "   - # 完成定义\n"
+        "4) “接口触发映射”里请用表格列出：页面按钮/入口、触发来源、触发后职能输出。\n"
+        "5) 若某项在真实触发中没有记录，明确标注“暂无真实触发”。\n\n"
+        f"目标 Agent: {target_id}\n\n"
+        "【人事经理当前 SOUL（供你遵循自己的步骤）】\n"
+        f"{hr_soul_text[:50000]}\n\n"
+        "【目标 Agent 当前 SOUL】\n"
+        f"{target_soul_text[:50000]}\n\n"
+        "【目标 Agent 工作范畴配置（权威）】\n"
+        f"{scope_json}\n\n"
+        "【目标 Agent 会话触发统计（真实记录）】\n"
+        f"{trigger_json}\n\n"
+        "现在开始输出最终 SOUL 正文："
+    )
+    ai = _run_agent_sync('libu_hr', prompt, timeout_sec=420)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': ai.get('error') or '人事经理重整失败'}
+    content = _strip_markdown_fence(ai.get('raw', ''))
+    if not content:
+        return {'ok': False, 'error': '人事经理未返回可用 SOUL 文本'}
+    if len(content) > 120000:
+        content = content[:120000]
+    return {
+        'ok': True,
+        'agentId': target_id,
+        'content': content,
+        'meta': {
+            'scopeCount': len(scope_rows),
+            'triggerCount': len(trigger_rows),
+            'generatedBy': 'libu_hr',
+            'generatedAt': now_iso(),
+        }
+    }
 
 
 def add_skill_to_agent(agent_id, skill_name, description, trigger=''):
     """Create a new skill for an agent with a standardised SKILL.md template."""
     if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skill_name 含非法字符: {skill_name}'}
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agentId 含非法字符: {requested_agent_id}'}
+    agent_id = _normalize_agent_id(requested_agent_id)
     workspace = OCLAW_HOME / f'workspace-{agent_id}' / 'skills' / skill_name
     workspace.mkdir(parents=True, exist_ok=True)
     skill_md = workspace / 'SKILL.md'
@@ -385,7 +662,7 @@ def add_skill_to_agent(agent_id, skill_name, description, trigger=''):
         subprocess.run(['python3', str(SCRIPTS / 'sync_agent_config.py')], timeout=10)
     except Exception:
         pass
-    return {'ok': True, 'message': f'技能 {skill_name} 已添加到 {agent_id}', 'path': str(skill_md)}
+    return {'ok': True, 'message': f'技能 {skill_name} 已添加到 {requested_agent_id}', 'path': str(skill_md)}
 
 
 def add_remote_skill(agent_id, skill_name, source_url, description=''):
@@ -396,8 +673,10 @@ def add_remote_skill(agent_id, skill_name, source_url, description=''):
     - 本地路径: /path/to/SKILL.md 或 file:///path/to/SKILL.md
     """
     # 输入校验
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agentId 含非法字符: {requested_agent_id}'}
+    agent_id = _normalize_agent_id(requested_agent_id)
     if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skillName 含非法字符: {skill_name}'}
     if not source_url or not isinstance(source_url, str):
@@ -409,7 +688,7 @@ def add_remote_skill(agent_id, skill_name, source_url, description=''):
     cfg = read_json(DATA / 'agent_config.json', {})
     agents = cfg.get('agents', [])
     if not any(a.get('id') == agent_id for a in agents):
-        return {'ok': False, 'error': f'Agent {agent_id} 不存在'}
+        return {'ok': False, 'error': f'Agent {requested_agent_id} 不存在'}
     
     # 下载或读取文件内容
     try:
@@ -557,8 +836,10 @@ def get_remote_skills_list():
 
 def update_remote_skill(agent_id, skill_name):
     """更新已添加的远程 skill 为最新版本（重新从源 URL 下载）"""
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agentId 含非法字符: {requested_agent_id}'}
+    agent_id = _normalize_agent_id(requested_agent_id)
     if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skillName 含非法字符: {skill_name}'}
     
@@ -589,8 +870,10 @@ def update_remote_skill(agent_id, skill_name):
 
 def remove_remote_skill(agent_id, skill_name):
     """移除已添加的远程 skill"""
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agentId 含非法字符: {agent_id}'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agentId 含非法字符: {requested_agent_id}'}
+    agent_id = _normalize_agent_id(requested_agent_id)
     if not _SAFE_SKILL_RE.match(skill_name):
         return {'ok': False, 'error': f'skillName 含非法字符: {skill_name}'}
     
@@ -742,11 +1025,222 @@ def _extract_json_payload(text: str):
     return None
 
 
+def _extract_pm_review_text_payload(text: str):
+    raw = str(text or '').strip()
+    if not raw:
+        return None
+    lines = [str(x or '').strip() for x in raw.splitlines()]
+    lines = [x for x in lines if x]
+    if not lines:
+        return None
+
+    def _norm_item_line(ln: str):
+        s = str(ln or '').strip()
+        if not s:
+            return ''
+        s = re.sub(r'^\s*(\d+[\.\)、]|[-*•])\s*', '', s).strip()
+        return s.strip(' \t-•')
+
+    def _split_sentences(text_block: str):
+        src = str(text_block or '').strip()
+        if not src:
+            return []
+        parts = re.split(r'[；;。]\s*', src)
+        return [p.strip() for p in parts if p and p.strip()]
+
+    def _extract_bullets(text_block: str, limit: int = 20):
+        out = []
+        for ln in str(text_block or '').splitlines():
+            item = _norm_item_line(ln)
+            if not item:
+                continue
+            if item.startswith('【') and item.endswith('】'):
+                continue
+            out.append(item[:500])
+            if len(out) >= limit:
+                break
+        return out
+
+    # 优先解析四段格式： 【任务判断】【标题建议】【执行要点】【风险与回执建议】
+    sec_pattern = re.compile(r'【\s*([^】]{1,40})\s*】')
+    matches = list(sec_pattern.finditer(raw))
+    section_map = {}
+    if matches:
+        for idx, m in enumerate(matches):
+            name = str(m.group(1) or '').strip()
+            start = m.end()
+            end = matches[idx + 1].start() if idx + 1 < len(matches) else len(raw)
+            content = raw[start:end].strip()
+            if name:
+                section_map[name] = content
+
+    if section_map:
+        def _pick_section(*keys):
+            for name, content in section_map.items():
+                if any(k in name for k in keys):
+                    return str(content or '').strip()
+            return ''
+
+        judge_text = _pick_section('任务判断', '判断', '结论')
+        title_text = _pick_section('标题建议', '标题')
+        plan_text = _pick_section('执行要点', '执行计划', '要点', '步骤')
+        clarify_text = _pick_section('待澄清', '澄清')
+        risk_text = _pick_section('风险', '回执')
+
+        title = ''
+        for ln in str(title_text or '').splitlines():
+            item = _norm_item_line(ln)
+            if not item:
+                continue
+            title = item[:200]
+            break
+        if not title:
+            # 四段文本里若无单独标题，回退到首个非标题行
+            for ln in lines:
+                if ln.startswith('【') and ln.endswith('】'):
+                    continue
+                item = _norm_item_line(ln)
+                if not item:
+                    continue
+                if len(item) >= 6:
+                    title = item[:200]
+                    break
+
+        plan = _extract_bullets(plan_text, 20)
+        questions = _extract_bullets(clarify_text, 5)
+        if not questions:
+            # 若未给“待澄清问题”，则从风险段提炼可追问项，避免前端为空
+            for sent in _split_sentences(risk_text):
+                q = sent[:420]
+                if not q:
+                    continue
+                if ('?' not in q) and ('？' not in q):
+                    q = f"请确认：{q}"
+                questions.append(q[:500])
+                if len(questions) >= 5:
+                    break
+
+        desc_parts = []
+        if judge_text:
+            desc_parts.append(judge_text.strip())
+        if risk_text:
+            desc_parts.append(risk_text.strip())
+        desc = '\n\n'.join([x for x in desc_parts if x]).strip()
+        if not desc:
+            desc = '\n'.join([_norm_item_line(x) for x in lines if _norm_item_line(x)])[:4000]
+
+        if any([title, desc, questions, plan]):
+            return {
+                'summary': (judge_text or lines[0] or '已根据当前信息生成建议')[:280],
+                'status': 'in_progress',
+                'optimizedTitle': (title or '').strip()[:300],
+                'optimizedDescription': (desc or '').strip()[:4000],
+                'questions': questions[:5],
+                'plan': plan[:20],
+            }
+
+    def _pick_value(prefixes):
+        for ln in lines:
+            for p in prefixes:
+                if ln.startswith(p):
+                    return ln[len(p):].strip(' ：:').strip()
+        return ''
+
+    title = _pick_value(['标题：', '标题:', '优化标题：', '优化标题:'])
+    desc = _pick_value(['问题描述：', '问题描述:', '优化描述：', '优化描述:', '描述：', '描述:'])
+    summary = lines[0][:280] if lines else ''
+
+    if not title:
+        for ln in lines[:6]:
+            if ln.startswith(('【', '#', '-', '*', '1.', '2.')):
+                continue
+            if any(k in ln for k in ('建议', '优化', '任务', '问题', '界面', '功能', '修复')):
+                title = ln[:200]
+                break
+
+    questions = []
+    plan = []
+    section = ''
+    for ln in lines:
+        if any(k in ln for k in ('待澄清问题', '澄清问题', '需澄清')):
+            section = 'q'
+            continue
+        if any(k in ln for k in ('执行计划', '实现步骤', '拆分步骤', '步骤建议')):
+            section = 'p'
+            continue
+        m = re.match(r'^(\d+[\.\)、]|[-*•])\s*(.+)$', ln)
+        item = ''
+        if m:
+            item = str(m.group(2) or '').strip()
+        elif section in {'q', 'p'} and len(ln) >= 2 and not ln.endswith('：') and not ln.endswith(':'):
+            item = ln.strip()
+        if not item:
+            continue
+        if section == 'q':
+            questions.append(item[:500])
+        elif section == 'p':
+            plan.append(item[:500])
+
+    if not desc:
+        desc_candidates = []
+        for ln in lines:
+            if ln.startswith(('【', '#')):
+                continue
+            if '标题' in ln and ('：' in ln or ':' in ln):
+                continue
+            if re.match(r'^\s*(\d+[\.\)、]|[-*•])\s*', ln):
+                continue
+            if len(ln) < 8:
+                continue
+            desc_candidates.append(ln)
+            if len(''.join(desc_candidates)) > 900:
+                break
+        desc = '\n'.join(desc_candidates)[:4000]
+
+    if not any([title, desc, questions, plan]):
+        return None
+    return {
+        'summary': summary or '已根据当前信息生成建议',
+        'status': 'in_progress',
+        'optimizedTitle': (title or '').strip()[:300],
+        'optimizedDescription': (desc or '').strip()[:4000],
+        'questions': questions[:5],
+        'plan': plan[:20],
+    }
+
+
+def _repair_pm_review_json_from_text(raw_text: str):
+    raw = str(raw_text or '').strip()
+    if not raw:
+        return None
+    fallback = _extract_pm_review_text_payload(raw)
+    if fallback:
+        return fallback
+    brief_lines = [ln.strip() for ln in raw.splitlines() if ln.strip()][:30]
+    if not brief_lines:
+        return None
+    brief = '\n'.join(brief_lines)[:3800]
+    return {
+        'summary': brief_lines[0][:280],
+        'status': 'in_progress',
+        'optimizedTitle': brief_lines[0][:120],
+        'optimizedDescription': brief,
+        'questions': [],
+        'plan': [],
+    }
+
+
+def _normalize_agent_id(agent_id):
+    return str(agent_id or '').strip()
+
+
 def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420, session_id: str = ''):
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agent_id 非法: {requested_agent_id}'}
+    agent_id = _normalize_agent_id(requested_agent_id)
     if not _check_agent_workspace(agent_id):
-        return {'ok': False, 'error': f'{agent_id} 工作空间不存在'}
+        return {'ok': False, 'error': f'{requested_agent_id} 工作空间不存在'}
     if not _check_gateway_alive():
         return {'ok': False, 'error': 'Gateway 未启动'}
     timeout_sec = max(120, min(900, int(timeout_sec or 420)))
@@ -803,9 +1297,82 @@ def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420, session
             raw = (stdout + ('\n' + stderr if stderr else '')).strip()
             return {'ok': True, 'raw': raw}
     except subprocess.TimeoutExpired:
-        return {'ok': False, 'error': f'礼部响应超时（>{timeout_sec}s）'}
+        return {'ok': False, 'error': f'扫地僧响应超时（>{timeout_sec}s）'}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
+
+
+def _extract_between_markers(text: str, begin_marker: str, end_marker: str) -> str:
+    raw = str(text or '')
+    if not raw:
+        return ''
+    b = raw.find(begin_marker)
+    if b < 0:
+        return ''
+    b += len(begin_marker)
+    e = raw.find(end_marker, b)
+    if e < 0:
+        return raw[b:].strip()
+    return raw[b:e].strip()
+
+
+def _run_codex_delegate_sync(task_id: str, prompt: str, agent_id: str = 'rnd', timeout_sec: int = 300):
+    """
+    通过 scripts/codex_delegate.py 调用本机 Codex CLI。
+    成功时返回 {'ok': True, 'raw': <final_message>, 'runFile': ...}
+    """
+    tid = str(task_id or '').strip()
+    if not tid:
+        tid = f'PM-{datetime.datetime.now():%Y%m%d%H%M%S}'
+    aid = str(agent_id or '').strip() or 'rnd'
+    timeout_sec = max(120, min(900, int(timeout_sec or 300)))
+    delegate_script = SCRIPTS / 'codex_delegate.py'
+    if not delegate_script.exists():
+        return {'ok': False, 'error': f'codex_delegate 脚本不存在: {delegate_script}'}
+
+    cmd = [
+        sys.executable,
+        str(delegate_script),
+        tid,
+        str(prompt or ''),
+        '--model', 'gpt-5.4',
+        '--cwd', str(BASE.parent),
+        '--agent-id', aid,
+        '--timeout', str(timeout_sec),
+    ]
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout_sec + 40,
+        )
+    except subprocess.TimeoutExpired:
+        return {'ok': False, 'error': f'codex_delegate 超时（>{timeout_sec}s）'}
+    except Exception as e:
+        return {'ok': False, 'error': f'codex_delegate 执行异常: {e}'}
+
+    stdout = str(result.stdout or '').strip()
+    stderr = str(result.stderr or '').strip()
+    merged = (stdout + ('\n' + stderr if stderr else '')).strip()
+
+    run_file = ''
+    m = re.search(r'RUN_FILE:\s*(.+)', merged)
+    if m:
+        run_file = m.group(1).strip()
+
+    if result.returncode != 0 or 'CODEX_DELEGATE_OK' not in merged:
+        reason = ''
+        m_reason = re.search(r'REASON:\s*(.+)', merged)
+        if m_reason:
+            reason = m_reason.group(1).strip()
+        err = reason or (stderr or stdout or f'codex_delegate exit={result.returncode}')
+        return {'ok': False, 'error': err[:500], 'raw': merged[:3000], 'runFile': run_file}
+
+    final_message = _extract_between_markers(merged, 'FINAL_MESSAGE_BEGIN', 'FINAL_MESSAGE_END')
+    if not final_message:
+        return {'ok': False, 'error': 'codex_delegate 未返回 FINAL_MESSAGE', 'raw': merged[:3000], 'runFile': run_file}
+    return {'ok': True, 'raw': final_message, 'runFile': run_file}
 
 
 def _load_learning_plans():
@@ -834,7 +1401,7 @@ def _new_learning_id():
 def _build_libu_question_prompt(topic: str):
     topic = (topic or '').strip()
     return (
-        "你是礼部尚书，负责学习体系设计。\n"
+        "你是扫地僧，负责藏经阁学习体系设计。\n"
         "请先做第一阶段：仅产出 10 个高质量澄清问题，用于后续制定个人学习路径。\n"
         "要求：\n"
         "1) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
@@ -849,7 +1416,7 @@ def _build_libu_question_prompt(topic: str):
 def _build_libu_plan_prompt(topic: str, qa_pairs):
     qa_text = '\n'.join([f"- {x.get('id')}: {x.get('question')}\n  回答: {x.get('answer')}" for x in qa_pairs])
     return (
-        "你是礼部尚书，负责学习体系设计。\n"
+        "你是扫地僧，负责藏经阁学习体系设计。\n"
         "现在进入第二阶段：基于主题和用户对10问的回答，生成“目录式学习计划（像书本目录）”和知识架构。\n"
         "只输出 JSON 对象，不要 Markdown，不要解释。\n"
         "JSON 格式：\n"
@@ -861,7 +1428,7 @@ def _build_libu_plan_prompt(topic: str, qa_pairs):
         "      \"title\": \"主题标题\",\n"
         "      \"phase\": \"所属阶段（可选）\",\n"
         "      \"objective\": \"该主题学习目标\",\n"
-        "      \"content\": \"礼部准备的核心学习内容（结构化文本）\",\n"
+        "      \"content\": \"扫地僧准备的核心学习内容（结构化文本）\",\n"
         "      \"key_points\": [\"要点1\", \"要点2\"],\n"
         "      \"resources\": [{\"title\":\"资源名\",\"type\":\"course|article|book|video|tool\",\"link\":\"https://...\"}],\n"
         "      \"practice\": [\"练习1\", \"练习2\"]\n"
@@ -1065,7 +1632,7 @@ def start_learning_plan(topic):
     plans.insert(0, plan)
     data['plans'] = plans
     _save_learning_plans(data)
-    return {'ok': True, 'plan': plan, 'message': '礼部10问已生成'}
+    return {'ok': True, 'plan': plan, 'message': '扫地僧10问已生成'}
 
 
 def answer_learning_plan(plan_id, answers):
@@ -1093,7 +1660,7 @@ def answer_learning_plan(plan_id, answers):
     parsed = _extract_json_payload(raw) if ai_result.get('ok') else None
     norm = _normalize_plan_payload(parsed)
     if not norm:
-        return {'ok': False, 'error': '礼部返回格式无法解析，请重试一次', 'raw': raw[:1000]}
+        return {'ok': False, 'error': '扫地僧返回格式无法解析，请重试一次', 'raw': raw[:1000]}
 
     plan['answers'] = norm_answers
     plan['status'] = 'planned'
@@ -1120,10 +1687,10 @@ def _build_topic_chat_prompt(plan, topic, message, chat_history):
     ])
     history_lines = []
     for x in chat_history[-8:]:
-        role = '用户' if x.get('role') == 'user' else '礼部'
+        role = '用户' if x.get('role') == 'user' else '扫地僧'
         history_lines.append(f"{role}: {str(x.get('text') or '').strip()}")
     return (
-        "你是礼部尚书，正在进行单主题教学辅导。请直接回答用户问题，要求清晰、可执行、贴合该主题。\n"
+        "你是扫地僧，正在进行单主题教学辅导。请直接回答用户问题，要求清晰、可执行、贴合该主题。\n"
         "输出要求：\n"
         "1) 先给结论，再给步骤。\n"
         "2) 尽量给一个小练习和一个常见误区。\n"
@@ -1165,7 +1732,7 @@ def chat_learning_topic(plan_id, topic_id, message):
     prompt = _build_topic_chat_prompt(plan, topic, text, chat)
     ai_result = _run_agent_sync('libu', prompt, timeout_sec=360)
     if not ai_result.get('ok'):
-        return {'ok': False, 'error': ai_result.get('error', '礼部回复失败')}
+        return {'ok': False, 'error': ai_result.get('error', '扫地僧回复失败')}
     reply = str(ai_result.get('raw') or '').strip()[:10000]
     if not reply:
         reply = '我已理解你的问题。请你再具体一点，我会按步骤解答。'
@@ -1192,9 +1759,9 @@ def summarize_learning_topic(plan_id, topic_id):
     if len(chat) < 2:
         return {'ok': False, 'error': '该主题暂无可总结问答'}
 
-    chat_text = '\n'.join([f"{'用户' if x.get('role')=='user' else '礼部'}: {x.get('text','')}" for x in chat[-20:]])
+    chat_text = '\n'.join([f"{'用户' if x.get('role')=='user' else '扫地僧'}: {x.get('text','')}" for x in chat[-20:]])
     prompt = (
-        "你是礼部尚书。请根据以下用户问答，提炼为可并入学习内容的补充笔记。\n"
+        "你是扫地僧。请根据以下用户问答，提炼为可并入学习内容的补充笔记。\n"
         "输出要求：\n"
         "1) 直接输出自然语言，不要 JSON。\n"
         "2) 结构包含：关键补充点、易错点、建议练习、下一步学习建议。\n"
@@ -1207,10 +1774,10 @@ def summarize_learning_topic(plan_id, topic_id):
     )
     ai_result = _run_agent_sync('libu', prompt, timeout_sec=360)
     if not ai_result.get('ok'):
-        return {'ok': False, 'error': ai_result.get('error', '礼部总结失败')}
+        return {'ok': False, 'error': ai_result.get('error', '扫地僧总结失败')}
     summary = str(ai_result.get('raw') or '').strip()[:10000]
     if not summary:
-        return {'ok': False, 'error': '礼部未返回总结内容'}
+        return {'ok': False, 'error': '扫地僧未返回总结内容'}
 
     supplements = topic.setdefault('supplements', [])
     supplements.append({
@@ -1275,6 +1842,288 @@ def _save_pm_data(data):
     atomic_json_write(PM_FILE, data)
 
 
+def _load_automation_data():
+    data = atomic_json_read(AUTOMATION_FILE, {'tasks': []})
+    if not isinstance(data, dict):
+        data = {'tasks': []}
+    tasks = data.get('tasks')
+    if not isinstance(tasks, list):
+        tasks = []
+    normalized = []
+    for it in tasks:
+        if not isinstance(it, dict):
+            continue
+        task_id = str(it.get('id') or '').strip()
+        if not task_id:
+            continue
+        target_agent = str(it.get('targetAgent') or 'shangshu').strip()
+        if target_agent not in AUTOMATION_ALLOWED_AGENTS:
+            target_agent = 'shangshu'
+        target_session = str(it.get('targetSession') or '').strip()
+        logs = it.get('logs') if isinstance(it.get('logs'), list) else []
+        normalized.append({
+            'id': task_id,
+            'title': str(it.get('title') or '未命名任务').strip() or '未命名任务',
+            'requestText': str(it.get('requestText') or '').strip(),
+            'scheduleExpr': str(it.get('scheduleExpr') or '').strip(),
+            'targetAgent': target_agent,
+            'targetSession': target_session,
+            'prompt': str(it.get('prompt') or '').strip(),
+            'statusFeedback': str(it.get('statusFeedback') or '').strip(),
+            'experienceFeedback': str(it.get('experienceFeedback') or '').strip(),
+            'enabled': bool(it.get('enabled', True)),
+            'createdAt': str(it.get('createdAt') or now_iso()),
+            'updatedAt': str(it.get('updatedAt') or now_iso()),
+            'lastRunAt': str(it.get('lastRunAt') or ''),
+            'logs': [x for x in logs if isinstance(x, dict)][-50:],
+        })
+    return {'tasks': normalized}
+
+
+def _save_automation_data(data):
+    if not isinstance(data, dict):
+        data = {'tasks': []}
+    if not isinstance(data.get('tasks'), list):
+        data['tasks'] = []
+    atomic_json_write(AUTOMATION_FILE, data)
+
+
+def automation_list_tasks():
+    data = _load_automation_data()
+    tasks = sorted(data.get('tasks', []), key=lambda x: str(x.get('updatedAt') or ''), reverse=True)
+    return {'ok': True, 'tasks': tasks}
+
+
+def _parse_automation_request(text):
+    raw = str(text or '').strip()
+    lower = raw.lower()
+    schedule_expr = ''
+    m = re.search(r'每天\s*([01]?\d|2[0-3])[:：]([0-5]\d)', raw)
+    if m:
+        schedule_expr = f'每日 {int(m.group(1)):02d}:{m.group(2)}'
+    if not schedule_expr:
+        m = re.search(r'每周([一二三四五六日天])\s*([01]?\d|2[0-3])[:：]([0-5]\d)', raw)
+        if m:
+            schedule_expr = f'每周{m.group(1)} {int(m.group(2)):02d}:{m.group(3)}'
+    if not schedule_expr:
+        m = re.search(r'每(\d+)\s*分钟', raw)
+        if m:
+            schedule_expr = f'每{m.group(1)}分钟'
+    if not schedule_expr:
+        m = re.search(r'每(\d+)\s*小时', raw)
+        if m:
+            schedule_expr = f'每{m.group(1)}小时'
+    if not schedule_expr and ('每小时' in raw or '每 1 小时' in raw):
+        schedule_expr = '每1小时'
+    if not schedule_expr:
+        m = re.search(r'每工作日\s*([01]?\d|2[0-3])[:：]([0-5]\d)', raw)
+        if m:
+            schedule_expr = f'每工作日 {int(m.group(1)):02d}:{m.group(2)}'
+
+    target_agent = 'shangshu'
+    if any(k in raw for k in ('研发', '研发部', '研发总监', 'rnd')):
+        target_agent = 'rnd'
+    elif any(k in raw for k in ('PM', '项目经理', 'bingbu', '兵部')):
+        target_agent = 'bingbu'
+    elif any(k in raw for k in ('人事', '人事部', '人事经理', 'libu_hr', '吏部')):
+        target_agent = 'libu_hr'
+    elif any(k in raw for k in ('藏经阁', '扫地僧', 'libu', '礼部')):
+        target_agent = 'libu'
+    elif any(k in raw for k in ('尚书', 'shangshu')):
+        target_agent = 'shangshu'
+    elif any(k in raw for k in ('中书', 'zhongshu')):
+        target_agent = 'zhongshu'
+    elif any(k in raw for k in ('门下', 'menxia')):
+        target_agent = 'menxia'
+    elif any(k in raw for k in ('太子', 'taizi')):
+        target_agent = 'taizi'
+    elif any(k in raw for k in ('刑部', 'xingbu')):
+        target_agent = 'xingbu'
+    elif any(k in raw for k in ('户部', 'hubu')):
+        target_agent = 'hubu'
+    elif any(k in raw for k in ('钦天监', 'zaochao')):
+        target_agent = 'zaochao'
+    parsed_prompt = raw
+    return {
+        'scheduleExpr': schedule_expr,
+        'targetAgent': target_agent,
+        'targetSession': '',
+        'prompt': parsed_prompt,
+    }
+
+
+def _normalize_automation_parsed_payload(payload, fallback=None):
+    fb = fallback if isinstance(fallback, dict) else {}
+    if not isinstance(payload, dict):
+        payload = {}
+    schedule_expr = str(payload.get('scheduleExpr') or fb.get('scheduleExpr') or '').strip()
+    target_agent = str(payload.get('targetAgent') or fb.get('targetAgent') or 'shangshu').strip()
+    target_session = str(payload.get('targetSession') or fb.get('targetSession') or '').strip()
+    prompt = str(payload.get('prompt') or fb.get('prompt') or '').strip()
+    if target_agent not in AUTOMATION_ALLOWED_AGENTS:
+        target_agent = str(fb.get('targetAgent') or 'shangshu').strip()
+        if target_agent not in AUTOMATION_ALLOWED_AGENTS:
+            target_agent = 'shangshu'
+    if not prompt:
+        prompt = str(fb.get('prompt') or '').strip()
+    return {
+        'scheduleExpr': schedule_expr,
+        'targetAgent': target_agent,
+        'targetSession': target_session,
+        'prompt': prompt,
+    }
+
+
+def _parse_automation_request_with_shangshu(text, fallback):
+    raw_text = str(text or '').strip()
+    if not raw_text:
+        return {'ok': False, 'error': 'text empty'}
+    prompt = (
+        "你是能效部长 Agent（shangshu），请把用户的自动化任务描述解析为执行配置。\n"
+        "只输出 JSON 对象，不要 markdown，不要解释。\n"
+        "JSON 格式固定：\n"
+        "{\n"
+        "  \"scheduleExpr\":\"\",\n"
+        "  \"targetAgent\":\"\",\n"
+        "  \"targetSession\":\"\",\n"
+        "  \"prompt\":\"\"\n"
+        "}\n"
+        "约束：\n"
+        "1) scheduleExpr 尽量输出中文规则，如“每日 09:30”“每周一 10:00”“每1小时”。\n"
+        "2) targetAgent 必须在集合内：taizi, zhongshu, menxia, shangshu, libu, hubu, bingbu, xingbu, rnd, libu_hr, zaochao。\n"
+        "3) targetSession 可为空字符串。\n"
+        "4) prompt 要写成可直接执行的完整提示词，不要太短。\n\n"
+        f"用户任务描述：\n{raw_text}\n"
+    )
+    ai = _run_agent_sync('shangshu', prompt, timeout_sec=180)
+    if not ai.get('ok'):
+        return {'ok': False, 'error': str(ai.get('error') or 'shangshu parse failed').strip()}
+    parsed = _extract_json_payload(str(ai.get('raw') or ''))
+    if not isinstance(parsed, dict):
+        return {'ok': False, 'error': 'shangshu 输出非JSON'}
+    normalized = _normalize_automation_parsed_payload(parsed, fallback=fallback)
+    if not normalized.get('prompt'):
+        return {'ok': False, 'error': 'shangshu 未生成 prompt'}
+    return {'ok': True, 'parsed': normalized}
+
+
+def automation_parse_request(text):
+    fallback = _parse_automation_request(text)
+    ai_parsed = _parse_automation_request_with_shangshu(text, fallback=fallback)
+    if ai_parsed.get('ok'):
+        return {'ok': True, 'parsed': ai_parsed.get('parsed') or fallback, 'source': 'shangshu'}
+    return {
+        'ok': True,
+        'parsed': fallback,
+        'source': 'rule_fallback',
+        'warning': f"shangshu 解析失败，已回退规则解析：{str(ai_parsed.get('error') or 'unknown')[:160]}",
+    }
+
+
+def automation_create_task(title, request_text, schedule_expr='', target_agent='shangshu', target_session='', prompt=''):
+    title = str(title or '').strip() or '未命名任务'
+    request_text = str(request_text or '').strip()
+    if not request_text:
+        return {'ok': False, 'error': 'requestText required'}
+    parsed = _parse_automation_request(request_text)
+    if not schedule_expr:
+        schedule_expr = parsed.get('scheduleExpr', '')
+    if not target_agent:
+        target_agent = parsed.get('targetAgent', 'shangshu')
+    if not prompt:
+        prompt = parsed.get('prompt', request_text)
+    if target_agent not in AUTOMATION_ALLOWED_AGENTS:
+        target_agent = 'shangshu'
+
+    data = _load_automation_data()
+    task = {
+        'id': 'AUTO-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(uuid.uuid4().hex[:4]),
+        'title': title,
+        'requestText': request_text,
+        'scheduleExpr': str(schedule_expr or '').strip(),
+        'targetAgent': target_agent,
+        'targetSession': str(target_session or '').strip(),
+        'prompt': str(prompt or '').strip(),
+        'statusFeedback': '',
+        'experienceFeedback': '',
+        'enabled': False,
+        'createdAt': now_iso(),
+        'updatedAt': now_iso(),
+        'lastRunAt': '',
+        'logs': [],
+    }
+    data['tasks'].append(task)
+    _save_automation_data(data)
+    return {'ok': True, 'task': task}
+
+
+def automation_update_task(task_id, patch):
+    tid = str(task_id or '').strip()
+    if not tid:
+        return {'ok': False, 'error': 'taskId required'}
+    data = _load_automation_data()
+    tasks = data.get('tasks', [])
+    t = next((x for x in tasks if str(x.get('id') or '') == tid), None)
+    if not t:
+        return {'ok': False, 'error': 'task not found'}
+    if not isinstance(patch, dict):
+        patch = {}
+    for k in ('title', 'requestText', 'scheduleExpr', 'targetSession', 'prompt', 'statusFeedback', 'experienceFeedback'):
+        if k in patch and patch[k] is not None:
+            t[k] = str(patch[k]).strip()
+    if 'enabled' in patch:
+        t['enabled'] = bool(patch.get('enabled'))
+    if 'targetAgent' in patch and patch.get('targetAgent') is not None:
+        ag = str(patch.get('targetAgent')).strip()
+        if ag in AUTOMATION_ALLOWED_AGENTS:
+            t['targetAgent'] = ag
+    t['updatedAt'] = now_iso()
+    _save_automation_data(data)
+    return {'ok': True, 'task': t}
+
+
+def automation_delete_task(task_id):
+    tid = str(task_id or '').strip()
+    if not tid:
+        return {'ok': False, 'error': 'taskId required'}
+    data = _load_automation_data()
+    tasks = data.get('tasks', [])
+    idx = next((i for i, x in enumerate(tasks) if str(x.get('id') or '') == tid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': 'task not found'}
+    removed = tasks.pop(idx)
+    data['tasks'] = tasks
+    _save_automation_data(data)
+    return {'ok': True, 'task': removed}
+
+
+def automation_run_task(task_id, status_feedback='', experience_feedback=''):
+    tid = str(task_id or '').strip()
+    if not tid:
+        return {'ok': False, 'error': 'taskId required'}
+    data = _load_automation_data()
+    t = next((x for x in data.get('tasks', []) if str(x.get('id') or '') == tid), None)
+    if not t:
+        return {'ok': False, 'error': 'task not found'}
+    run_at = now_iso()
+    if status_feedback is not None:
+        t['statusFeedback'] = str(status_feedback).strip()
+    if experience_feedback is not None:
+        t['experienceFeedback'] = str(experience_feedback).strip()
+    t['lastRunAt'] = run_at
+    t['updatedAt'] = run_at
+    t_logs = t.get('logs') if isinstance(t.get('logs'), list) else []
+    t_logs.append({
+        'at': run_at,
+        'statusFeedback': t.get('statusFeedback', ''),
+        'experienceFeedback': t.get('experienceFeedback', ''),
+        'result': 'manual_run',
+    })
+    t['logs'] = t_logs[-50:]
+    _save_automation_data(data)
+    return {'ok': True, 'task': t}
+
+
 def _load_agent_isolation_registry():
     data = atomic_json_read(PM_ISOLATION_FILE, {'version': 1, 'scopes': {}})
     if not isinstance(data, dict):
@@ -1296,12 +2145,138 @@ def _save_agent_isolation_registry(data):
     atomic_json_write(PM_ISOLATION_FILE, data)
 
 
+def _normalize_work_scope_items(items):
+    if not isinstance(items, list):
+        return []
+    out = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        entry = str(it.get('entry', '')).strip()
+        service = str(it.get('service', '')).strip()
+        invoke = str(it.get('invoke', 'agent')).strip().lower()
+        if invoke not in {'agent', 'ui'}:
+            invoke = 'agent'
+        binding_id = str(it.get('bindingId', '')).strip()
+        if binding_id and not _SAFE_NAME_RE.match(binding_id):
+            binding_id = ''
+        match_list = it.get('match') if isinstance(it.get('match'), list) else []
+        match_list = [str(x).strip() for x in match_list if str(x).strip()]
+        if not entry and not service:
+            continue
+        out.append({
+            'entry': entry or service[:32],
+            'service': service or entry,
+            'invoke': invoke,
+            'bindingId': binding_id,
+            'match': match_list,
+        })
+    return out
+
+
+def _normalize_work_scope_payload(payload):
+    scopes = {}
+    if isinstance(payload, dict):
+        raw = payload.get('scopes') if 'scopes' in payload else payload
+        if isinstance(raw, dict):
+            for agent_id, items in raw.items():
+                aid = str(agent_id or '').strip()
+                if not aid or not _SAFE_NAME_RE.match(aid):
+                    continue
+                normalized = _normalize_work_scope_items(items)
+                if normalized:
+                    scopes[aid] = normalized
+    if not scopes:
+        scopes = json.loads(json.dumps(DEFAULT_AGENT_WORK_SCOPES, ensure_ascii=False))
+    return scopes
+
+
+def _load_agent_work_scopes():
+    data = atomic_json_read(AGENT_WORK_SCOPE_FILE, {'scopes': DEFAULT_AGENT_WORK_SCOPES})
+    scopes = _normalize_work_scope_payload(data)
+    return {'scopes': scopes}
+
+
+def _save_agent_work_scopes(scopes):
+    payload = {
+        'updatedAt': now_iso(),
+        'scopes': _normalize_work_scope_payload({'scopes': scopes}),
+    }
+    atomic_json_write(AGENT_WORK_SCOPE_FILE, payload)
+
+
+def _normalize_agent_work_bindings(payload):
+    raw = payload.get('bindings') if isinstance(payload, dict) and 'bindings' in payload else payload
+    if not isinstance(raw, dict):
+        raw = {}
+    out = {}
+    for k, v in raw.items():
+        key = str(k or '').strip()
+        if not key or not _SAFE_NAME_RE.match(key):
+            continue
+        item = v if isinstance(v, dict) else {}
+        aid = str(item.get('agentId', '')).strip()
+        src = str(item.get('source', '')).strip()
+        if not aid or not _SAFE_NAME_RE.match(aid):
+            continue
+        if not src:
+            continue
+        out[key] = {'agentId': aid, 'source': src}
+    if not out:
+        out = json.loads(json.dumps(DEFAULT_AGENT_WORK_BINDINGS, ensure_ascii=False))
+    return out
+
+
+def _load_agent_work_bindings():
+    data = atomic_json_read(AGENT_WORK_BINDINGS_FILE, {'bindings': DEFAULT_AGENT_WORK_BINDINGS})
+    bindings = _normalize_agent_work_bindings(data)
+    return {'bindings': bindings}
+
+
 def _safe_slug(text, limit=24):
     s = re.sub(r'[^a-zA-Z0-9]+', '-', str(text or '').strip().lower())
     s = re.sub(r'-+', '-', s).strip('-')
     if not s:
         s = 'x'
     return s[:max(6, int(limit))]
+
+
+def _safe_fs_segment(text, default='x', limit=80):
+    seg = re.sub(r'[\\/:*?"<>|]+', '_', str(text or '').strip())
+    seg = re.sub(r'\s+', ' ', seg).strip().strip('.')
+    if not seg:
+        seg = default
+    return seg[:max(8, int(limit))]
+
+
+def _path_within(child: pathlib.Path, parent: pathlib.Path):
+    try:
+        child.resolve().relative_to(parent.resolve())
+        return True
+    except Exception:
+        return False
+
+
+def _jzg_external_project_dir(project_id):
+    return JZG_EXTERNAL_DOCS_DIR / _safe_fs_segment(project_id, default='project', limit=64)
+
+
+def _jzg_write_external_doc_file(project_id, doc_id, file_name, file_base64):
+    if not file_base64:
+        return ''
+    try:
+        payload = base64.b64decode(str(file_base64), validate=True)
+    except Exception:
+        raise ValueError('fileBase64 非法或已损坏')
+    if not payload:
+        raise ValueError('文件内容为空')
+    proj_dir = _jzg_external_project_dir(project_id)
+    proj_dir.mkdir(parents=True, exist_ok=True)
+    safe_name = _safe_fs_segment(file_name, default='document', limit=180)
+    out_path = proj_dir / f"{_safe_fs_segment(doc_id, default='doc', limit=48)}__{safe_name}"
+    with open(out_path, 'wb') as f:
+        f.write(payload)
+    return str(out_path)
 
 
 def _build_isolation_scope_key(project_id, domain, action):
@@ -1339,6 +2314,18 @@ def _list_registered_agents():
 def _agent_exists(agent_id):
     rows = _list_registered_agents()
     return any(str((r or {}).get('id') or '').strip() == agent_id for r in rows if isinstance(r, dict))
+
+
+def _agent_workspace_exists(agent_id):
+    rows = _list_registered_agents()
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        if str(r.get('id') or '').strip() != str(agent_id or '').strip():
+            continue
+        workspace = str(r.get('workspace') or '').strip()
+        return bool(workspace and pathlib.Path(workspace).is_dir())
+    return False
 
 
 def _get_agent_model(agent_id):
@@ -1408,7 +2395,16 @@ def _resolve_isolated_agent(base_agent, project_id, domain, action):
     runtime_agent = ''
     if isinstance(rec, dict):
         runtime_agent = str(rec.get('runtimeAgentId') or '').strip()
-        if runtime_agent and _agent_exists(runtime_agent):
+        rec_base_agent = str(rec.get('baseAgentId') or '').strip()
+        expected_prefix = f"{_safe_slug(base_agent, 18)}__"
+        healthy_runtime = bool(
+            runtime_agent
+            and rec_base_agent == str(base_agent or '').strip()
+            and runtime_agent.startswith(expected_prefix)
+            and _agent_exists(runtime_agent)
+            and _agent_workspace_exists(runtime_agent)
+        )
+        if healthy_runtime:
             rec['lastUsedAt'] = now_iso()
             scopes[scope_key] = rec
             registry['scopes'] = scopes
@@ -1564,7 +2560,7 @@ def _ensure_pm_project_versions(project):
             'issueIds': [str(x).strip() for x in (v.get('issueIds') or []) if str(x).strip()][:500],
             'createdAt': str(v.get('createdAt') or now_iso()),
             'updatedAt': str(v.get('updatedAt') or now_iso()),
-            'createdBy': str(v.get('createdBy') or 'gongbu')[:30],
+            'createdBy': str(v.get('createdBy') or 'rnd')[:30],
         })
     normalized.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
     project['versions'] = normalized
@@ -1576,27 +2572,27 @@ def _ensure_pm_project_runtime(project):
     rt = project.get('runtime')
     if not isinstance(rt, dict):
         rt = {}
-    sid = str(rt.get('gongbuSessionId') or '').strip()
+    sid = str(rt.get('rndSessionId') or '').strip()
     if not sid:
         pid = str(project.get('id') or 'unknown')
-        sid = f"pm-gongbu-{pid}-{uuid.uuid4().hex[:8]}"
-    rt['gongbuSessionId'] = sid
+        sid = f"pm-rnd-{pid}-{uuid.uuid4().hex[:8]}"
+    rt['rndSessionId'] = sid
     rt['updatedAt'] = now_iso()
     project['runtime'] = rt
 
 
-def _get_pm_gongbu_session_id(project):
+def _get_pm_rnd_session_id(project):
     _ensure_pm_project_runtime(project)
     rt = project.get('runtime') or {}
-    return str(rt.get('gongbuSessionId') or '').strip()
+    return str(rt.get('rndSessionId') or '').strip()
 
 
-def _reset_pm_gongbu_session_id(project):
+def _reset_pm_rnd_session_id(project):
     _ensure_pm_project_runtime(project)
     rt = project.get('runtime') or {}
     pid = str(project.get('id') or 'unknown')
-    sid = f"pm-gongbu-{pid}-{uuid.uuid4().hex[:8]}"
-    rt['gongbuSessionId'] = sid
+    sid = f"pm-rnd-{pid}-{uuid.uuid4().hex[:8]}"
+    rt['rndSessionId'] = sid
     rt['updatedAt'] = now_iso()
     project['runtime'] = rt
     return sid
@@ -1722,7 +2718,7 @@ def pm_create_project(name, description=''):
         'id': _new_pm_id('PRJ'),
         'name': name[:120],
         'description': str(description or '').strip()[:2000],
-        'owner': 'gongbu',
+        'owner': 'rnd',
         'folders': [
             {'id': PM_DESIGN_FOLDER_ID, 'name': PM_DESIGN_FOLDER_NAME},
             {'id': PM_VERSION_FOLDER_ID, 'name': PM_VERSION_FOLDER_NAME},
@@ -1739,7 +2735,7 @@ def pm_create_project(name, description=''):
         'items': [],
         'versions': [],
         'runtime': {
-            'gongbuSessionId': '',
+            'rndSessionId': '',
             'updatedAt': now_iso(),
         },
         'createdAt': now_iso(),
@@ -1808,13 +2804,13 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
         'title': title[:200],
         'type': item_type,
         'priority': priority,
-        'status': 'open',
+        'status': 'pending_release',
         'folderId': next(
             (f['id'] for f in project['folders'] if f['id'] not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}),
             project['folders'][0]['id']
         ),
         'description': str(description or '').strip()[:6000],
-        'owner': 'gongbu',
+        'owner': 'rnd',
         'qa': [],
         'plan': [],
         'questions': [],
@@ -1829,7 +2825,23 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
     return {'ok': True, 'item': item, 'project': project}
 
 
-def pm_update_item(project_id, item_id, status=None, priority=None, resolution=None, item_type=None, description=None, folder_id=None, questions=None, clarify_replies=None):
+def pm_update_item(
+    project_id,
+    item_id,
+    status=None,
+    priority=None,
+    resolution=None,
+    item_type=None,
+    description=None,
+    folder_id=None,
+    questions=None,
+    clarify_replies=None,
+    title=None,
+    plan=None,
+    review_suggested_title=None,
+    review_suggested_description=None,
+    review_suggested_by=None,
+):
     data = _load_pm_data()
     project = _find_project(data, project_id)
     if not project:
@@ -1841,7 +2853,7 @@ def pm_update_item(project_id, item_id, status=None, priority=None, resolution=N
         return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
     if status is not None:
         s = str(status).strip().lower()
-        if s in {'open', 'clarify', 'in_progress', 'blocked', 'done'}:
+        if s in {'pending_release', 'open', 'clarify', 'in_progress', 'pending_acceptance', 'blocked', 'done'}:
             item['status'] = s
     if priority is not None:
         p = str(priority).strip().upper()
@@ -1853,6 +2865,10 @@ def pm_update_item(project_id, item_id, status=None, priority=None, resolution=N
             item['type'] = t
     if description is not None:
         item['description'] = str(description or '').strip()[:6000]
+    if title is not None:
+        t = str(title or '').strip()
+        if t:
+            item['title'] = t[:200]
     if folder_id is not None:
         fid = str(folder_id or '').strip()
         valid_ids = {f.get('id') for f in (project.get('folders') or [])}
@@ -1895,6 +2911,35 @@ def pm_update_item(project_id, item_id, status=None, priority=None, resolution=N
                 if len(normalized_replies) >= 30:
                     break
             item['clarifyReplies'] = normalized_replies
+    if plan is not None:
+        if isinstance(plan, list):
+            normalized_plan = []
+            for step in plan:
+                s = str(step or '').strip()
+                if not s:
+                    continue
+                normalized_plan.append(s[:500])
+                if len(normalized_plan) >= 20:
+                    break
+            item['plan'] = normalized_plan
+    if review_suggested_title is not None:
+        t = str(review_suggested_title or '').strip()
+        if t:
+            item['reviewSuggestedTitle'] = t[:300]
+        else:
+            item.pop('reviewSuggestedTitle', None)
+    if review_suggested_description is not None:
+        d = str(review_suggested_description or '').strip()
+        if d:
+            item['reviewSuggestedDescription'] = d[:4000]
+        else:
+            item.pop('reviewSuggestedDescription', None)
+    if review_suggested_by is not None:
+        b = str(review_suggested_by or '').strip().lower()
+        if b in {'codex', 'rnd'}:
+            item['reviewSuggestedBy'] = b
+        elif not b:
+            item.pop('reviewSuggestedBy', None)
     item['updatedAt'] = now_iso()
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
@@ -1988,6 +3033,50 @@ def pm_delete_folder(project_id, folder_id):
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
     return {'ok': True, 'folder': folder, 'project': project}
+
+
+def pm_reorder_folder(project_id, source_folder_id, target_folder_id, place='before'):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+
+    source_id = str(source_folder_id or '').strip()
+    target_id = str(target_folder_id or '').strip()
+    if not source_id or not target_id:
+        return {'ok': False, 'error': 'sourceFolderId 和 targetFolderId 不能为空'}
+    if source_id == target_id:
+        return {'ok': True, 'project': project}
+    if source_id in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}:
+        return {'ok': False, 'error': '系统目录不可拖拽排序'}
+    if target_id in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}:
+        return {'ok': False, 'error': '不可拖拽到系统目录位置'}
+
+    folders = project.get('folders') or []
+    non_system = [f for f in folders if str(f.get('id') or '') not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}]
+
+    src_idx = next((i for i, f in enumerate(non_system) if str(f.get('id') or '') == source_id), -1)
+    tgt_idx = next((i for i, f in enumerate(non_system) if str(f.get('id') or '') == target_id), -1)
+    if src_idx < 0 or tgt_idx < 0:
+        return {'ok': False, 'error': '拖拽目标文件夹不存在'}
+
+    src_folder = non_system.pop(src_idx)
+    tgt_idx = next((i for i, f in enumerate(non_system) if str(f.get('id') or '') == target_id), -1)
+    if tgt_idx < 0:
+        non_system.append(src_folder)
+    else:
+        insert_after = str(place or '').strip().lower() == 'after'
+        insert_idx = tgt_idx + (1 if insert_after else 0)
+        non_system.insert(insert_idx, src_folder)
+
+    design_folder = next((f for f in folders if str(f.get('id') or '') == PM_DESIGN_FOLDER_ID), {'id': PM_DESIGN_FOLDER_ID, 'name': PM_DESIGN_FOLDER_NAME})
+    version_folder = next((f for f in folders if str(f.get('id') or '') == PM_VERSION_FOLDER_ID), {'id': PM_VERSION_FOLDER_ID, 'name': PM_VERSION_FOLDER_NAME})
+    project['folders'] = [design_folder, version_folder] + non_system
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'project': project}
 
 
 def pm_update_design(project_id, section, content, updated_by='user'):
@@ -2151,7 +3240,7 @@ def pm_generate_design(project_id, section):
         "本次为【增量修订模式】：必须先理解当前已有文档，再在其基础上做小步修改；禁止无故整篇重写。"
     )
     prompt = (
-        "你是工部尚书，负责项目设计文档产出。\n"
+        "你是研发总监，负责项目设计文档产出。\n"
         f"项目名称：{project.get('name')}\n"
         f"项目说明：{project.get('description')}\n"
         f"用户给定的一句话方向：{brief_text or '（未提供）'}\n"
@@ -2164,20 +3253,20 @@ def pm_generate_design(project_id, section):
         f"{hints[sec]}\n"
         "输出要求：仅输出 Markdown 正文，不要输出解释。"
     )
-    lane = _resolve_isolated_agent('gongbu', project.get('id', ''), 'pm', f'design-{sec}')
+    lane = _resolve_isolated_agent('rnd', project.get('id', ''), 'pm', f'design-{sec}')
     if not lane.get('ok'):
         return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
     ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=300)
     if not ai.get('ok'):
-        return {'ok': False, 'error': ai.get('error', '工部生成失败')}
+        return {'ok': False, 'error': ai.get('error', '研发部生成失败')}
     content = str(ai.get('raw') or '').strip()
     if not content:
-        return {'ok': False, 'error': '工部未返回有效内容'}
+        return {'ok': False, 'error': '研发部未返回有效内容'}
 
     node['content'] = content[:30000]
     now = now_iso()
     node['updatedAt'] = now
-    node['updatedBy'] = 'gongbu'
+    node['updatedBy'] = 'rnd'
     for s in pending_suggestions:
         s['status'] = 'adopted'
         s['updatedAt'] = now
@@ -2244,7 +3333,7 @@ def pm_generate_version(project_id):
         )
     issue_txt = issue_txt[:120]
     prompt = (
-        "你是工部尚书，负责输出版本更改清单。\n"
+        "你是研发总监，负责输出版本更改清单。\n"
         "请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n"
         "要求：\n"
         "1) 输出 Markdown。\n"
@@ -2256,7 +3345,7 @@ def pm_generate_version(project_id):
         "待汇总的问题：\n"
         + '\n'.join(issue_txt)
     )
-    lane = _resolve_isolated_agent('gongbu', project.get('id', ''), 'pm', 'version-generate')
+    lane = _resolve_isolated_agent('rnd', project.get('id', ''), 'pm', 'version-generate')
     if not lane.get('ok'):
         return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
     ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=300)
@@ -2265,7 +3354,7 @@ def pm_generate_version(project_id):
     if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
         # 出现上下文溢出后，降载重试
         mini_prompt = (
-            "你是工部尚书，负责输出版本更改清单。\n"
+            "你是研发总监，负责输出版本更改清单。\n"
             "请严格输出 Markdown，并按以下三段：\n"
             "## BUG修复\n## 需求交付\n## 优化改进\n"
             "每条 1 句，禁止编造。\n\n"
@@ -2286,11 +3375,11 @@ def pm_generate_version(project_id):
         if err_text and ('## ' in err_text or '- ' in err_text):
             content = err_text
         else:
-            return {'ok': False, 'error': f"工部版本汇总失败: {str(ai.get('error') or '未知错误')[:220]}"}
+            return {'ok': False, 'error': f"研发部版本汇总失败: {str(ai.get('error') or '未知错误')[:220]}"}
     else:
         content = str(ai.get('raw') or '').strip()
     if (not content) or _looks_like_context_overflow(content):
-        return {'ok': False, 'error': '工部版本汇总失败: 模型返回无效内容（疑似上下文过长）'}
+        return {'ok': False, 'error': '研发部版本汇总失败: 模型返回无效内容（疑似上下文过长）'}
 
     now = now_iso()
     if latest_is_draft:
@@ -2324,7 +3413,7 @@ def pm_generate_version(project_id):
             'issueIds': [str(it.get('id') or '').strip() for it in final_items if str(it.get('id') or '').strip()],
             'createdAt': now,
             'updatedAt': now,
-            'createdBy': 'gongbu',
+            'createdBy': 'rnd',
         }
         project.setdefault('versions', []).insert(0, ver)
         mode = 'created'
@@ -2352,16 +3441,44 @@ def pm_add_reply(project_id, item_id, text, role='user'):
     if not msg:
         return {'ok': False, 'error': 'reply 不能为空'}
     r = str(role or 'user').strip().lower()
-    if r not in {'user', 'codex', 'gongbu'}:
+    if r not in {'user', 'codex', 'rnd'}:
         r = 'user'
-    item.setdefault('qa', []).append({'role': r, 'text': msg[:8000], 'at': now_iso()})
+    item.setdefault('qa', []).append({
+        'id': _new_pm_id('QAR'),
+        'role': r,
+        'text': msg[:8000],
+        'at': now_iso(),
+    })
     item['updatedAt'] = now_iso()
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
     return {'ok': True, 'item': item, 'project': project}
 
 
-def _build_pm_gongbu_prompt(project, item, mode='review'):
+def pm_delete_reply(project_id, item_id, reply_index):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    item = _find_item(project, item_id)
+    if not item:
+        return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
+    qa = item.get('qa') if isinstance(item.get('qa'), list) else []
+    try:
+        idx = int(reply_index)
+    except Exception:
+        return {'ok': False, 'error': 'replyIndex 非法'}
+    if idx < 0 or idx >= len(qa):
+        return {'ok': False, 'error': '留言不存在或已删除'}
+    qa.pop(idx)
+    item['qa'] = qa
+    item['updatedAt'] = now_iso()
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {'ok': True, 'item': item, 'project': project}
+
+
+def _build_pm_rnd_prompt(project, item, mode='review'):
     qas = item.get('qa') or []
 
     def _clip_text(t, limit=500):
@@ -2376,9 +3493,9 @@ def _build_pm_gongbu_prompt(project, item, mode='review'):
             return '用户'
         if role == 'codex':
             return 'Codex'
-        return '工部'
+        return '研发部'
 
-    # 动态裁剪历史问答：严格限长，优先保留最新内容
+    # 动态裁剪留言：严格限长，优先保留最新内容
     qtxt_lines = []
     qtxt_budget = 1200
     for x in reversed(qas[-8:]):
@@ -2392,21 +3509,23 @@ def _build_pm_gongbu_prompt(project, item, mode='review'):
     desc = _clip_text(item.get('description', ''), 900)
     resolution = _clip_text(item.get('resolution', ''), 500)
     return (
-        "你是工部尚书，负责软件项目的问题治理、流程优化和推进提醒。\n"
-        "请根据项目问题单直接给出可执行的实现建议与拆分步骤。\n"
+        "你是研发总监，负责软件项目的问题治理、流程优化和推进提醒。\n"
+        "请根据项目问题单直接给出优化后的标题、问题描述、待澄清问题与执行计划。\n"
         "只输出 JSON 对象，不要 markdown。\n"
         "格式：\n"
         "{\n"
         "  \"summary\":\"一句话结论\",\n"
         "  \"status\":\"in_progress|done|blocked\",\n"
-        "  \"questions\":[],\n"
-        "  \"plan\":[\"下一步1\",\"下一步2\"],\n"
-        "  \"resolution\":\"若已完成，给出修复/实现说明，否则留空\"\n"
+        "  \"optimizedTitle\":\"优化后的标题\",\n"
+        "  \"optimizedDescription\":\"优化后的问题描述\",\n"
+        "  \"questions\":[\"待澄清问题1\"],\n"
+        "  \"plan\":[\"下一步1\",\"下一步2\"]\n"
         "}\n"
         "约束：\n"
-        "1) 无论信息是否完整，都不要输出待澄清问题，不要要求用户确认。\n"
-        "2) 必须优先给出如何实现需求的建议与可落地拆分步骤。\n"
-        "3) status 默认用 in_progress；仅在确有结论时用 done；确实无法推进时才用 blocked。\n\n"
+        "1) 优先给出如何实现需求的建议与可落地拆分步骤。\n"
+        "2) questions 最多 5 条，必须具体可回答；信息充分时可返回空数组。\n"
+        "3) status 默认用 in_progress；仅在确有结论时用 done；确实无法推进时才用 blocked。\n"
+        "4) 不要输出修复结论，不要写 resolution 字段。\n\n"
         f"模式: {mode}\n"
         f"项目: {project.get('name','')}\n"
         f"问题单ID: {item.get('id','')}\n"
@@ -2414,8 +3533,8 @@ def _build_pm_gongbu_prompt(project, item, mode='review'):
         f"优先级: {item.get('priority','')}\n"
         f"标题: {item.get('title','')}\n"
         f"描述: {desc}\n"
-        f"当前修复结论: {resolution}\n"
-        f"历史问答:\n{qtxt}\n"
+        f"当前修复结论(仅供参考，不要写入输出): {resolution}\n"
+        f"留言信息:\n{qtxt}\n"
     )
 
 
@@ -2441,7 +3560,7 @@ def _looks_like_context_overflow(text):
     return False
 
 
-def pm_gongbu_review(project_id, item_id, mode='review'):
+def pm_rnd_review(project_id, item_id, mode='review'):
     data = _load_pm_data()
     project = _find_project(data, project_id)
     if not project:
@@ -2451,65 +3570,87 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
         return {'ok': False, 'error': f'问题单 {item_id} 不存在'}
 
     _ensure_pm_project_runtime(project)
-    prompt = _build_pm_gongbu_prompt(project, item, mode=mode)
-    lane = _resolve_isolated_agent('gongbu', project.get('id', ''), 'pm', f'gongbu-review-{mode}')
+    prompt = _build_pm_rnd_prompt(project, item, mode=mode)
+    lane = _resolve_isolated_agent('rnd', project.get('id', ''), 'pm', f'rnd-review-{mode}')
     if not lane.get('ok'):
         return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
-    ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=480)
+
+    review_author = 'codex'
+    warning = ''
+    delegate_task_id = f"{item.get('id','PM-RND')}-{str(mode or 'review').strip()}"
+    ai = _run_codex_delegate_sync(
+        task_id=delegate_task_id,
+        prompt=prompt,
+        agent_id='rnd',
+        timeout_sec=300,
+    )
     if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
         ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
 
-    # 自动降载重试：出现上下文溢出时，用极简上下文再试一次
-    if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
-        mini_prompt = (
-            "你是工部尚书。请只输出 JSON。\n"
-            "{\n"
-            "  \"summary\":\"一句话结论\",\n"
-            "  \"status\":\"in_progress|done|blocked\",\n"
-            "  \"questions\":[],\n"
-            "  \"plan\":[\"步骤1\"],\n"
-            "  \"resolution\":\"完成结论或空\"\n"
-            "}\n"
-            "要求：不要提待澄清问题，直接输出实现建议与拆分步骤。\n"
-            f"模式: {mode}\n"
-            f"项目: {project.get('name','')}\n"
-            f"问题单ID: {item.get('id','')}\n"
-            f"类型: {item.get('type','')}\n"
-            f"优先级: {item.get('priority','')}\n"
-            f"标题: {str(item.get('title',''))[:200]}\n"
-            f"描述: {str(item.get('description',''))[:900]}\n"
-            f"最近用户补充: {str(((item.get('qa') or [])[-1].get('text') if (item.get('qa') or []) else '') or '')[:500]}\n"
-        )
-        ai = _run_agent_sync(lane['agentId'], mini_prompt, timeout_sec=240)
+    # codex_delegate 不可用时，自动回退到研发部隔离会话
+    if not ai.get('ok'):
+        review_author = 'rnd'
+        warning = f"Codex不可用，已回退研发部agent：{str(ai.get('error') or 'unknown')[:120]}"
+        ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=480)
         if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
             ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
 
+        # 自动降载重试：出现上下文溢出时，用极简上下文再试一次
+        if (not ai.get('ok')) and _looks_like_context_overflow(ai.get('error') or ''):
+            mini_prompt = (
+                "你是研发总监。请只输出 JSON。\n"
+                "{\n"
+                "  \"summary\":\"一句话结论\",\n"
+                "  \"status\":\"in_progress|done|blocked\",\n"
+                "  \"optimizedTitle\":\"优化后的标题\",\n"
+                "  \"optimizedDescription\":\"优化后的问题描述\",\n"
+                "  \"questions\":[\"待澄清问题1\"],\n"
+                "  \"plan\":[\"步骤1\"]\n"
+                "}\n"
+                "要求：优先给出实现建议与拆分步骤；questions 最多5条。\n"
+                f"模式: {mode}\n"
+                f"项目: {project.get('name','')}\n"
+                f"问题单ID: {item.get('id','')}\n"
+                f"类型: {item.get('type','')}\n"
+                f"优先级: {item.get('priority','')}\n"
+                f"标题: {str(item.get('title',''))[:200]}\n"
+                f"描述: {str(item.get('description',''))[:900]}\n"
+                f"最近留言: {str(((item.get('qa') or [])[-1].get('text') if (item.get('qa') or []) else '') or '')[:500]}\n"
+            )
+            ai = _run_agent_sync(lane['agentId'], mini_prompt, timeout_sec=240)
+            if ai.get('ok') and _looks_like_context_overflow(ai.get('raw') or ''):
+                ai = {'ok': False, 'error': str(ai.get('raw') or '').strip()}
+
     if not ai.get('ok'):
-        return {'ok': False, 'error': f"工部复审失败: {str(ai.get('error') or '未知错误')[:220]}"}
+        return {'ok': False, 'error': f"研发部复审失败: {str(ai.get('error') or '未知错误')[:220]}"}
     raw = str(ai.get('raw') or '').strip()
     parsed = _extract_json_payload(raw)
     if not isinstance(parsed, dict):
         if _looks_like_context_overflow(raw):
-            return {'ok': False, 'error': '工部复审失败: 输出仍发生上下文溢出'}
-        return {'ok': False, 'error': f"工部复审失败: 输出非JSON（{raw[:120]}）"}
+            return {'ok': False, 'error': '研发部复审失败: 输出仍发生上下文溢出'}
+        # 兜底：当模型返回非 JSON（常见为固定四段文本）时，自动提取为结构化结果
+        parsed = _repair_pm_review_json_from_text(raw)
+        if not isinstance(parsed, dict):
+            return {'ok': False, 'error': f"研发部复审失败: 输出非JSON（{raw[:120]}）"}
 
-    status = str(parsed.get('status') or '').strip().lower()
-    if status not in {'in_progress', 'done', 'blocked'}:
-        status = 'in_progress'
-    questions = []
+    # 复审仅更新建议内容，不改变任务状态
+    optimized_title = str(parsed.get('optimizedTitle') or '').strip()
+    optimized_description = str(parsed.get('optimizedDescription') or '').strip()
+    questions = parsed.get('questions') if isinstance(parsed.get('questions'), list) else []
     plan = parsed.get('plan') if isinstance(parsed.get('plan'), list) else []
     summary = str(parsed.get('summary') or '').strip()
-    resolution = str(parsed.get('resolution') or '').strip()
 
-    item['status'] = status
-    item['questions'] = [str(x).strip() for x in questions if str(x).strip()][:12]
+    item['questions'] = [str(x).strip()[:500] for x in questions if str(x).strip()][:5]
     old_replies = item.get('clarifyReplies') if isinstance(item.get('clarifyReplies'), dict) else {}
     item['clarifyReplies'] = {q: str(old_replies.get(q, '')).strip()[:3000] for q in item['questions'] if str(old_replies.get(q, '')).strip()}
     item['plan'] = [str(x).strip() for x in plan if str(x).strip()][:20]
-    if resolution:
-        item['resolution'] = resolution[:8000]
+    if optimized_title:
+        item['reviewSuggestedTitle'] = optimized_title[:300]
+    if optimized_description:
+        item['reviewSuggestedDescription'] = optimized_description[:4000]
+    item['reviewSuggestedBy'] = review_author
     item.setdefault('qa', []).append({
-        'role': 'gongbu',
+        'role': review_author,
         'text': (summary + ('\n\n' if summary else '') + '\n'.join(item['plan']))[:9000],
         'at': now_iso()
     })
@@ -2517,7 +3658,10 @@ def pm_gongbu_review(project_id, item_id, mode='review'):
     item['updatedAt'] = now_iso()
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
-    return {'ok': True, 'item': item, 'project': project}
+    resp = {'ok': True, 'item': item, 'project': project}
+    if warning:
+        resp['warning'] = warning
+    return resp
 
 
 def _load_jzg_data():
@@ -2544,7 +3688,10 @@ def _ensure_jzg_project(project):
     project.setdefault('id', _new_pm_id('JZG'))
     project.setdefault('name', '未命名项目')
     project.setdefault('description', '')
-    project.setdefault('owner', 'libu_hr')
+    owner_raw = str(project.get('owner') or '').strip().lower()
+    if owner_raw in {'libu_hr', 'libu', '吏部'}:
+        project['owner'] = 'bingbu'
+    project.setdefault('owner', 'bingbu')
     project['folders'] = [
         {'id': JZG_FOLLOWUP_FOLDER_ID, 'name': JZG_FOLLOWUP_FOLDER_NAME},
         {'id': JZG_STRATEGY_FOLDER_ID, 'name': JZG_STRATEGY_FOLDER_NAME},
@@ -2602,6 +3749,94 @@ def _ensure_jzg_project(project):
         strategy = {}
     if not isinstance(strategy.get('topics'), list):
         strategy['topics'] = []
+    docs = strategy.get('docs')
+    if not isinstance(docs, dict):
+        docs = {}
+    if not isinstance(docs.get('folders'), list):
+        docs['folders'] = []
+    if not docs['folders']:
+        docs['folders'] = [{
+            'id': JZG_DOC_DEFAULT_FOLDER_ID,
+            'name': JZG_DOC_DEFAULT_FOLDER_NAME,
+            'order': 0,
+            'createdAt': now,
+            'updatedAt': now,
+        }]
+    normalized_folders = []
+    for idx, fd in enumerate(docs.get('folders') or []):
+        if not isinstance(fd, dict):
+            continue
+        fid = str(fd.get('id') or '').strip() or _new_pm_id('JFD')
+        name = str(fd.get('name') or '').strip() or f'目录{idx+1}'
+        normalized_folders.append({
+            'id': fid[:80],
+            'name': name[:80],
+            'order': idx,
+            'createdAt': str(fd.get('createdAt') or now),
+            'updatedAt': str(fd.get('updatedAt') or now),
+        })
+    if not any(str(x.get('id') or '') == JZG_DOC_DEFAULT_FOLDER_ID for x in normalized_folders):
+        normalized_folders.insert(0, {
+            'id': JZG_DOC_DEFAULT_FOLDER_ID,
+            'name': JZG_DOC_DEFAULT_FOLDER_NAME,
+            'order': 0,
+            'createdAt': now,
+            'updatedAt': now,
+        })
+    for idx, fd in enumerate(normalized_folders):
+        fd['order'] = idx
+    docs['folders'] = normalized_folders
+    valid_folder_ids = {str(fd.get('id') or '') for fd in normalized_folders}
+    if not isinstance(docs.get('items'), list):
+        docs['items'] = []
+    normalized_items = []
+    for it in (docs.get('items') or []):
+        if not isinstance(it, dict):
+            continue
+        did = str(it.get('id') or '').strip() or _new_pm_id('JDC')
+        name = str(it.get('name') or '').strip() or '未命名文档'
+        folder_id = str(it.get('folderId') or '').strip()
+        if folder_id not in valid_folder_ids:
+            folder_id = JZG_DOC_DEFAULT_FOLDER_ID
+        try:
+            size = int(it.get('size') or 0)
+        except Exception:
+            size = 0
+        size = max(0, size)
+        tags = it.get('tags')
+        if not isinstance(tags, list):
+            tags = []
+        clean_tags = []
+        for tg in tags:
+            s = str(tg or '').strip()
+            if not s:
+                continue
+            clean_tags.append(s[:40])
+            if len(clean_tags) >= 20:
+                break
+        status = str(it.get('analysisStatus') or 'pending').strip().lower()
+        if status not in {'pending', 'done', 'failed'}:
+            status = 'pending'
+        normalized_items.append({
+            'id': did[:80],
+            'name': name[:240],
+            'folderId': folder_id,
+            'ext': str(it.get('ext') or '').strip()[:20],
+            'size': size,
+            'uploader': str(it.get('uploader') or 'user').strip()[:60] or 'user',
+            'content': str(it.get('content') or '').strip()[:30000],
+            'storagePath': str(it.get('storagePath') or '').strip()[:600],
+            'summary': str(it.get('summary') or '').strip()[:8000],
+            'tags': clean_tags,
+            'analysisStatus': status,
+            'analysisBy': str(it.get('analysisBy') or '').strip()[:60],
+            'analysisAt': str(it.get('analysisAt') or '').strip()[:40],
+            'createdAt': str(it.get('createdAt') or now),
+            'updatedAt': str(it.get('updatedAt') or now),
+        })
+    docs['items'] = sorted(normalized_items, key=lambda x: str(x.get('updatedAt') or ''), reverse=True)
+    docs['updatedAt'] = str(docs.get('updatedAt') or now)
+    strategy['docs'] = docs
     strategy.setdefault('updatedAt', now)
     project['strategy'] = strategy
 
@@ -2640,9 +3875,9 @@ def jzg_create_project(name, description=''):
         'id': _new_pm_id('JZG'),
         'name': nm[:120],
         'description': str(description or '').strip()[:2000],
-        'owner': 'libu_hr',
+        'owner': 'bingbu',
         'followups': {'items': [], 'plan': {'rows': [], 'updatedAt': now_iso()}, 'updatedAt': now_iso()},
-        'strategy': {'topics': [], 'updatedAt': now_iso()},
+        'strategy': {'topics': [], 'docs': {'folders': [], 'items': [], 'updatedAt': now_iso()}, 'updatedAt': now_iso()},
         'board': {'reminders': [], 'updatedAt': now_iso()},
         'createdAt': now_iso(),
         'updatedAt': now_iso(),
@@ -2867,7 +4102,7 @@ def jzg_generate_report_template(project_id, mode='daily', requirement='', curre
         "{project_name}, {start_date}, {end_date}, {done_items}, {todo_items}"
     )
     prompt = (
-        "你是吏部尚书，负责为将作监输出可复用的报告模版。\n"
+        "你是兵部尚书，负责为将作监输出可复用的报告模版。\n"
         "请根据用户要求，生成一份“可填充变量”的中文报告模版。\n"
         "要求：\n"
         "1) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
@@ -2880,9 +4115,9 @@ def jzg_generate_report_template(project_id, mode='daily', requirement='', curre
         "当前模版（参考）：\n"
         f"{base_tpl[:12000]}\n"
     )
-    ai = _run_agent_sync('libu', prompt, timeout_sec=300)
+    ai = _run_agent_sync('bingbu', prompt, timeout_sec=300)
     if not ai.get('ok'):
-        return {'ok': False, 'error': ai.get('error', '吏部生成模版失败')}
+        return {'ok': False, 'error': ai.get('error', '兵部生成模版失败')}
     raw = str(ai.get('raw') or '').strip()
     payload = _extract_json_payload(raw)
     template = ''
@@ -2891,7 +4126,7 @@ def jzg_generate_report_template(project_id, mode='daily', requirement='', curre
     if not template:
         template = raw
     if not template:
-        return {'ok': False, 'error': '吏部未返回有效模版内容'}
+        return {'ok': False, 'error': '兵部未返回有效模版内容'}
     return {'ok': True, 'mode': md, 'template': template[:12000]}
 
 
@@ -2965,7 +4200,7 @@ def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='
     range_label = start if md == 'daily' else f'{start} ~ {end}'
 
     prompt = (
-        "你是吏部尚书，擅长把任务清单整理成正式日报/周报。\n"
+        "你是兵部尚书，擅长把任务清单整理成正式日报/周报。\n"
         "请严格参考“模版格式”，并基于已完成/未完成任务生成一版表达清晰、可直接发送的中文报告。\n"
         "要求：\n"
         "1) 必须遵循模版结构，不要丢段落标题。\n"
@@ -2982,9 +4217,9 @@ def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='
         "当前未完成任务：\n"
         f"{todo_text}\n"
     )
-    ai = _run_agent_sync('libu', prompt, timeout_sec=300)
+    ai = _run_agent_sync('bingbu', prompt, timeout_sec=300)
     if not ai.get('ok'):
-        return {'ok': False, 'error': ai.get('error', '吏部生成失败')}
+        return {'ok': False, 'error': ai.get('error', '兵部生成失败')}
     raw = str(ai.get('raw') or '').strip()
     payload = _extract_json_payload(raw)
     report = ''
@@ -2993,7 +4228,7 @@ def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='
     if not report:
         report = raw
     if not report:
-        return {'ok': False, 'error': '吏部未返回有效日报内容'}
+        return {'ok': False, 'error': '兵部未返回有效日报内容'}
     return {
         'ok': True,
         'mode': md,
@@ -3103,7 +4338,7 @@ def jzg_add_strategy_message(project_id, topic_id, message, role='user'):
     if not msg:
         return {'ok': False, 'error': '消息不能为空'}
     r = str(role or 'user').strip().lower()
-    if r not in {'user', 'codex', 'libu_hr'}:
+    if r not in {'user', 'codex', 'bingbu', 'libu_hr'}:
         r = 'user'
     now = now_iso()
     topic.setdefault('qa', []).append({'role': r, 'text': msg[:8000], 'at': now})
@@ -3112,6 +4347,330 @@ def jzg_add_strategy_message(project_id, topic_id, message, role='user'):
     project['updatedAt'] = now
     _save_jzg_data(data)
     return {'ok': True, 'project': project, 'topic': topic}
+
+
+def _jzg_docs_data(project):
+    _ensure_jzg_project(project)
+    return ((project.get('strategy') or {}).get('docs') or {})
+
+
+def jzg_doc_folder_create(project_id, name):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    nm = str(name or '').strip()
+    if not nm:
+        return {'ok': False, 'error': '目录名称不能为空'}
+    folders = docs.get('folders') or []
+    if any(str((f or {}).get('name') or '').strip() == nm for f in folders):
+        return {'ok': False, 'error': '目录名称已存在'}
+    now = now_iso()
+    folder = {
+        'id': _new_pm_id('JFD'),
+        'name': nm[:80],
+        'order': len(folders),
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    folders.append(folder)
+    docs['folders'] = folders
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'folder': folder}
+
+
+def jzg_doc_folder_update(project_id, folder_id, name):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    fid = str(folder_id or '').strip()
+    nm = str(name or '').strip()
+    if not fid or not nm:
+        return {'ok': False, 'error': 'folderId and name required'}
+    if fid == JZG_DOC_DEFAULT_FOLDER_ID:
+        return {'ok': False, 'error': '系统默认目录不支持改名'}
+    folders = docs.get('folders') or []
+    target = next((f for f in folders if str((f or {}).get('id') or '') == fid), None)
+    if not target:
+        return {'ok': False, 'error': f'目录 {folder_id} 不存在'}
+    if any(str((f or {}).get('name') or '').strip() == nm and str((f or {}).get('id') or '') != fid for f in folders):
+        return {'ok': False, 'error': '目录名称已存在'}
+    now = now_iso()
+    target['name'] = nm[:80]
+    target['updatedAt'] = now
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'folder': target}
+
+
+def jzg_doc_folder_delete(project_id, folder_id):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    fid = str(folder_id or '').strip()
+    if not fid:
+        return {'ok': False, 'error': 'folderId required'}
+    if fid == JZG_DOC_DEFAULT_FOLDER_ID:
+        return {'ok': False, 'error': '系统默认目录不支持删除'}
+    folders = docs.get('folders') or []
+    idx = next((i for i, f in enumerate(folders) if str((f or {}).get('id') or '') == fid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'目录 {folder_id} 不存在'}
+    removed = folders.pop(idx)
+    for fd in folders:
+        fd['order'] = folders.index(fd)
+    for item in (docs.get('items') or []):
+        if str((item or {}).get('folderId') or '') == fid:
+            item['folderId'] = JZG_DOC_DEFAULT_FOLDER_ID
+            item['updatedAt'] = now_iso()
+    now = now_iso()
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'folder': removed}
+
+
+def jzg_doc_folder_reorder(project_id, source_folder_id, target_folder_id, place='before'):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    s = str(source_folder_id or '').strip()
+    t = str(target_folder_id or '').strip()
+    if not s or not t:
+        return {'ok': False, 'error': 'sourceFolderId and targetFolderId required'}
+    folders = docs.get('folders') or []
+    if len(folders) < 2:
+        return {'ok': True, 'project': project, 'folders': folders}
+    src_idx = next((i for i, f in enumerate(folders) if str((f or {}).get('id') or '') == s), -1)
+    tgt_idx = next((i for i, f in enumerate(folders) if str((f or {}).get('id') or '') == t), -1)
+    if src_idx < 0 or tgt_idx < 0:
+        return {'ok': False, 'error': '目录不存在'}
+    if src_idx == tgt_idx:
+        return {'ok': True, 'project': project, 'folders': folders}
+    moving = folders.pop(src_idx)
+    if src_idx < tgt_idx:
+        tgt_idx -= 1
+    plc = str(place or 'before').strip().lower()
+    insert_idx = tgt_idx + 1 if plc == 'after' else tgt_idx
+    insert_idx = max(0, min(insert_idx, len(folders)))
+    folders.insert(insert_idx, moving)
+    now = now_iso()
+    for idx, fd in enumerate(folders):
+        if not isinstance(fd, dict):
+            continue
+        fd['order'] = idx
+        fd['updatedAt'] = now
+    docs['folders'] = folders
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'folders': folders}
+
+
+def jzg_doc_create(project_id, name, folder_id=None, content='', size=0, ext='', file_base64=''):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    nm = str(name or '').strip()
+    if not nm:
+        return {'ok': False, 'error': '文档名称不能为空'}
+    valid_folder_ids = {str((f or {}).get('id') or '') for f in (docs.get('folders') or [])}
+    fid = str(folder_id or '').strip()
+    if fid not in valid_folder_ids:
+        fid = JZG_DOC_DEFAULT_FOLDER_ID
+    try:
+        s = int(size or 0)
+    except Exception:
+        s = 0
+    now = now_iso()
+    did = _new_pm_id('JDC')
+    storage_path = ''
+    fb64 = str(file_base64 or '').strip()
+    if fb64:
+        try:
+            storage_path = _jzg_write_external_doc_file(project_id, did, nm, fb64)
+        except Exception as e:
+            return {'ok': False, 'error': f'外部文档落盘失败: {e}'}
+    item = {
+        'id': did,
+        'name': nm[:240],
+        'folderId': fid,
+        'ext': str(ext or '').strip()[:20],
+        'size': max(0, s),
+        'uploader': 'user',
+        'content': str(content or '').strip()[:30000],
+        'storagePath': storage_path,
+        'summary': '',
+        'tags': [],
+        'analysisStatus': 'pending',
+        'analysisBy': '',
+        'analysisAt': '',
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    docs.setdefault('items', []).insert(0, item)
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': item}
+
+
+def jzg_doc_update(project_id, doc_id, name=None, folder_id=None, content=None, summary=None, tags=None, size=None, ext=None):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    did = str(doc_id or '').strip()
+    items = docs.get('items') or []
+    item = next((x for x in items if str((x or {}).get('id') or '') == did), None)
+    if not item:
+        return {'ok': False, 'error': f'文档 {doc_id} 不存在'}
+    if name is not None:
+        nm = str(name or '').strip()
+        if not nm:
+            return {'ok': False, 'error': '文档名称不能为空'}
+        item['name'] = nm[:240]
+    if folder_id is not None:
+        valid_folder_ids = {str((f or {}).get('id') or '') for f in (docs.get('folders') or [])}
+        fid = str(folder_id or '').strip()
+        item['folderId'] = fid if fid in valid_folder_ids else JZG_DOC_DEFAULT_FOLDER_ID
+    if content is not None:
+        item['content'] = str(content or '').strip()[:30000]
+    if summary is not None:
+        item['summary'] = str(summary or '').strip()[:8000]
+    if tags is not None:
+        clean_tags = []
+        if isinstance(tags, list):
+            for tg in tags:
+                s = str(tg or '').strip()
+                if not s:
+                    continue
+                clean_tags.append(s[:40])
+                if len(clean_tags) >= 20:
+                    break
+        item['tags'] = clean_tags
+    if size is not None:
+        try:
+            item['size'] = max(0, int(size or 0))
+        except Exception:
+            pass
+    if ext is not None:
+        item['ext'] = str(ext or '').strip()[:20]
+    now = now_iso()
+    item['updatedAt'] = now
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': item}
+
+
+def jzg_doc_delete(project_id, doc_id):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    did = str(doc_id or '').strip()
+    items = docs.get('items') or []
+    idx = next((i for i, x in enumerate(items) if str((x or {}).get('id') or '') == did), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'文档 {doc_id} 不存在'}
+    removed = items.pop(idx)
+    storage_path = str((removed or {}).get('storagePath') or '').strip()
+    if storage_path:
+        try:
+            p = pathlib.Path(storage_path).expanduser().resolve()
+            if _path_within(p, JZG_EXTERNAL_DOCS_DIR) and p.exists() and p.is_file():
+                p.unlink(missing_ok=True)
+        except Exception:
+            pass
+    now = now_iso()
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': removed}
+
+
+def jzg_doc_analyze(project_id, doc_id):
+    data = _load_jzg_data()
+    project = _jzg_find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    docs = _jzg_docs_data(project)
+    did = str(doc_id or '').strip()
+    items = docs.get('items') or []
+    item = next((x for x in items if str((x or {}).get('id') or '') == did), None)
+    if not item:
+        return {'ok': False, 'error': f'文档 {doc_id} 不存在'}
+    name = str(item.get('name') or '未命名文档')
+    content = str(item.get('content') or '').strip()
+    summary = ''
+    tags = []
+    if content:
+        prompt = (
+            "你是 PM 小组专家分析助手，请对文档内容做结构化摘要。\n"
+            "要求：\n"
+            "1) 仅输出 JSON。\n"
+            "2) JSON 格式固定：{\"summary\":\"...\",\"tags\":[\"...\"]}\n"
+            "3) summary 控制在 200 字内；tags 3-8 个。\n\n"
+            f"文档名：{name}\n"
+            f"文档内容：\n{content[:12000]}\n"
+        )
+        ai = _run_agent_sync('bingbu', prompt, timeout_sec=240)
+        if ai.get('ok'):
+            payload = _extract_json_payload(str(ai.get('raw') or ''))
+            if isinstance(payload, dict):
+                summary = str(payload.get('summary') or '').strip()
+                tgs = payload.get('tags')
+                if isinstance(tgs, list):
+                    for tg in tgs:
+                        s = str(tg or '').strip()
+                        if not s:
+                            continue
+                        tags.append(s[:40])
+                        if len(tags) >= 8:
+                            break
+    if not summary:
+        base = content or str(item.get('summary') or '')
+        summary = (base[:180] + ('...' if len(base) > 180 else '')) if base else f'已完成对《{name}》的结构化分析。'
+    if not tags:
+        guess = []
+        for key in ('需求', '方案', '接口', '流程', '风险', '上线', '测试', '文档'):
+            if key in content:
+                guess.append(key)
+        tags = guess[:8] if guess else ['待补充']
+    now = now_iso()
+    item['summary'] = summary[:8000]
+    item['tags'] = tags
+    item['analysisStatus'] = 'done'
+    item['analysisBy'] = 'bingbu'
+    item['analysisAt'] = now
+    item['updatedAt'] = now
+    docs['updatedAt'] = now
+    project['strategy']['updatedAt'] = now
+    project['updatedAt'] = now
+    _save_jzg_data(data)
+    return {'ok': True, 'project': project, 'item': item}
 
 
 def jzg_add_reminder(project_id, title, schedule=''):
@@ -3311,11 +4870,11 @@ _AGENT_DEPTS = [
     {'id':'menxia',  'label':'门下省','emoji':'🔍', 'role':'侍中',     'rank':'正一品'},
     {'id':'shangshu','label':'尚书省','emoji':'📮', 'role':'尚书令',   'rank':'正一品'},
     {'id':'hubu',    'label':'户部',  'emoji':'💰', 'role':'户部尚书', 'rank':'正二品'},
-    {'id':'libu',    'label':'礼部',  'emoji':'📝', 'role':'礼部尚书', 'rank':'正二品'},
-    {'id':'bingbu',  'label':'兵部',  'emoji':'⚔️', 'role':'兵部尚书', 'rank':'正二品'},
+    {'id':'libu',    'label':'藏经阁',  'emoji':'📝', 'role':'扫地僧', 'rank':'正二品'},
+    {'id':'bingbu',  'label':'PM小组',  'emoji':'⚔️', 'role':'项目经理', 'rank':'正二品'},
     {'id':'xingbu',  'label':'刑部',  'emoji':'⚖️', 'role':'刑部尚书', 'rank':'正二品'},
-    {'id':'gongbu',  'label':'工部',  'emoji':'🔧', 'role':'工部尚书', 'rank':'正二品'},
-    {'id':'libu_hr', 'label':'吏部',  'emoji':'👔', 'role':'吏部尚书', 'rank':'正二品'},
+    {'id':'rnd',  'label':'研发部',  'emoji':'💻', 'role':'研发总监', 'rank':'正二品'},
+    {'id':'libu_hr', 'label':'人事部',  'emoji':'👔', 'role':'人事经理', 'rank':'正二品'},
     {'id':'zaochao', 'label':'钦天监','emoji':'📰', 'role':'朝报官',   'rank':'正三品'},
 ]
 _BASE_AGENT_IDS = {x['id'] for x in _AGENT_DEPTS}
@@ -3392,7 +4951,8 @@ def _check_agent_process(agent_id):
 
 def _check_agent_workspace(agent_id):
     """检查 Agent 工作空间是否存在。"""
-    ws = OCLAW_HOME / f'workspace-{agent_id}'
+    aid = _normalize_agent_id(agent_id)
+    ws = OCLAW_HOME / f'workspace-{aid}'
     return ws.is_dir()
 
 
@@ -3404,9 +4964,9 @@ def _list_agent_dirs():
 
 
 def _base_agent_id(agent_id):
-    aid = str(agent_id or '').strip()
+    aid = _normalize_agent_id(agent_id)
     if '__' in aid:
-        return aid.split('__', 1)[0]
+        aid = aid.split('__', 1)[0]
     return aid
 
 
@@ -3417,7 +4977,7 @@ def _collect_related_agent_ids(agent_id):
     - 若传入是基础 agent（在 _AGENT_DEPTS 中），返回 [base + base__*]
     - 若传入是具体 runtime agent，返回 [runtime]
     """
-    aid = str(agent_id or '').strip()
+    aid = _normalize_agent_id(agent_id)
     if not aid:
         return []
     dirs = _list_agent_dirs()
@@ -3532,74 +5092,75 @@ def get_agents_status():
 
 def wake_agent(agent_id, message=''):
     """唤醒指定 Agent，发送一条心跳/唤醒消息。"""
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
-    if not _check_agent_workspace(agent_id):
-        return {'ok': False, 'error': f'{agent_id} 工作空间不存在，请先配置'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agent_id 非法: {requested_agent_id}'}
+    runtime_id = _normalize_agent_id(requested_agent_id)
+    if not _check_agent_workspace(runtime_id):
+        return {'ok': False, 'error': f'{requested_agent_id} 工作空间不存在，请先配置'}
     if not _check_gateway_alive():
         return {'ok': False, 'error': 'Gateway 未启动，请先运行 openclaw gateway start'}
 
-    # agent_id 直接作为 runtime_id（openclaw agents list 中的注册名）
-    runtime_id = agent_id
     msg = message or f'🔔 系统心跳检测 — 请回复 OK 确认在线。当前时间: {now_iso()}'
 
     def do_wake():
         try:
             cmd = ['openclaw', 'agent', '--agent', runtime_id, '-m', msg, '--timeout', '120']
-            log.info(f'🔔 唤醒 {agent_id}...')
+            log.info(f'🔔 唤醒 {requested_agent_id}...')
             # 带重试（最多2次）
             for attempt in range(1, 3):
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=130)
                 if result.returncode == 0:
-                    log.info(f'✅ {agent_id} 已唤醒')
+                    log.info(f'✅ {requested_agent_id} 已唤醒')
                     return
                 err_msg = result.stderr[:200] if result.stderr else result.stdout[:200]
-                log.warning(f'⚠️ {agent_id} 唤醒失败(第{attempt}次): {err_msg}')
+                log.warning(f'⚠️ {requested_agent_id} 唤醒失败(第{attempt}次): {err_msg}')
                 if attempt < 2:
                     import time
                     time.sleep(5)
-            log.error(f'❌ {agent_id} 唤醒最终失败')
+            log.error(f'❌ {requested_agent_id} 唤醒最终失败')
         except subprocess.TimeoutExpired:
-            log.error(f'❌ {agent_id} 唤醒超时(130s)')
+            log.error(f'❌ {requested_agent_id} 唤醒超时(130s)')
         except Exception as e:
-            log.warning(f'⚠️ {agent_id} 唤醒异常: {e}')
+            log.warning(f'⚠️ {requested_agent_id} 唤醒异常: {e}')
     threading.Thread(target=do_wake, daemon=True).start()
 
-    return {'ok': True, 'message': f'{agent_id} 唤醒指令已发出，约10-30秒后生效'}
+    return {'ok': True, 'message': f'{requested_agent_id} 唤醒指令已发出，约10-30秒后生效'}
 
 
 def send_agent_message(agent_id, message, timeout_sec=180):
     """向指定 Agent 发送控制台消息（非飞书入口）。"""
-    if not _SAFE_NAME_RE.match(agent_id):
-        return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
-    if not _check_agent_workspace(agent_id):
-        return {'ok': False, 'error': f'{agent_id} 工作空间不存在，请先配置'}
+    requested_agent_id = str(agent_id or '').strip()
+    if not _SAFE_NAME_RE.match(requested_agent_id):
+        return {'ok': False, 'error': f'agent_id 非法: {requested_agent_id}'}
+    runtime_id = _normalize_agent_id(requested_agent_id)
+    if not _check_agent_workspace(runtime_id):
+        return {'ok': False, 'error': f'{requested_agent_id} 工作空间不存在，请先配置'}
     if not _check_gateway_alive():
         return {'ok': False, 'error': 'Gateway 未启动，请先运行 openclaw gateway start'}
     text = str(message or '').strip()
     if not text:
         return {'ok': False, 'error': 'message 不能为空'}
 
-    runtime_id = agent_id
     timeout_sec = max(60, min(600, int(timeout_sec or 180)))
 
     def _runner():
         try:
             cmd = ['openclaw', 'agent', '--agent', runtime_id, '-m', text, '--timeout', str(timeout_sec)]
-            log.info(f'💬 控制台消息 -> {agent_id}: {text[:80]}')
+            log.info(f'💬 控制台消息 -> {requested_agent_id}: {text[:80]}')
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_sec + 20)
             if result.returncode == 0:
-                log.info(f'✅ {agent_id} 控制台消息执行完成')
+                log.info(f'✅ {requested_agent_id} 控制台消息执行完成')
             else:
                 err_msg = (result.stderr or result.stdout or '').strip()[:300]
-                log.warning(f'⚠️ {agent_id} 控制台消息执行失败: {err_msg}')
+                log.warning(f'⚠️ {requested_agent_id} 控制台消息执行失败: {err_msg}')
         except subprocess.TimeoutExpired:
-            log.error(f'❌ {agent_id} 控制台消息超时({timeout_sec + 20}s)')
+            log.error(f'❌ {requested_agent_id} 控制台消息超时({timeout_sec + 20}s)')
         except Exception as e:
-            log.warning(f'⚠️ {agent_id} 控制台消息异常: {e}')
+            log.warning(f'⚠️ {requested_agent_id} 控制台消息异常: {e}')
 
     threading.Thread(target=_runner, daemon=True).start()
-    return {'ok': True, 'message': f'消息已发送到 {agent_id}，约10-30秒可见回执'}
+    return {'ok': True, 'message': f'消息已发送到 {requested_agent_id}，约10-30秒可见回执'}
 
 
 def _format_session_meta(session_key, meta):
@@ -3626,7 +5187,219 @@ def _format_session_meta(session_key, meta):
         'subagentRole': m.get('subagentRole'),
         'spawnDepth': m.get('spawnDepth'),
         'label': m.get('label'),
+        'sessionFile': m.get('sessionFile'),
+        'contextTokens': m.get('contextTokens'),
     }
+
+
+def _coerce_ts_ms(raw):
+    try:
+        if raw is None:
+            return 0
+        if isinstance(raw, (int, float)):
+            v = int(raw)
+            if v > 10_000_000_000:  # ms
+                return v
+            if v > 0:
+                return v * 1000
+        s = str(raw or '').strip()
+        if not s:
+            return 0
+        if s.isdigit():
+            v = int(s)
+            if v > 10_000_000_000:
+                return v
+            if v > 0:
+                return v * 1000
+            return 0
+        dt = datetime.datetime.fromisoformat(s.replace('Z', '+00:00'))
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return 0
+
+
+def _entry_ts_ms(item):
+    """提取 session 条目时间（毫秒）。
+    同时兼容 item.timestamp 和 message.timestamp，避免时间口径不一致。
+    """
+    if not isinstance(item, dict):
+        return 0
+    msg = item.get('message') if isinstance(item.get('message'), dict) else {}
+    return max(
+        _coerce_ts_ms(item.get('timestamp')),
+        _coerce_ts_ms(msg.get('timestamp')),
+    )
+
+
+def _estimate_tokens_from_text(raw_text_or_chars):
+    if isinstance(raw_text_or_chars, int):
+        chars = max(0, raw_text_or_chars)
+    else:
+        s = str(raw_text_or_chars or '')
+        chars = len(s)
+    if chars <= 0:
+        return 0
+    # 粗略估算：中英混排按约 4 chars/token
+    return max(1, int(round(chars / 4.0)))
+
+
+def _compute_session_context_usage(session_file: pathlib.Path, meta):
+    """计算会话上下文占用（优先 usage.input，其次文本估算）。"""
+    m = meta if isinstance(meta, dict) else {}
+    ctx_max = int(m.get('contextTokens') or 0) if str(m.get('contextTokens') or '').isdigit() else 0
+    system_prompt = ''
+    spr = m.get('systemPromptReport')
+    if isinstance(spr, dict):
+        system_prompt = str(spr.get('systemPrompt') or '')
+
+    usage_input_latest = 0
+    approx_chars = len(system_prompt)
+    message_count = 0
+    last_ts_ms = 0
+    visible_last_ts_ms = 0
+
+    try:
+        if session_file.exists():
+            with session_file.open('r', errors='ignore') as fp:
+                for ln in fp:
+                    try:
+                        item = json.loads(ln)
+                    except Exception:
+                        continue
+                    message_count += 1
+                    last_ts_ms = max(last_ts_ms, _entry_ts_ms(item))
+                    # 与会话面板口径统一：优先取“可见对话条目”的最后时间
+                    try:
+                        parsed = _parse_activity_entry(item, compact=True)
+                    except Exception:
+                        parsed = None
+                    if parsed:
+                        visible_last_ts_ms = max(visible_last_ts_ms, _coerce_ts_ms(parsed.get('at')))
+                    msg = item.get('message') if isinstance(item.get('message'), dict) else {}
+                    usage = msg.get('usage') if isinstance(msg.get('usage'), dict) else {}
+                    # 绝大多数 provider 会把当前请求上下文 token 放在 input 上
+                    input_tok = usage.get('input')
+                    if not isinstance(input_tok, int):
+                        try:
+                            input_tok = int(input_tok or 0)
+                        except Exception:
+                            input_tok = 0
+                    if input_tok > 0:
+                        usage_input_latest = input_tok
+                    approx_chars += len(_collect_message_text(msg))
+    except Exception:
+        pass
+
+    if usage_input_latest > 0:
+        used = usage_input_latest
+        source = 'usage'
+    else:
+        used = _estimate_tokens_from_text(approx_chars)
+        source = 'estimated'
+
+    if ctx_max <= 0:
+        # 无上限配置时给一个保守默认，避免前端除零
+        ctx_max = max(used, 1)
+    pct = min(999.0, (float(used) / float(max(1, ctx_max))) * 100.0)
+    return {
+        'contextMaxTokens': int(ctx_max),
+        'contextUsedTokens': int(used),
+        'contextUsedPct': round(pct, 2),
+        'contextUsageSource': source,
+        'messageCount': int(message_count),
+        'lastTalkAtTs': int(visible_last_ts_ms or last_ts_ms),
+    }
+
+
+def _infer_trigger_from_recent_text(text):
+    s = str(text or '').lower()
+    if not s:
+        return ''
+    checks = [
+        ('人事部-SOUL重新整理触发', ['soul重新整理', '重整soul', '重整目标agent的soul文档', 'agent-soul/reorganize']),
+        ('研发部复审触发', ['复审', '评审', 'rnd-review', '待澄清问题']),
+        ('版本控制-更新版本触发', ['更新版本', '版本更新日志', 'version-generate', '版本更改清单']),
+        ('项目设计-需求说明生成', ['需求说明', 'prd', 'design-requirements']),
+        ('项目设计-架构设计生成', ['架构设计', 'mermaid', 'design-architecture']),
+        ('项目设计-功能设计生成', ['功能设计', 'fsd', 'design-function']),
+        ('研发部催办触发', ['催办', '继续推进', 'execute']),
+    ]
+    for label, kws in checks:
+        if any(k in s for k in kws):
+            return label
+    return ''
+
+
+def _read_recent_user_text(session_file: pathlib.Path, limit=30):
+    if not session_file.exists():
+        return ''
+    lines = []
+    try:
+        raw = session_file.read_text(errors='ignore').splitlines()
+    except Exception:
+        return ''
+    for ln in reversed(raw[-max(20, int(limit)):]):
+        try:
+            item = json.loads(ln)
+        except Exception:
+            continue
+        msg = item.get('message') if isinstance(item.get('message'), dict) else {}
+        if str(msg.get('role') or '').strip().lower() != 'user':
+            continue
+        txt = _collect_message_text(msg).strip()
+        if txt:
+            lines.append(txt[:3000])
+        if len(lines) >= 2:
+            break
+    lines.reverse()
+    return '\n'.join(lines)
+
+
+def _derive_session_trigger(session_key, runtime_agent_id, meta, recent_text=''):
+    m = meta if isinstance(meta, dict) else {}
+    label = str(m.get('label') or '').strip()
+    if label:
+        return label
+
+    key = str(session_key or '')
+    rid = str(runtime_agent_id or '')
+    low = key.lower()
+    low_rid = rid.lower()
+
+    if ':cron:' in low or low.endswith(':cron'):
+        return '定时任务触发'
+    if ':subagent:' in low:
+        return '子任务分派触发'
+
+    # 研发部/PM 常见隔离会话来源
+    if '__pm__design-' in low_rid:
+        if 'requirements' in low_rid:
+            return '项目设计-需求说明生成'
+        if 'architecture' in low_rid:
+            return '项目设计-架构设计生成'
+        if 'function' in low_rid:
+            return '项目设计-功能设计生成'
+        return '项目设计触发'
+    if '__pm__version-generate__' in low_rid:
+        return '版本控制-更新版本触发'
+    if '__pm__rnd-review-review__' in low_rid:
+        return '问题详情-研发部复审触发'
+    if '__pm__rnd-review-execute__' in low_rid:
+        return '问题详情-研发部催办触发'
+    if '__pm__' in low_rid:
+        return 'PM小组功能触发'
+
+    last_channel = str(m.get('lastChannel') or '').strip().lower()
+    if last_channel:
+        return f'渠道触发: {last_channel}'
+
+    by_text = _infer_trigger_from_recent_text(recent_text)
+    if by_text:
+        return by_text
+
+    if low.endswith(':main'):
+        return '主会话（手动/默认）'
+    return '主会话（未标注来源）'
 
 
 def _parse_session_entries(session_file: pathlib.Path, limit=120):
@@ -3687,8 +5460,37 @@ def get_agent_sessions(agent_id):
         for k, v in data.items():
             row = _format_session_meta(k, v)
             row['agentId'] = rid
+            sid = str(row.get('sessionId') or '').strip()
+            candidate_file = pathlib.Path(str(row.get('sessionFile') or '')).expanduser() if row.get('sessionFile') else (sessions_dir / f'{sid}.jsonl')
+            content_bytes = 0
+            file_mtime_ms = 0
+            try:
+                if candidate_file.exists():
+                    st = candidate_file.stat()
+                    content_bytes = int(st.st_size or 0)
+                    file_mtime_ms = int(st.st_mtime * 1000)
+            except Exception:
+                pass
+            updated_ms = _coerce_ts_ms(row.get('updatedAt'))
+            usage_stats = _compute_session_context_usage(candidate_file, v if isinstance(v, dict) else {})
+            msg_last_talk_ms = int(usage_stats.get('lastTalkAtTs') or 0)
+            # 口径统一：会话概览“上次对话”优先取真实消息时间，与会话内容面板一致。
+            # 只有完全无消息时，才回退到元数据更新时间。
+            if msg_last_talk_ms > 0:
+                last_talk_ms = msg_last_talk_ms
+            else:
+                last_talk_ms = max(updated_ms, file_mtime_ms)
+            recent_text = _read_recent_user_text(candidate_file, limit=40)
+            row['contentBytes'] = content_bytes
+            row['messageCount'] = int(usage_stats.get('messageCount') or 0)
+            row['lastTalkAtTs'] = last_talk_ms
+            row['contextMaxTokens'] = int(usage_stats.get('contextMaxTokens') or 0)
+            row['contextUsedTokens'] = int(usage_stats.get('contextUsedTokens') or 0)
+            row['contextUsedPct'] = float(usage_stats.get('contextUsedPct') or 0.0)
+            row['contextUsageSource'] = usage_stats.get('contextUsageSource') or 'estimated'
+            row['triggerReason'] = _derive_session_trigger(k, rid, v if isinstance(v, dict) else {}, recent_text=recent_text)
             sessions.append(row)
-    sessions.sort(key=lambda x: int(x.get('updatedAt') or 0), reverse=True)
+    sessions.sort(key=lambda x: int(x.get('lastTalkAtTs') or _coerce_ts_ms(x.get('updatedAt')) or 0), reverse=True)
     alive_count = sum(1 for s in sessions if s.get('alive'))
     return {
         'ok': True,
@@ -3744,8 +5546,9 @@ _STATE_AGENT_MAP = {
     'Pending': 'zhongshu', # 待处理，默认中书省
 }
 _ORG_AGENT_MAP = {
-    '礼部': 'libu', '户部': 'hubu', '兵部': 'bingbu',
-    '刑部': 'xingbu', '工部': 'gongbu', '吏部': 'libu_hr',
+    '礼部': 'libu', '藏经阁': 'libu', '户部': 'hubu', '兵部': 'bingbu',
+    'PM小组': 'bingbu',
+    '刑部': 'xingbu', '工部': 'rnd', '研发部': 'rnd', '吏部': 'libu_hr', '人事部': 'libu_hr',
     '中书省': 'zhongshu', '门下省': 'menxia', '尚书省': 'shangshu',
 }
 
@@ -4138,6 +5941,12 @@ def _parse_activity_entry(item, compact=True):
     msg = item.get('message') or {}
     role = str(msg.get('role', '')).strip().lower()
     ts = item.get('timestamp', '')
+    ts_ms = _entry_ts_ms(item)
+    if ts_ms > 0:
+        try:
+            ts = datetime.datetime.fromtimestamp(ts_ms / 1000.0, datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
+        except Exception:
+            pass
 
     if role == 'assistant':
         text = ''
@@ -5065,6 +6874,23 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(read_json(DATA / 'last_model_change_result.json', {}))
         elif p == '/api/officials-stats':
             self.send_json(read_json(DATA / 'officials_stats.json', {}))
+        elif p == '/api/agent-work-scopes':
+            data = _load_agent_work_scopes()
+            self.send_json({'ok': True, 'scopes': data.get('scopes', {})})
+        elif p == '/api/agent-work-bindings':
+            data = _load_agent_work_bindings()
+            self.send_json({'ok': True, 'bindings': data.get('bindings', {})})
+        elif p.startswith('/api/agent-work-scopes/'):
+            agent_id = p.replace('/api/agent-work-scopes/', '').strip()
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agent_id'}, 400)
+            else:
+                data = _load_agent_work_scopes()
+                self.send_json({
+                    'ok': True,
+                    'agentId': agent_id,
+                    'scopes': data.get('scopes', {}).get(agent_id, []),
+                })
         elif p == '/api/morning-brief':
             self.send_json(read_json(DATA / 'morning_brief.json', {}))
         elif p == '/api/morning-config':
@@ -5083,6 +6909,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(list_learning_plans())
         elif p == '/api/pm/projects':
             self.send_json(pm_list_projects())
+        elif p == '/api/automation/tasks':
+            self.send_json(automation_list_tasks())
         elif p == '/api/jzg/projects':
             self.send_json(jzg_list_projects())
         elif p.startswith('/api/learning-plan/'):
@@ -5257,6 +7085,22 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(start_learning_plan(topic))
             return
 
+        if p == '/api/agent-work-scopes/update':
+            agent_id = str(body.get('agentId', '')).strip()
+            scopes = body.get('scopes', [])
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agentId'}, 400)
+                return
+            current = _load_agent_work_scopes().get('scopes', {})
+            normalized = _normalize_work_scope_items(scopes)
+            if not normalized:
+                current.pop(agent_id, None)
+            else:
+                current[agent_id] = normalized
+            _save_agent_work_scopes(current)
+            self.send_json({'ok': True, 'agentId': agent_id, 'scopes': current.get(agent_id, [])})
+            return
+
         if p == '/api/pm/project-create':
             name = body.get('name', '').strip()
             description = body.get('description', '').strip()
@@ -5273,6 +7117,50 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'name required'}, 400)
                 return
             self.send_json(jzg_create_project(name, description))
+            return
+
+        if p == '/api/automation/parse-request':
+            text = body.get('text', '')
+            self.send_json(automation_parse_request(text))
+            return
+
+        if p == '/api/automation/task-create':
+            self.send_json(automation_create_task(
+                body.get('title', ''),
+                body.get('requestText', ''),
+                schedule_expr=body.get('scheduleExpr', ''),
+                target_agent=body.get('targetAgent', 'shangshu'),
+                target_session=body.get('targetSession', ''),
+                prompt=body.get('prompt', ''),
+            ))
+            return
+
+        if p == '/api/automation/task-update':
+            task_id = body.get('taskId', '').strip()
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'taskId required'}, 400)
+                return
+            self.send_json(automation_update_task(task_id, body))
+            return
+
+        if p == '/api/automation/task-delete':
+            task_id = body.get('taskId', '').strip()
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'taskId required'}, 400)
+                return
+            self.send_json(automation_delete_task(task_id))
+            return
+
+        if p == '/api/automation/task-run':
+            task_id = body.get('taskId', '').strip()
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'taskId required'}, 400)
+                return
+            self.send_json(automation_run_task(
+                task_id,
+                status_feedback=body.get('statusFeedback', ''),
+                experience_feedback=body.get('experienceFeedback', ''),
+            ))
             return
 
         if p == '/api/jzg/followup-create':
@@ -5418,6 +7306,103 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(jzg_add_strategy_message(project_id, topic_id, message, body.get('role', 'user')))
             return
 
+        if p == '/api/jzg/doc-folder-create':
+            project_id = body.get('projectId', '').strip()
+            name = body.get('name', '').strip()
+            if not project_id or not name:
+                self.send_json({'ok': False, 'error': 'projectId and name required'}, 400)
+                return
+            self.send_json(jzg_doc_folder_create(project_id, name))
+            return
+
+        if p == '/api/jzg/doc-folder-update':
+            project_id = body.get('projectId', '').strip()
+            folder_id = body.get('folderId', '').strip()
+            name = body.get('name', '').strip()
+            if not project_id or not folder_id or not name:
+                self.send_json({'ok': False, 'error': 'projectId, folderId and name required'}, 400)
+                return
+            self.send_json(jzg_doc_folder_update(project_id, folder_id, name))
+            return
+
+        if p == '/api/jzg/doc-folder-delete':
+            project_id = body.get('projectId', '').strip()
+            folder_id = body.get('folderId', '').strip()
+            if not project_id or not folder_id:
+                self.send_json({'ok': False, 'error': 'projectId and folderId required'}, 400)
+                return
+            self.send_json(jzg_doc_folder_delete(project_id, folder_id))
+            return
+
+        if p == '/api/jzg/doc-folder-reorder':
+            project_id = body.get('projectId', '').strip()
+            source_folder_id = body.get('sourceFolderId', '').strip()
+            target_folder_id = body.get('targetFolderId', '').strip()
+            if not project_id or not source_folder_id or not target_folder_id:
+                self.send_json({'ok': False, 'error': 'projectId, sourceFolderId and targetFolderId required'}, 400)
+                return
+            self.send_json(jzg_doc_folder_reorder(
+                project_id,
+                source_folder_id,
+                target_folder_id,
+                place=body.get('place', 'before'),
+            ))
+            return
+
+        if p == '/api/jzg/doc-create':
+            project_id = body.get('projectId', '').strip()
+            name = body.get('name', '').strip()
+            if not project_id or not name:
+                self.send_json({'ok': False, 'error': 'projectId and name required'}, 400)
+                return
+            self.send_json(jzg_doc_create(
+                project_id,
+                name,
+                folder_id=body.get('folderId', None),
+                content=body.get('content', ''),
+                size=body.get('size', 0),
+                ext=body.get('ext', ''),
+                file_base64=body.get('fileBase64', ''),
+            ))
+            return
+
+        if p == '/api/jzg/doc-update':
+            project_id = body.get('projectId', '').strip()
+            doc_id = body.get('docId', '').strip()
+            if not project_id or not doc_id:
+                self.send_json({'ok': False, 'error': 'projectId and docId required'}, 400)
+                return
+            self.send_json(jzg_doc_update(
+                project_id,
+                doc_id,
+                name=body.get('name', None),
+                folder_id=body.get('folderId', None),
+                content=body.get('content', None),
+                summary=body.get('summary', None),
+                tags=body.get('tags', None),
+                size=body.get('size', None),
+                ext=body.get('ext', None),
+            ))
+            return
+
+        if p == '/api/jzg/doc-delete':
+            project_id = body.get('projectId', '').strip()
+            doc_id = body.get('docId', '').strip()
+            if not project_id or not doc_id:
+                self.send_json({'ok': False, 'error': 'projectId and docId required'}, 400)
+                return
+            self.send_json(jzg_doc_delete(project_id, doc_id))
+            return
+
+        if p == '/api/jzg/doc-analyze':
+            project_id = body.get('projectId', '').strip()
+            doc_id = body.get('docId', '').strip()
+            if not project_id or not doc_id:
+                self.send_json({'ok': False, 'error': 'projectId and docId required'}, 400)
+                return
+            self.send_json(jzg_doc_analyze(project_id, doc_id))
+            return
+
         if p == '/api/jzg/reminder-create':
             project_id = body.get('projectId', '').strip()
             title = body.get('title', '').strip()
@@ -5486,9 +7471,14 @@ class Handler(BaseHTTPRequestHandler):
                 resolution=body.get('resolution', None),
                 item_type=body.get('type', None),
                 description=body.get('description', None),
+                title=body.get('title', None),
                 folder_id=body.get('folderId', None),
                 questions=body.get('questions', None),
                 clarify_replies=body.get('clarifyReplies', None),
+                plan=body.get('plan', None),
+                review_suggested_title=body.get('reviewSuggestedTitle', None),
+                review_suggested_description=body.get('reviewSuggestedDescription', None),
+                review_suggested_by=body.get('reviewSuggestedBy', None),
             ))
             return
 
@@ -5518,6 +7508,21 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'projectId and folderId required'}, 400)
                 return
             self.send_json(pm_delete_folder(project_id, folder_id))
+            return
+
+        if p == '/api/pm/folder-reorder':
+            project_id = body.get('projectId', '').strip()
+            source_folder_id = body.get('sourceFolderId', '').strip()
+            target_folder_id = body.get('targetFolderId', '').strip()
+            if not project_id or not source_folder_id or not target_folder_id:
+                self.send_json({'ok': False, 'error': 'projectId, sourceFolderId and targetFolderId required'}, 400)
+                return
+            self.send_json(pm_reorder_folder(
+                project_id,
+                source_folder_id,
+                target_folder_id,
+                place=body.get('place', 'before'),
+            ))
             return
 
         if p == '/api/pm/design-update':
@@ -5615,14 +7620,23 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(pm_add_reply(project_id, item_id, text, role=body.get('role', 'user')))
             return
 
-        if p == '/api/pm/gongbu-review':
+        if p == '/api/pm/item-reply-delete':
+            project_id = body.get('projectId', '').strip()
+            item_id = body.get('itemId', '').strip()
+            if not project_id or not item_id:
+                self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
+                return
+            self.send_json(pm_delete_reply(project_id, item_id, body.get('replyIndex')))
+            return
+
+        if p == '/api/pm/rnd-review':
             project_id = body.get('projectId', '').strip()
             item_id = body.get('itemId', '').strip()
             mode = body.get('mode', 'review').strip()
             if not project_id or not item_id:
                 self.send_json({'ok': False, 'error': 'projectId and itemId required'}, 400)
                 return
-            self.send_json(pm_gongbu_review(project_id, item_id, mode=mode))
+            self.send_json(pm_rnd_review(project_id, item_id, mode=mode))
             return
 
         if p == '/api/learning-plan/answer':
@@ -5877,6 +7891,24 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(result)
             return
 
+        if p == '/api/agent-soul/save':
+            agent_id = body.get('agentId', '').strip()
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agentId'}, 400)
+                return
+            result = write_agent_soul(agent_id, body.get('content', ''))
+            self.send_json(result, 200 if result.get('ok') else 400)
+            return
+
+        if p == '/api/agent-soul/reorganize':
+            agent_id = body.get('agentId', '').strip()
+            if not agent_id or not _SAFE_NAME_RE.match(agent_id):
+                self.send_json({'ok': False, 'error': 'invalid agentId'}, 400)
+                return
+            result = reorganize_agent_soul_by_hr(agent_id)
+            self.send_json(result, 200 if result.get('ok') else 400)
+            return
+
         if p == '/api/set-model':
             agent_id = body.get('agentId', '').strip()
             model = body.get('model', '').strip()
@@ -5975,7 +8007,7 @@ def main():
         f'http://127.0.0.1:{args.port}', f'http://localhost:{args.port}',
     }
 
-    # 多线程模式：避免单个长请求（如礼部深度问答）阻塞整个看板 API。
+    # 多线程模式：避免单个长请求（如藏经阁深度问答）阻塞整个看板 API。
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     log.info(f'三省六部看板启动 → http://{args.host}:{args.port}')
     print(f'   按 Ctrl+C 停止')

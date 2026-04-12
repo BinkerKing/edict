@@ -29,7 +29,7 @@ C:\Users\<YOUR_USER>\.openclaw\workspace-hubu
 C:\Users\<YOUR_USER>\.openclaw\workspace-libu
 C:\Users\<YOUR_USER>\.openclaw\workspace-bingbu
 C:\Users\<YOUR_USER>\.openclaw\workspace-xingbu
-C:\Users\<YOUR_USER>\.openclaw\workspace-gongbu
+C:\Users\<YOUR_USER>\.openclaw\workspace-rnd
 C:\Users\<YOUR_USER>\.openclaw\workspace-libu_hr
 C:\Users\<YOUR_USER>\.openclaw\workspace-zaochao
 ```
@@ -147,7 +147,7 @@ http://127.0.0.1:7891
 - `libu`
 - `bingbu`
 - `xingbu`
-- `gongbu`
+- `rnd`
 - `libu_hr`
 - `zaochao`
 

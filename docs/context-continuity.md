@@ -44,19 +44,19 @@
 
 ```bash
 cd /Users/binlian/Documents/Github/edict
-python3 scripts/context_continuity.py capture --agent gongbu --task-id JJC-20260411-001
+python3 scripts/context_continuity.py capture --agent rnd --task-id JJC-20260411-001
 ```
 
 输出会写入：
 
-- `data/context_capsules/gongbu/*.json`
+- `data/context_capsules/rnd/*.json`
 
 ### 2) 生成新会话续接提示词
 
 ```bash
 python3 scripts/context_continuity.py resume-prompt \
-  --capsule data/context_capsules/gongbu/<capsule>.json \
-  --output data/context_capsules/gongbu/<capsule>.resume.md
+  --capsule data/context_capsules/rnd/<capsule>.json \
+  --output data/context_capsules/rnd/<capsule>.resume.md
 ```
 
 把 `.resume.md` 里的内容作为新会话的首条输入即可续接。

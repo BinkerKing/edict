@@ -20,7 +20,7 @@ import { api } from '../api';
 const OFFICIAL_COLORS: Record<string, string> = {
   taizi: '#e8a040', zhongshu: '#a07aff', menxia: '#6a9eff', shangshu: '#2ecc8a',
   libu: '#f5c842', hubu: '#ff9a6a', bingbu: '#ff5270', xingbu: '#cc4444',
-  gongbu: '#44aaff', libu_hr: '#9b59b6',
+  rnd: '#44aaff', libu_hr: '#9b59b6',
 };
 
 const EMOTION_EMOJI: Record<string, string> = {
@@ -33,7 +33,7 @@ const COURT_POSITIONS: Record<string, { x: number; y: number }> = {
   zhongshu: { x: 15, y: 25 }, menxia: { x: 15, y: 45 }, shangshu: { x: 15, y: 65 },
   // 右列
   libu: { x: 85, y: 20 }, hubu: { x: 85, y: 35 }, bingbu: { x: 85, y: 50 },
-  xingbu: { x: 85, y: 65 }, gongbu: { x: 85, y: 80 },
+  xingbu: { x: 85, y: 65 }, rnd: { x: 85, y: 80 },
   // 中间
   taizi: { x: 50, y: 20 }, libu_hr: { x: 50, y: 80 },
 };

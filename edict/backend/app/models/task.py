@@ -58,9 +58,11 @@ STATE_AGENT_MAP = {
 ORG_AGENT_MAP = {
     "户部": "hubu",
     "礼部": "libu",
+    "藏经阁": "libu",
     "兵部": "bingbu",
     "刑部": "xingbu",
-    "工部": "gongbu",
+    "工部": "rnd",
+    "研发部": "rnd",
     "吏部": "libu_hr",
 }
 
