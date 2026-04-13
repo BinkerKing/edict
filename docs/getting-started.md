@@ -35,7 +35,7 @@ chmod +x install.sh && ./install.sh
 - ✅ 写入各省部 SOUL.md 人格文件
 - ✅ 注册 Agent 及权限矩阵到 `openclaw.json`
 - ✅ 配置旨意数据清洗规则
-- ✅ 构建 React 前端到 `dashboard/dist/`（需 Node.js 18+）
+- ✅ 初始化看板页面与服务配置（`dashboard/dashboard.html` + `dashboard/server.py`）
 - ✅ 初始化数据目录
 - ✅ 执行首次数据同步
 - ✅ 重启 Gateway 使配置生效

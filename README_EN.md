@@ -317,7 +317,6 @@ edict/
 │   └── zaochao/                #   Morning Briefing
 ├── dashboard/
 │   ├── dashboard.html          # Dashboard (single file, zero deps, works out of the box)
-│   ├── dist/                   # Pre-built React frontend (included in Docker image)
 │   └── server.py               # API server (stdlib, zero deps)
 ├── scripts/                    # Data sync & automation scripts
 │   ├── kanban_update.py        #   Kanban CLI with data sanitization (~300 lines)
@@ -336,7 +335,6 @@ edict/
 
 | | |
 |---|---|
-| **React 18 Frontend** | TypeScript + Vite + Zustand, 13 components |
 | **stdlib Backend** | `server.py` on `http.server`, zero dependencies |
 | **Agent Thinking Visible** | Real-time display of agent thinking, tool calls, results |
 | **One-click Install** | Workspace creation to Gateway restart |

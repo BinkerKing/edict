@@ -68,11 +68,11 @@
 
 ### 不属于旧看板主实现的目录
 
-以下目录属于新架构或新实验方向，不是旧看板主战场：
+以下目录曾属于新架构或新实验方向，不是旧看板主战场；已在瘦身阶段移除：
 
-- `edict/frontend`
-- `edict/backend`
-- `edict/docker-compose.yml`
+- `edict/frontend`（已删除）
+- `edict/backend`（已删除）
+- `edict/docker-compose.yml`（已删除）
 
 ---
 

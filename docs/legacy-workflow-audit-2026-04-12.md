@@ -43,12 +43,12 @@
 
 ## 3. 新看板/分离式代码现状（瘦身核查）
 
-以下目录已存在，但当前默认启动链路未使用：
+以下目录曾存在，且当时默认启动链路未使用（现已删除）：
 
-- `edict/frontend/*`
-- `edict/backend/*`
+- `edict/frontend/*`（已删除）
+- `edict/backend/*`（已删除）
 
-从 `scripts/edict_services.sh` 可见，默认仅启动 `dashboard/server.py`，未启动 `edict/backend` 与 `edict/frontend` 运行进程。
+从 `scripts/edict_services.sh` 可见，默认仅启动 `dashboard/server.py`；删除前也未启动 `edict/backend` 与 `edict/frontend` 运行进程。
 
 ## 4. 删除候选清单（带前置条件）
 
@@ -69,7 +69,7 @@
 
 ### P2（高风险，需专项评审后删）
 
-- `edict/frontend`、`edict/backend` 全目录
+- `edict/frontend`、`edict/backend` 全目录（已完成删除）
 
 前置条件：
 - 明确未来不再启用“新看板/前后端分离架构”
@@ -81,4 +81,3 @@
 1. 先清理 P0（文档/备份）。
 2. 对 P1 做一次调用链确认后删除。
 3. P2 由你确认“是否彻底放弃新看板”后再执行。
-

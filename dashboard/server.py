@@ -31,7 +31,7 @@ from court_discuss import (
 log = logging.getLogger('server')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
 
-CHANNELS_DIR = pathlib.Path(__file__).parent.parent / 'edict' / 'backend' / 'app' / 'channels'
+CHANNELS_DIR = pathlib.Path(__file__).parent / 'channels'
 if str(CHANNELS_DIR.parent) not in sys.path:
     sys.path.insert(0, str(CHANNELS_DIR.parent))
 from channels import get_channel, get_channel_info, CHANNELS as NOTIFICATION_CHANNELS
@@ -44,13 +44,11 @@ ALLOWED_ORIGIN = None  # Set via --cors; None means restrict to localhost
 _DASHBOARD_PORT = 7891  # Updated at startup from --port arg
 _DEFAULT_ORIGINS = {
     'http://127.0.0.1:7891', 'http://localhost:7891',
-    'http://127.0.0.1:5173', 'http://localhost:5173',  # Vite dev server
 }
 _SAFE_NAME_RE = re.compile(r'^[a-zA-Z0-9_\-\u4e00-\u9fff]+$')
 _SAFE_SKILL_RE = re.compile(r'^[a-zA-Z0-9_\-.\u4e00-\u9fff]+$')
 
 BASE = pathlib.Path(__file__).parent
-DIST = BASE / 'dist'          # React 构建产物 (npm run build)
 LEGACY_DASHBOARD_HTML = BASE / 'dashboard.html'  # 传统单页看板（当前主入口）
 DATA = BASE.parent / "data"
 SCRIPTS = BASE.parent / 'scripts'
@@ -226,25 +224,6 @@ DEFAULT_AGENT_WORK_BINDINGS = {
         'source': 'dashboard.html::reorganizeSoul -> POST /api/agent-soul/reorganize',
     },
 }
-
-# 静态资源 MIME 类型
-_MIME_TYPES = {
-    '.html': 'text/html; charset=utf-8',
-    '.js':   'application/javascript; charset=utf-8',
-    '.css':  'text/css; charset=utf-8',
-    '.json': 'application/json; charset=utf-8',
-    '.png':  'image/png',
-    '.jpg':  'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.gif':  'image/gif',
-    '.svg':  'image/svg+xml',
-    '.ico':  'image/x-icon',
-    '.woff': 'font/woff',
-    '.woff2': 'font/woff2',
-    '.ttf':  'font/ttf',
-    '.map':  'application/json',
-}
-
 
 def cors_headers(h):
     req_origin = h.headers.get('Origin', '')
@@ -7743,29 +7722,15 @@ class Handler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
-    def _serve_static(self, rel_path):
-        """从 dist/ 目录提供静态文件。"""
-        safe = rel_path.replace('\\', '/').lstrip('/')
-        if '..' in safe:
-            self.send_error(403)
-            return True
-        fp = DIST / safe
-        if fp.is_file():
-            mime = _MIME_TYPES.get(fp.suffix.lower(), 'application/octet-stream')
-            self.send_file(fp, mime)
-            return True
-        return False
-
     def do_GET(self):
         parsed = urlparse(self.path)
         p = parsed.path.rstrip('/')
         q = parse_qs(parsed.query)
         if p in ('', '/dashboard', '/dashboard.html'):
-            # 优先返回传统看板（包含省部调度扩展）；不存在时再回退到 React 构建页。
             if LEGACY_DASHBOARD_HTML.exists():
                 self.send_file(LEGACY_DASHBOARD_HTML)
             else:
-                self.send_file(DIST / 'index.html')
+                self.send_error(404, 'dashboard.html not found')
         elif p == '/healthz':
             task_data_dir = get_task_data_dir()
             checks = {'dataDir': task_data_dir.is_dir(), 'tasksReadable': (task_data_dir / 'tasks_source.json').exists()}
@@ -7927,17 +7892,10 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(data if data else {'ok': False, 'error': 'session not found'}, 200 if data else 404)
         elif p == '/api/court-discuss/fate':
             self.send_json({'ok': True, 'event': cd_fate()})
-        elif self._serve_static(p):
-            pass  # 已由 _serve_static 处理 (JS/CSS/图片等)
         else:
-            # SPA fallback：非 /api/ 路径返回 dashboard.html（若不存在则回退 index.html）
             if not p.startswith('/api/'):
                 if LEGACY_DASHBOARD_HTML.exists():
                     self.send_file(LEGACY_DASHBOARD_HTML)
-                    return
-                idx = DIST / 'index.html'
-                if idx.exists():
-                    self.send_file(idx)
                     return
             self.send_error(404)
 

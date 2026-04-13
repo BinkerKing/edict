@@ -317,7 +317,6 @@ edict/
 │   └── zaochao/                #   朝報
 ├── dashboard/
 │   ├── dashboard.html          # ダッシュボード（単一ファイル、依存関係ゼロ、すぐに使える）
-│   ├── dist/                   # ビルド済みReactフロントエンド（Dockerイメージに含む）
 │   └── server.py               # APIサーバー（stdlib、依存関係ゼロ）
 ├── scripts/                    # データ同期＆自動化スクリプト
 │   ├── kanban_update.py        #   かんばんCLI（データサニタイズ付き、約300行）
@@ -336,7 +335,6 @@ edict/
 
 | | |
 |---|---|
-| **React 18フロントエンド** | TypeScript + Vite + Zustand、13コンポーネント |
 | **stdlibバックエンド** | `server.py`（`http.server`ベース、依存関係ゼロ） |
 | **エージェント思考の可視化** | エージェントの思考、ツール呼び出し、結果をリアルタイム表示 |
 | **ワンクリックインストール** | ワークスペース作成からGateway再起動まで |

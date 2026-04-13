@@ -106,7 +106,7 @@ open http://127.0.0.1:7891
 2. 也可以在 Issue 中自荐，说明你的贡献记录
 3. 所有晋升决定公开透明
 
-> **核心路径**（需 Maintainer review）：`dashboard/server.py`、`agents/`、`edict/backend/`、`scripts/`、`data/`
+> **核心路径**（需 Maintainer review）：`dashboard/server.py`、`agents/`、`scripts/`、`data/`
 >
 > **开放路径**（Committer 可自主 merge）：`docs/`、`examples/`、`README*.md`、UI 样式调整
 
