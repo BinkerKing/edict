@@ -2475,16 +2475,13 @@
   <div class="hdr">
     <div>
       <div class="logo">⚔️ 一人世界</div>
-      <div class="sub">神识加持</div>
     </div>
     <div class="hdr-r">
       <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="切换主题">🌙</button>
       <button class="theme-toggle" onclick="openQuickActions()" title="快捷操作（⌥+G）">⚡</button>
       <button class="theme-toggle" onclick="openSmartBoard()" title="智能看板（Cmd/Ctrl + B）">🧠</button>
-      <button class="theme-toggle" onclick="openFeedback()" title="祈告上苍（反馈问题或建议）">🙏 祈告上苍</button>
       <span class="chip" id="chip-sync">⟳ 同步中</span>
       <span class="chip" id="chip-gateway">Gateway: 检测中</span>
-      <span class="chip" id="chip-tasks">— 旨意</span>
       <button class="btn-refresh" onclick="loadAll()">⟳ 立即刷新</button>
       <span id="cd"></span>
     </div>
@@ -3823,7 +3820,6 @@ function renderEdicts(tasks){
   });
   // Tab badge = active count only
   document.getElementById('tb-e').textContent = activeEdicts.length;
-  document.getElementById('chip-tasks').textContent = activeEdicts.length + ' 道旨意';
   // Archive stats
   document.getElementById('archive-count').textContent = `活跃 ${activeEdicts.length} · 归档 ${archivedEdicts.length} · 共 ${allEdicts.length}`;
   // Show "一键归档" button if there are un-archived Done/Cancelled tasks
