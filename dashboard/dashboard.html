@@ -1375,7 +1375,7 @@
       50%{background-position:100% 75%}
       100%{background-position:0% 25%}
     }
-    .auto-exec-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:10px;margin-bottom:8px}
+    .auto-exec-layout{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:10px;margin-bottom:8px}
     .auto-exec-divider{
       height:1px;
       margin:8px 0 10px;
@@ -1392,7 +1392,381 @@
     .auto-inline-row .lb,.auto-exec-right .lb{font-size:11px;color:var(--muted);font-weight:700}
     .auto-exec-right{display:flex;flex-direction:column;gap:6px;min-width:0}
     .auto-prompt-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:8px;align-items:stretch}
-    .auto-save-side{min-height:116px}
+    .auto-save-side{min-height:168px}
+    .auto-run-plan{
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr);
+      gap:10px;
+      align-items:center;
+      margin:8px 0 10px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:linear-gradient(135deg, rgba(21,33,57,.92), rgba(14,24,42,.95));
+    }
+    .auto-run-next{
+      font-size:12px;
+      color:#d8e6ff;
+      line-height:1.5;
+      justify-self:end;
+      text-align:right;
+    }
+    .auto-run-next b{color:#f0f6ff}
+    .auto-run-countdown{
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:.05em;
+      color:#9fc2ff;
+      text-shadow:0 0 14px rgba(80,132,224,.35);
+      font-variant-numeric:tabular-nums;
+      line-height:1;
+      min-width:180px;
+      text-align:left;
+    }
+    .auto-doc-views{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 10px}
+    .auto-doc-card{display:flex;flex-direction:column;gap:6px;min-height:0}
+    .auto-doc-card .hd{font-size:11px;color:#b8c8e8;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .auto-doc-card .hd-main{min-width:0;display:flex;align-items:center;gap:6px;flex:1}
+    .auto-doc-path-btn{
+      width:100%;
+      text-align:left;
+      border:1px dashed #2a3f66;
+      border-radius:8px;
+      background:#0f182b;
+      color:#8fa7cf;
+      padding:8px 10px;
+      font-size:10px;
+      line-height:1.45;
+      word-break:break-all;
+      cursor:pointer;
+      transition:border-color .15s ease, color .15s ease, background .15s ease;
+    }
+    .auto-doc-path-btn:hover{
+      border-color:#537ec4;
+      color:#cfe0ff;
+      background:#13233f;
+    }
+    .auto-log-modal-bg{
+      position:fixed;inset:0;z-index:1200;
+      display:none;
+      align-items:center;justify-content:center;
+      background:rgba(5,10,19,.46);
+    }
+    .auto-log-modal-bg.open{display:flex}
+    .auto-log-modal{
+      width:min(1200px,94vw);
+      height:min(86vh,860px);
+      background:#0f1728;
+      border:1px solid #2a3f66;
+      border-radius:12px;
+      box-shadow:0 20px 56px rgba(0,0,0,.52);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .auto-log-modal-hd{
+      padding:10px 12px;
+      border-bottom:1px solid #20314f;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:#121d34;
+    }
+    .auto-log-modal-title{font-size:13px;font-weight:800;color:#d8e8ff}
+    .auto-log-modal-sub{font-size:10px;color:#7f96be;margin-top:2px;word-break:break-all}
+    .auto-log-modal-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+    .auto-log-btn{
+      font-size:11px;line-height:1;
+      border:1px solid #315084;border-radius:7px;
+      background:#142749;color:#bcd3ff;
+      padding:6px 10px;cursor:pointer;
+    }
+    .auto-log-btn:hover{background:#1a335d;color:#e0edff}
+    .auto-log-btn.subtle{
+      border-color:#2a3b5d;background:#101d34;color:#88a2cd;
+    }
+    .auto-log-btn.subtle:hover{color:#b9cdec}
+    .auto-log-modal-body{
+      padding:10px 12px;
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .auto-log-mode{
+      font-size:11px;color:#9fb6de;
+      display:flex;align-items:center;gap:8px;
+    }
+    .auto-log-mode b{color:#d7e7ff}
+    .auto-log-editor{
+      flex:1;min-height:0;width:100%;
+      border:1px solid #2f4f7f;border-radius:10px;
+      background:#0b1322;color:#dce8ff;
+      font-size:12px;line-height:1.62;
+      padding:12px;
+      resize:none;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      outline:none;
+    }
+    .auto-log-editor:focus{border-color:#5f89cc}
+    .auto-history-log-modal{
+      width:min(1320px,96vw);
+      height:min(86vh,880px);
+      background:#0f1728;
+      border:1px solid #2a3f66;
+      border-radius:12px;
+      box-shadow:0 20px 56px rgba(0,0,0,.52);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .auto-history-log-grid{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      padding:10px 12px 12px;
+    }
+    .auto-history-log-card{
+      min-width:0;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .auto-history-log-card .hd{
+      font-size:12px;
+      font-weight:800;
+      color:#cfe1ff;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+    .auto-history-log-card .path{
+      font-size:10px;
+      color:#7f96be;
+      font-weight:600;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .auto-history-log-card textarea{
+      flex:1;
+      min-height:0;
+      width:100%;
+      border:1px solid #2f4f7f;
+      border-radius:10px;
+      background:#0b1322;
+      color:#dce8ff;
+      font-size:12px;
+      line-height:1.62;
+      padding:12px;
+      resize:none;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      outline:none;
+    }
+    .auto-run-history-item{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 156px;
+      gap:8px;
+      align-items:stretch;
+      border:1px solid #243a5e;
+      border-radius:10px;
+      padding:6px 8px;
+      background:linear-gradient(140deg,#162746,#14233d);
+      transition:background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+    }
+    .auto-run-history-item.st-ok{
+      border-color:#2f7f53;
+      background:linear-gradient(140deg,#173826,#143122);
+      box-shadow:0 0 0 1px rgba(91,191,132,.1) inset;
+    }
+    .auto-run-history-item.st-skip{
+      border-color:#7a6540;
+      background:linear-gradient(140deg,#3b301d,#322916);
+      box-shadow:0 0 0 1px rgba(234,198,114,.08) inset;
+    }
+    .auto-run-history-item.st-running{
+      border-color:#6a4ca0;
+      background:linear-gradient(140deg,#2b1f4c,#231b43);
+      box-shadow:0 0 0 1px rgba(176,130,255,.12) inset, 0 0 18px rgba(118,85,190,.18);
+    }
+    .auto-run-history-item.st-running::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        repeating-linear-gradient(
+          100deg,
+          rgba(255,255,255,0) 0%,
+          rgba(196,164,255,0) 38%,
+          rgba(196,164,255,0.22) 45%,
+          rgba(212,188,255,0.30) 50%,
+          rgba(196,164,255,0.22) 55%,
+          rgba(196,164,255,0) 62%,
+          rgba(255,255,255,0) 100%
+        );
+      background-size:170% 100%;
+      background-position:0 0;
+      animation:autoRunSweep 1.9s linear infinite;
+    }
+    @keyframes autoRunSweep{
+      0%{background-position:0 0}
+      100%{background-position:170% 0}
+    }
+    .auto-run-history-main{
+      min-width:0;
+      display:grid;
+      grid-template-columns:240px minmax(0,1fr) 240px;
+      gap:8px;
+      align-items:center;
+    }
+    .auto-run-history-start,
+    .auto-run-history-end{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:2px;
+      padding:2px 0;
+    }
+    .auto-run-history-start .lb,
+    .auto-run-history-end .lb{
+      font-size:10px;
+      color:#8ea4cb;
+      line-height:1.2;
+    }
+    .auto-run-history-start .val,
+    .auto-run-history-end .val{
+      font-size:18px;
+      font-weight:800;
+      color:#e4efff;
+      line-height:1.25;
+      letter-spacing:.02em;
+      word-break:break-word;
+    }
+    .auto-run-history-meta{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:4px;
+    }
+    .auto-run-history-meta .line{
+      font-size:11px;
+      color:#a8bcde;
+      line-height:1.35;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .auto-run-history-status{
+      border:1px solid #2f4f7f;
+      border-radius:10px;
+      background:linear-gradient(140deg,#132746,#0f1d34);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:6px;
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.04em;
+      color:#cfe1ff;
+      line-height:1.2;
+      text-shadow:0 0 12px rgba(104,150,234,.28);
+    }
+    .auto-run-history-status.st-ok{
+      border-color:#2f7f53;
+      background:linear-gradient(140deg,#153a2a,#122e23);
+      color:#bff3d1;
+      text-shadow:0 0 14px rgba(88,206,138,.25);
+    }
+    .auto-run-history-status.st-fail{
+      border-color:#8f3041;
+      background:linear-gradient(140deg,#3a1a26,#2d1520);
+      color:#ffb8c4;
+      text-shadow:0 0 14px rgba(255,114,145,.24);
+    }
+    .auto-run-history-status.st-skip{
+      border-color:#6d5730;
+      background:linear-gradient(140deg,#3c2f1a,#312715);
+      color:#f5d99a;
+      text-shadow:0 0 14px rgba(240,197,112,.22);
+    }
+    .auto-run-history-status.st-running{
+      border-color:#3f5d85;
+      background:linear-gradient(140deg,#1e2f57,#182544);
+      color:#b9d2ff;
+      text-shadow:0 0 14px rgba(126,167,245,.26);
+      position:relative;
+      overflow:hidden;
+    }
+    .auto-run-history-status.st-running::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        repeating-linear-gradient(
+          100deg,
+          rgba(255,255,255,0) 0%,
+          rgba(160,198,255,0) 38%,
+          rgba(160,198,255,0.20) 45%,
+          rgba(194,224,255,0.28) 50%,
+          rgba(160,198,255,0.20) 55%,
+          rgba(160,198,255,0) 62%,
+          rgba(255,255,255,0) 100%
+        );
+      background-size:170% 100%;
+      background-position:0 0;
+      animation:autoRunSweep 1.9s linear infinite;
+    }
+    .auto-history-filter{
+      width:112px;
+      height:30px;
+      font-size:11px;
+      font-weight:700;
+      color:#cfe1ff;
+      background:
+        linear-gradient(140deg,#132543,#101f38) padding-box,
+        linear-gradient(140deg,#4a6fa8,#2d4e84) border-box;
+      border:1px solid transparent;
+      border-radius:999px;
+      padding:0 22px 0 10px;
+      text-align:center;
+      text-align-last:center;
+      outline:none;
+      cursor:pointer;
+      appearance:none;
+      -webkit-appearance:none;
+      background-image:
+        linear-gradient(140deg,#132543,#101f38),
+        linear-gradient(140deg,#4a6fa8,#2d4e84),
+        linear-gradient(45deg, transparent 50%, #9fc2ff 50%),
+        linear-gradient(135deg, #9fc2ff 50%, transparent 50%);
+      background-repeat:no-repeat;
+      background-size:100% 100%,100% 100%,5px 5px,5px 5px;
+      background-position:0 0,0 0,calc(100% - 12px) 12px,calc(100% - 7px) 12px;
+      box-shadow:0 0 0 1px rgba(126,167,245,.12) inset;
+      transition:filter .18s ease, box-shadow .18s ease;
+    }
+    .auto-history-filter:hover{
+      filter:brightness(1.08);
+      box-shadow:0 0 0 1px rgba(145,189,255,.24) inset, 0 0 10px rgba(76,126,204,.2);
+    }
+    .auto-history-filter:focus{
+      box-shadow:0 0 0 1px rgba(145,189,255,.4) inset, 0 0 0 2px rgba(94,145,230,.2);
+    }
     .auto-prompt-glow{
       border:1px solid #3f74dd;
       box-shadow:0 0 0 1px #6ea3ff33 inset, 0 0 12px #3f74dd44;
@@ -1413,6 +1787,11 @@
       .auto-form-row.auto-form-row-desc{grid-template-columns:68px minmax(0,1fr) 42px}
       .auto-parse-btn{width:42px}
       .auto-prompt-row{grid-template-columns:minmax(0,1fr) 42px}
+      .auto-doc-views{grid-template-columns:1fr}
+      .auto-run-history-item{grid-template-columns:minmax(0,1fr) 128px}
+      .auto-run-history-main{grid-template-columns:1fr}
+      .auto-run-history-start .val{font-size:16px}
+      .auto-run-history-status{font-size:14px}
     }
     .pm-create-folder{min-width:12ch;max-width:22ch}
     .pm-create-type{min-width:7ch}
@@ -1770,6 +2149,147 @@
     html.light .pm-sug-list{background:#f2f5fb;border-color:#ccd7eb}
     html.light .pm-sug-item{background:#edf2fb;border-color:#ccd8ec}
     html.light .pm-sug-text{color:#2a3b57}
+    html.light .auto-run-plan{background:linear-gradient(135deg,#edf3ff,#eaf1fd);border-color:#d2dcec}
+    html.light .auto-run-next{color:#344766}
+    html.light .auto-run-next b{color:#203250}
+    html.light .auto-run-countdown{color:#2f5797;text-shadow:none}
+    html.light .auto-doc-card .hd{color:#3f587f}
+    html.light .auto-doc-card .hd .path{color:#6b7e9c}
+    html.light .auto-doc-path-btn{
+      background:#f4f8ff;
+      border-color:#c7d5ea;
+      color:#4d658d;
+    }
+    html.light .auto-doc-path-btn:hover{
+      background:#ebf2ff;
+      border-color:#8eaedc;
+      color:#25487f;
+    }
+    html.light .auto-doc-save{background:#eef3ff;border-color:#c8d4ea;color:#60779f}
+    html.light .auto-doc-save:hover{background:#e2ebff;color:#2e4f87}
+    html.light .auto-doc-view{background:#fff;border-color:#cfd8e8;color:#1f2a3d}
+    html.light .auto-log-modal{
+      background:#f6f9ff;
+      border-color:#c9d7ec;
+      box-shadow:0 18px 42px rgba(57,89,138,.24);
+    }
+    html.light .auto-log-modal-hd{
+      background:#edf3ff;
+      border-bottom-color:#c9d7ec;
+    }
+    html.light .auto-log-modal-title{color:#223d67}
+    html.light .auto-log-modal-sub{color:#5f7599}
+    html.light .auto-log-mode{color:#5a7196}
+    html.light .auto-log-mode b{color:#274a7b}
+    html.light .auto-log-editor{
+      background:#fff;
+      border-color:#c8d7ee;
+      color:#1d2c45;
+    }
+    html.light .auto-log-btn{
+      background:#e8f0ff;
+      border-color:#b6c9e6;
+      color:#3c5d8f;
+    }
+    html.light .auto-log-btn:hover{
+      background:#ddeaff;
+      color:#214272;
+    }
+    html.light .auto-log-btn.subtle{
+      background:#f0f5ff;
+      border-color:#c7d5ea;
+      color:#607aa5;
+    }
+    html.light .auto-log-btn.subtle:hover{
+      color:#355687;
+    }
+    html.light .auto-history-log-modal{
+      background:#f6f9ff;
+      border-color:#c9d7ec;
+      box-shadow:0 18px 42px rgba(57,89,138,.24);
+    }
+    html.light .auto-history-log-card .hd{color:#223d67}
+    html.light .auto-history-log-card .path{color:#5f7599}
+    html.light .auto-history-log-card textarea{
+      background:#fff;
+      border-color:#c8d7ee;
+      color:#1d2c45;
+    }
+    html.light .auto-run-history-status{
+      border-color:#c7d6ef;
+      background:linear-gradient(140deg,#eaf1ff,#e4edff);
+      color:#2a456f;
+      text-shadow:none;
+    }
+    html.light .auto-run-history-status.st-ok{
+      border-color:#9fd0b0;
+      background:linear-gradient(140deg,#e5f7ec,#dcf3e6);
+      color:#246044;
+    }
+    html.light .auto-run-history-status.st-fail{
+      border-color:#e2a7b4;
+      background:linear-gradient(140deg,#ffeef2,#ffe6ec);
+      color:#9a3a50;
+    }
+    html.light .auto-run-history-status.st-skip{
+      border-color:#d6be8f;
+      background:linear-gradient(140deg,#fff7e8,#fff1da);
+      color:#7b5a1f;
+    }
+    html.light .auto-run-history-status.st-running{
+      border-color:#abc3e8;
+      background:linear-gradient(140deg,#edf3ff,#e6efff);
+      color:#315a9c;
+    }
+    html.light .auto-run-history-item{
+      border-color:#c7d6ef;
+      background:linear-gradient(140deg,#edf3ff,#e6efff);
+    }
+    html.light .auto-run-history-item.st-ok{
+      border-color:#9fd0b0;
+      background:linear-gradient(140deg,#e7f8ee,#dff5e8);
+      box-shadow:0 0 0 1px rgba(86,170,124,.12) inset;
+    }
+    html.light .auto-run-history-item.st-skip{
+      border-color:#d6be8f;
+      background:linear-gradient(140deg,#fff8ea,#fff2de);
+      box-shadow:0 0 0 1px rgba(201,159,71,.12) inset;
+    }
+    html.light .auto-run-history-item.st-running{
+      border-color:#b9a9e8;
+      background:linear-gradient(140deg,#f2ecff,#ebe3ff);
+      box-shadow:0 0 0 1px rgba(142,116,212,.12) inset;
+    }
+    html.light .auto-run-history-item.st-running::after{
+      background-image:
+        repeating-linear-gradient(
+          100deg,
+          rgba(255,255,255,0) 0%,
+          rgba(168,128,240,0) 38%,
+          rgba(168,128,240,0.16) 45%,
+          rgba(194,160,255,0.24) 50%,
+          rgba(168,128,240,0.16) 55%,
+          rgba(168,128,240,0) 62%,
+          rgba(255,255,255,0) 100%
+        );
+    }
+    html.light .auto-history-filter{
+      color:#23406e;
+      background-image:
+        linear-gradient(140deg,#f6f9ff,#eff5ff),
+        linear-gradient(140deg,#b8cae8,#95afd8),
+        linear-gradient(45deg, transparent 50%, #4d6ea5 50%),
+        linear-gradient(135deg, #4d6ea5 50%, transparent 50%);
+      box-shadow:0 0 0 1px rgba(83,121,184,.12) inset;
+    }
+    html.light .auto-history-filter:hover{
+      box-shadow:0 0 0 1px rgba(83,121,184,.24) inset, 0 0 10px rgba(101,136,193,.16);
+    }
+    html.light .auto-run-history-start .lb,
+    html.light .auto-run-history-end .lb{color:#6f85a8}
+    html.light .auto-run-history-start .val,
+    html.light .auto-run-history-end .val{color:#1f365d}
+    html.light .auto-run-history-meta .line{color:#5f7599}
     html.light .pm-sug-status{background:#e5eeff;color:#2f5797;border-color:#b8c9e7}
 
     /* Learning modal light theme polish */
@@ -2290,6 +2810,52 @@
   </div>
 </div>
 
+<!-- AUTOMATION LOG MODAL -->
+<div class="auto-log-modal-bg" id="auto-log-modal-bg" onclick="autoCloseLogModal(event)">
+  <div class="auto-log-modal" onclick="event.stopPropagation()">
+    <div class="auto-log-modal-hd">
+      <div style="min-width:0">
+        <div class="auto-log-modal-title" id="auto-log-modal-title">反馈日志</div>
+        <div class="auto-log-modal-sub" id="auto-log-modal-sub">（未创建）</div>
+      </div>
+      <div class="auto-log-modal-actions">
+        <button class="auto-log-btn subtle" id="auto-log-modal-toggle-btn" onclick="autoToggleLogModalEdit()">编辑</button>
+        <button class="auto-log-btn" id="auto-log-modal-save-btn" style="display:none" onclick="autoSaveLogModal()">保存</button>
+        <button class="auto-log-btn subtle" onclick="autoCloseLogModal()">关闭</button>
+      </div>
+    </div>
+    <div class="auto-log-modal-body">
+      <div class="auto-log-mode" id="auto-log-modal-mode">当前模式：<b>查看（2秒自动刷新）</b></div>
+      <textarea class="auto-log-editor" id="auto-log-editor" readonly>加载中...</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- AUTOMATION HISTORY LOGS MODAL -->
+<div class="auto-log-modal-bg" id="auto-history-log-bg" onclick="autoCloseHistoryLogsModal(event)">
+  <div class="auto-history-log-modal" onclick="event.stopPropagation()">
+    <div class="auto-log-modal-hd">
+      <div style="min-width:0">
+        <div class="auto-log-modal-title" id="auto-history-log-title">执行历史 · 任务日志</div>
+        <div class="auto-log-modal-sub" id="auto-history-log-sub">加载中...</div>
+      </div>
+      <div class="auto-log-modal-actions">
+        <button class="auto-log-btn subtle" onclick="autoCloseHistoryLogsModal()">关闭</button>
+      </div>
+    </div>
+    <div class="auto-history-log-grid">
+      <div class="auto-history-log-card">
+        <div class="hd">反馈日志 <span class="path" id="auto-history-feedback-path">（未创建）</span></div>
+        <textarea id="auto-history-feedback-content" readonly>加载中...</textarea>
+      </div>
+      <div class="auto-history-log-card">
+        <div class="hd">经验日志 <span class="path" id="auto-history-experience-path">（未创建）</span></div>
+        <textarea id="auto-history-experience-content" readonly>加载中...</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM DIALOG -->
 <div class="confirm-bg" id="confirm-bg">
   <div class="confirm-box">
@@ -2359,7 +2925,7 @@ let _lastLiveLoadAt = 0;
 const AUTO_REFRESH_TABS = new Set(['edicts','officials','sessions','memorials']);
 let skillLabState = {scope:'global', items:[], selectedSkill:'', detailAgentId:'taizi', detailLoadingToken:0};
 let smartBoardState = {loading:false, timer:null, intervalMs:2000};
-let autoState = {strategyId:'automation', tasks:[], selectedId:''};
+let autoState = {strategyId:'automation', tasks:[], selectedId:'', workerOptions:[]};
 let autoEditingTitle = false;
 let autoEditingTitleTaskId = '';
 let autoEditingTitleValue = '';
@@ -2368,6 +2934,24 @@ let autoRequestSaveTimer = null;
 let autoRequestSaving = false;
 let autoRequestLastSaved = '';
 let autoTextareaResizeObserver = null;
+let autoRunPlanTicker = null;
+let autoDocsLoadingToken = 0;
+let autoRuntimeRefreshTimer = null;
+let autoRuntimeRefreshing = false;
+let autoPendingRunLogs = {};
+let autoHistoryStatusFilter = 'all';
+let autoLogModalRefreshTimer = null;
+let autoHistoryLogRefreshTimer = null;
+let autoHistoryLogModalOpen = false;
+let autoLogModalState = {
+  open: false,
+  kind: 'feedback',
+  mode: 'view',
+  taskId: '',
+  loading: false,
+  feedbackContent: '',
+  experienceContent: '',
+};
 
 function autoReadTextareaSizeStore(){
   try{
@@ -2430,6 +3014,639 @@ function autoBindTextareaSizeMemory(taskId){
   });
   if(requestEl) autoTextareaResizeObserver.observe(requestEl);
   if(promptEl) autoTextareaResizeObserver.observe(promptEl);
+}
+
+function autoStopRunPlanTicker(){
+  if(autoRunPlanTicker){
+    clearInterval(autoRunPlanTicker);
+    autoRunPlanTicker = null;
+  }
+}
+
+function autoPad2(n){
+  return String(Math.max(0, Math.floor(Number(n) || 0))).padStart(2, '0');
+}
+
+function autoFormatCountdown(ms){
+  const sec = Math.max(0, Math.floor((Number(ms) || 0) / 1000));
+  const hh = Math.floor(sec / 3600);
+  const mm = Math.floor((sec % 3600) / 60);
+  const ss = sec % 60;
+  return `${autoPad2(hh)}:${autoPad2(mm)}:${autoPad2(ss)}`;
+}
+
+function autoFormatDateTimeHuman(d){
+  if(!(d instanceof Date) || Number.isNaN(d.getTime())) return '--';
+  const yyyy = d.getFullYear();
+  const mm = autoPad2(d.getMonth() + 1);
+  const dd = autoPad2(d.getDate());
+  const hh = autoPad2(d.getHours());
+  const mi = autoPad2(d.getMinutes());
+  const ss = autoPad2(d.getSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+function autoNextWorkdayAt(base, hh, mi){
+  const now = new Date(base.getTime());
+  for(let i = 0; i < 10; i += 1){
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, hh, mi, 0, 0);
+    const day = d.getDay();
+    if(day >= 1 && day <= 5 && d.getTime() > now.getTime()) return d;
+  }
+  return null;
+}
+
+function autoParseIsoDate(raw){
+  const s = String(raw || '').trim();
+  if(!s) return null;
+  const d = new Date(s);
+  if(Number.isNaN(d.getTime())) return null;
+  return d;
+}
+
+function autoAddIntervalUntilFuture(baseDate, nowDate, stepMs){
+  if(!(baseDate instanceof Date) || Number.isNaN(baseDate.getTime())) return null;
+  if(!Number.isFinite(stepMs) || stepMs <= 0) return null;
+  const now = nowDate instanceof Date ? nowDate : new Date();
+  let next = new Date(baseDate.getTime() + stepMs);
+  let guard = 0;
+  while(next.getTime() <= now.getTime() && guard < 2000){
+    next = new Date(next.getTime() + stepMs);
+    guard += 1;
+  }
+  return next;
+}
+
+function autoParseScheduleNextRun(scheduleExpr, nowDate, lastRunAt = ''){
+  const expr = String(scheduleExpr || '').trim();
+  const now = nowDate instanceof Date ? nowDate : new Date();
+  const lastRun = autoParseIsoDate(lastRunAt);
+  if(!expr) return null;
+
+  let m = expr.match(/每\s*(\d+)\s*分钟/);
+  if(m){
+    const intervalMin = Math.max(1, Number(m[1]) || 1);
+    // 与后端 _automation_is_due 对齐：按分钟边界触发（minute % interval == 0）
+    const next = new Date(now.getTime());
+    next.setSeconds(0, 0);
+    const curMin = next.getMinutes();
+    let delta = (intervalMin - (curMin % intervalMin)) % intervalMin;
+    if(delta === 0 && next.getTime() <= now.getTime()) delta = intervalMin;
+    next.setMinutes(curMin + delta);
+    return next;
+  }
+
+  m = expr.match(/每\s*(\d+)\s*小时/);
+  if(m){
+    const intervalHour = Math.max(1, Number(m[1]) || 1);
+    // 与后端 _automation_is_due 对齐：按小时边界触发（minute==0 且 hour%interval==0）
+    const next = new Date(now.getTime());
+    next.setMinutes(0, 0, 0);
+    const curHour = next.getHours();
+    let delta = (intervalHour - (curHour % intervalHour)) % intervalHour;
+    if(delta === 0 && next.getTime() <= now.getTime()) delta = intervalHour;
+    next.setHours(curHour + delta);
+    return next;
+  }
+  if(/每小时|每\s*1\s*小时/.test(expr)){
+    // 与后端对齐：整点触发
+    const next = new Date(now.getTime());
+    next.setMinutes(0, 0, 0);
+    if(next.getTime() <= now.getTime()) next.setHours(next.getHours() + 1);
+    return next;
+  }
+
+  m = expr.match(/每(?:日|天)\s*([01]?\d|2[0-3])[:：]([0-5]\d)/);
+  if(m){
+    const hh = Number(m[1]);
+    const mi = Number(m[2]);
+    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mi, 0, 0);
+    if(t.getTime() <= now.getTime()) t.setDate(t.getDate() + 1);
+    return t;
+  }
+
+  m = expr.match(/每周([一二三四五六日天])\s*([01]?\d|2[0-3])[:：]([0-5]\d)/);
+  if(m){
+    const dayMap = {'日':0, '天':0, '一':1, '二':2, '三':3, '四':4, '五':5, '六':6};
+    const targetDay = dayMap[m[1]];
+    const hh = Number(m[2]);
+    const mi = Number(m[3]);
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mi, 0, 0);
+    const delta = (targetDay - now.getDay() + 7) % 7;
+    d.setDate(d.getDate() + delta);
+    if(d.getTime() <= now.getTime()) d.setDate(d.getDate() + 7);
+    return d;
+  }
+
+  m = expr.match(/每工作日\s*([01]?\d|2[0-3])[:：]([0-5]\d)/);
+  if(m){
+    const hh = Number(m[1]);
+    const mi = Number(m[2]);
+    return autoNextWorkdayAt(now, hh, mi);
+  }
+
+  return null;
+}
+
+function autoRenderRunPlan(task){
+  autoStopRunPlanTicker();
+  const nextEl = document.getElementById('auto-next-run-at');
+  const countdownEl = document.getElementById('auto-next-run-countdown');
+  if(!nextEl || !countdownEl || !task) return;
+
+  const refresh = ()=>{
+    if(activeTab !== 'automation'){
+      autoStopRunPlanTicker();
+      return;
+    }
+    const nextNode = document.getElementById('auto-next-run-at');
+    const countdownNode = document.getElementById('auto-next-run-countdown');
+    if(!nextNode || !countdownNode){
+      autoStopRunPlanTicker();
+      return;
+    }
+    const now = new Date();
+    let nextAt = autoParseScheduleNextRun(task.scheduleExpr || '', now, task.lastRunAt || '');
+    if(!nextAt){
+      nextNode.innerHTML = `<b>下次执行时间：</b>${task.enabled ? '未设置触发条件' : '已停用（未设置触发条件）'}`;
+      countdownNode.textContent = '--:--:--';
+      return;
+    }
+    const remainMs = Math.max(0, nextAt.getTime() - now.getTime());
+    nextNode.innerHTML = `<b>下次执行时间：</b>${autoFormatDateTimeHuman(nextAt)}${task.enabled ? '' : '（已停用）'}`;
+    countdownNode.textContent = autoFormatCountdown(remainMs);
+  };
+
+  refresh();
+  autoRunPlanTicker = setInterval(refresh, 1000);
+}
+
+async function autoLoadTaskDocs(taskId){
+  const tid = String(taskId || '').trim();
+  if(!tid) return null;
+  const token = ++autoDocsLoadingToken;
+  try{
+    const r = await fetchJ(API + '/automation/task-docs/' + encodeURIComponent(tid));
+    if(token !== autoDocsLoadingToken) return null;
+    if(!r || !r.ok){
+      return { ok:false, error:(r && r.error) ? String(r.error) : '加载失败' };
+    }
+    return {
+      ok: true,
+      feedbackContent: String(r.feedbackContent || ''),
+      experienceContent: String(r.experienceContent || ''),
+    };
+  }catch(e){
+    if(token !== autoDocsLoadingToken) return null;
+    return { ok:false, error:'加载失败: ' + (e && e.message ? e.message : e) };
+  }
+}
+
+function autoStopHistoryLogsRefresh(){
+  if(autoHistoryLogRefreshTimer){
+    clearInterval(autoHistoryLogRefreshTimer);
+    autoHistoryLogRefreshTimer = null;
+  }
+}
+
+async function autoRefreshHistoryLogsModal(){
+  if(!autoHistoryLogModalOpen || activeTab !== 'automation') return;
+  const task = getSelectedAutoTask();
+  if(!task) return;
+  const titleEl = document.getElementById('auto-history-log-title');
+  const subEl = document.getElementById('auto-history-log-sub');
+  const feedbackPathEl = document.getElementById('auto-history-feedback-path');
+  const experiencePathEl = document.getElementById('auto-history-experience-path');
+  const feedbackContentEl = document.getElementById('auto-history-feedback-content');
+  const experienceContentEl = document.getElementById('auto-history-experience-content');
+  if(!feedbackContentEl || !experienceContentEl) return;
+  if(titleEl) titleEl.textContent = `执行历史 · ${String(task.title || '未命名任务')}`;
+  if(subEl) subEl.textContent = `任务ID：${String(task.id || '-')}`;
+  if(feedbackPathEl) feedbackPathEl.textContent = String(task.feedbackDocPath || '（未创建）');
+  if(experiencePathEl) experiencePathEl.textContent = String(task.experienceDocPath || '（未创建）');
+  const docs = await autoLoadTaskDocs(task.id);
+  if(!docs || !docs.ok){
+    const msg = docs && docs.error ? docs.error : '加载失败';
+    feedbackContentEl.value = msg;
+    experienceContentEl.value = msg;
+    return;
+  }
+  feedbackContentEl.value = String(docs.feedbackContent || '').trim() || '暂无反馈日志内容';
+  experienceContentEl.value = String(docs.experienceContent || '').trim() || '暂无经验日志内容';
+}
+
+function autoOpenHistoryLogsModal(){
+  const task = getSelectedAutoTask();
+  if(!task){ toast('未选择任务','err'); return; }
+  const bg = document.getElementById('auto-history-log-bg');
+  if(!bg) return;
+  autoHistoryLogModalOpen = true;
+  bg.classList.add('open');
+  autoRefreshHistoryLogsModal();
+  autoStopHistoryLogsRefresh();
+  autoHistoryLogRefreshTimer = setInterval(()=>{
+    autoRefreshHistoryLogsModal();
+  }, 2000);
+}
+
+function autoCloseHistoryLogsModal(e){
+  const bg = document.getElementById('auto-history-log-bg');
+  if(e && e.target && bg && e.target !== bg && !e.target.classList.contains('modal-close')) return;
+  if(bg) bg.classList.remove('open');
+  autoHistoryLogModalOpen = false;
+  autoStopHistoryLogsRefresh();
+}
+
+function autoGetCurrentLogTask(){
+  const task = getSelectedAutoTask();
+  if(!task) return null;
+  return task;
+}
+
+function autoGetLogPath(task, kind){
+  const k = String(kind || 'feedback').trim();
+  return k === 'experience'
+    ? String(task?.experienceDocPath || '（未创建）')
+    : String(task?.feedbackDocPath || '（未创建）');
+}
+
+function autoRenderLogModalHead(){
+  const task = autoGetCurrentLogTask();
+  const titleEl = document.getElementById('auto-log-modal-title');
+  const subEl = document.getElementById('auto-log-modal-sub');
+  const modeEl = document.getElementById('auto-log-modal-mode');
+  if(!titleEl || !subEl || !modeEl || !task) return;
+  titleEl.textContent = autoLogModalState.kind === 'experience' ? '经验日志' : '反馈日志';
+  subEl.textContent = autoGetLogPath(task, autoLogModalState.kind);
+  modeEl.innerHTML = `当前模式：<b>${autoLogModalState.mode === 'edit' ? '编辑' : '查看（2秒自动刷新）'}</b>`;
+}
+
+function autoApplyDocsToModalEditor(docs){
+  const editor = document.getElementById('auto-log-editor');
+  if(!editor || !docs || !docs.ok) return;
+  autoLogModalState.feedbackContent = String(docs.feedbackContent || '');
+  autoLogModalState.experienceContent = String(docs.experienceContent || '');
+  const content = autoLogModalState.kind === 'experience'
+    ? autoLogModalState.experienceContent
+    : autoLogModalState.feedbackContent;
+  editor.value = content.trim() || (autoLogModalState.kind === 'experience' ? '暂无经验日志内容' : '暂无反馈日志内容');
+}
+
+function autoSetLogModalMode(mode){
+  const m = String(mode || 'view').trim() === 'edit' ? 'edit' : 'view';
+  autoLogModalState.mode = m;
+  const editor = document.getElementById('auto-log-editor');
+  const toggleBtn = document.getElementById('auto-log-modal-toggle-btn');
+  const saveBtn = document.getElementById('auto-log-modal-save-btn');
+  if(editor) editor.readOnly = m !== 'edit';
+  if(toggleBtn) toggleBtn.textContent = m === 'edit' ? '取消编辑' : '编辑';
+  if(saveBtn) saveBtn.style.display = m === 'edit' ? 'inline-flex' : 'none';
+  autoRenderLogModalHead();
+  if(m === 'edit'){
+    autoStopLogModalRefresh();
+  }else{
+    autoStartLogModalRefresh();
+  }
+}
+
+function autoStartLogModalRefresh(){
+  autoStopLogModalRefresh();
+  if(!autoLogModalState.open || autoLogModalState.mode !== 'view') return;
+  autoLogModalRefreshTimer = setInterval(()=>{
+    autoRefreshOpenLogModal();
+  }, 2000);
+}
+
+function autoStopLogModalRefresh(){
+  if(autoLogModalRefreshTimer){
+    clearInterval(autoLogModalRefreshTimer);
+    autoLogModalRefreshTimer = null;
+  }
+}
+
+async function autoRefreshOpenLogModal(force = false){
+  if(!autoLogModalState.open) return;
+  if(activeTab !== 'automation') return;
+  if(autoLogModalState.loading) return;
+  if(autoLogModalState.mode !== 'view' && !force) return;
+  const task = autoGetCurrentLogTask();
+  if(!task) return;
+  const editor = document.getElementById('auto-log-editor');
+  if(!editor) return;
+  autoLogModalState.loading = true;
+  const prevMode = autoLogModalState.mode;
+  const docs = await autoLoadTaskDocs(task.id);
+  autoLogModalState.loading = false;
+  if(!autoLogModalState.open || prevMode !== autoLogModalState.mode) return;
+  if(!docs || !docs.ok){
+    editor.value = docs && docs.error ? docs.error : '加载失败';
+    return;
+  }
+  autoApplyDocsToModalEditor(docs);
+}
+
+function autoOpenLogModal(kind){
+  const task = autoGetCurrentLogTask();
+  if(!task){ toast('未选择任务','err'); return; }
+  autoLogModalState.open = true;
+  autoLogModalState.taskId = String(task.id || '');
+  autoLogModalState.kind = String(kind || 'feedback').trim() === 'experience' ? 'experience' : 'feedback';
+  const bg = document.getElementById('auto-log-modal-bg');
+  if(!bg) return;
+  bg.classList.add('open');
+  autoSetLogModalMode('view');
+  autoRenderLogModalHead();
+  autoRefreshOpenLogModal(true);
+}
+
+function autoCloseLogModal(e){
+  const bg = document.getElementById('auto-log-modal-bg');
+  if(e && e.target && bg && e.target !== bg && !e.target.classList.contains('modal-close')) return;
+  if(bg) bg.classList.remove('open');
+  autoLogModalState.open = false;
+  autoLogModalState.loading = false;
+  autoLogModalState.taskId = '';
+  autoSetLogModalMode('view');
+  autoStopLogModalRefresh();
+}
+
+function autoToggleLogModalEdit(){
+  if(!autoLogModalState.open) return;
+  if(autoLogModalState.mode === 'edit'){
+    autoSetLogModalMode('view');
+    autoRefreshOpenLogModal(true);
+  }else{
+    autoSetLogModalMode('edit');
+    const editor = document.getElementById('auto-log-editor');
+    if(editor){
+      editor.focus();
+      editor.setSelectionRange(editor.value.length, editor.value.length);
+    }
+  }
+}
+
+async function autoSaveLogModal(){
+  if(!autoLogModalState.open) return;
+  const task = autoGetCurrentLogTask();
+  if(!task){ toast('未选择任务','err'); return; }
+  const editor = document.getElementById('auto-log-editor');
+  if(!editor){ toast('编辑器未加载','err'); return; }
+  const payload = { taskId: String(task.id || '') };
+  if(autoLogModalState.kind === 'experience'){
+    payload.experienceContent = String(editor.value || '');
+  }else{
+    payload.feedbackContent = String(editor.value || '');
+  }
+  try{
+    const r = await postJ(API + '/automation/task-docs-save', payload);
+    if(!r || !r.ok){ toast((r && r.error) ? r.error : '日志保存失败','err'); return; }
+    toast('日志已保存','ok');
+    autoSetLogModalMode('view');
+    await autoRefreshRuntimePanels();
+    await autoRefreshOpenLogModal(true);
+  }catch(e){
+    const msg = String((e && e.message) ? e.message : e || '');
+    toast('日志保存失败: ' + msg,'err');
+  }
+}
+
+function autoBuildRunHistoryHtml(task){
+  const logs = (task && Array.isArray(task.logs)) ? task.logs.slice() : [];
+  const pending = (task && task.id && autoPendingRunLogs[String(task.id||'')]) ? autoPendingRunLogs[String(task.id||'')] : null;
+  if(pending){
+    const exists = logs.some(x=>String((x||{})._tempId||'')===String(pending._tempId||''));
+    if(!exists){
+      logs.push(pending);
+    }
+  }
+  const ordered = logs.slice().reverse();
+  if(!ordered.length) return '<div class="pm-empty">暂无执行历史</div>';
+  const workerMap = {
+    codex: 'codex',
+    rnd: '研发部',
+    bingbu: 'PM小组',
+    shangshu: '能效部',
+    libu: '藏经阁',
+    libu_hr: '人事部',
+    taizi: '太子',
+    zhongshu: '中书令',
+    menxia: '侍中',
+    hubu: '户部',
+    xingbu: '刑部',
+    zaochao: '钦天监',
+  };
+  const inferStatus = (l)=>{
+    const explicit = String(l.execStatus || '').trim();
+    const pickByText = (s)=>{
+      const text = String(s || '');
+      if(!text) return '';
+      if(text.includes('前置') && (text.includes('跳过') || text.includes('终止'))) return '前置跳过';
+      if(text.includes('空转')) return '空转';
+      if(text.includes('执行中') || text.includes('处理中')) return '执行中';
+      if(text.includes('执行失败') || text.includes('失败')) return '执行失败';
+      if(text.includes('执行完成') || text.includes('执行成功') || text.includes('完成')) return '执行成功';
+      return '';
+    };
+    const explicitNorm = pickByText(explicit);
+    if(explicitNorm) return explicitNorm;
+    const result = String(l.result || '').toLowerCase();
+    const fb = String(l.statusFeedback || '');
+    if(result === 'running' || result === 'in_progress') return '执行中';
+    if(result.includes('error') || result.includes('fail')) return '执行失败';
+    if(result.includes('empty') || result.includes('idle') || result === 'noop') return '空转';
+    const fbNorm = pickByText(fb);
+    if(fbNorm) return fbNorm;
+    if((fb.includes('前置') && (fb.includes('跳过') || fb.includes('终止'))) || fb.includes('本轮应终止')) return '前置跳过';
+    return '执行成功';
+  };
+  const statusClass = (status)=>{
+    const s = String(status || '').trim();
+    if(s === '执行成功') return 'st-ok';
+    if(s === '执行失败') return 'st-fail';
+    if(s === '前置跳过' || s === '空转') return 'st-skip';
+    if(s === '执行中') return 'st-running';
+    return '';
+  };
+  const filtered = ordered.filter(l=>{
+    const st = inferStatus(l);
+    if(autoHistoryStatusFilter === 'all') return true;
+    return String(st) === String(autoHistoryStatusFilter);
+  }).slice(0, 10);
+  if(!filtered.length) return '<div class="pm-empty">当前筛选无记录</div>';
+  return filtered.map(l=>`
+    <div class="pm-issue">
+      <div class="auto-run-history-item ${statusClass(inferStatus(l))}" onclick="autoOpenHistoryLogsModal()">
+        <div class="auto-run-history-main">
+          <div class="auto-run-history-start">
+            <div class="lb">执行开始时间</div>
+            <div class="val">${esc(fmtLocalDateTime(l.startAt||l.at||'', { withSeconds: true }))}</div>
+          </div>
+          <div class="auto-run-history-meta">
+            <div class="line">执行方式：${esc(((l.trigger==='manual')?'手动':(l.trigger==='cron')?'定时触发':(l.trigger||l.result||'未知')))}</div>
+            <div class="line">打工人：${esc(workerMap[String(l.worker||task.targetAgent||'').trim()] || String(l.worker||task.targetAgent||'未知'))}</div>
+          </div>
+          <div class="auto-run-history-end">
+            <div class="lb">执行结束时间</div>
+            <div class="val">${(()=>{
+              const stRaw = String(l.startAt || l.at || '').trim();
+              const edRaw = String(l.endAt || l.at || '').trim();
+              const stMs = Date.parse(stRaw);
+              const edMs = Date.parse(edRaw);
+              if(Number.isFinite(stMs) && Number.isFinite(edMs) && edMs < stMs){
+                return '--';
+              }
+              return esc(fmtLocalDateTime(edRaw, { withSeconds: true }));
+            })()}</div>
+          </div>
+        </div>
+        <div class="auto-run-history-status ${statusClass(inferStatus(l))}">${esc(inferStatus(l))}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function autoSetHistoryStatusFilter(val){
+  const v = String(val || 'all').trim();
+  autoHistoryStatusFilter = v || 'all';
+  autoRenderCurrentRunHistory();
+}
+
+function autoRenderCurrentRunHistory(){
+  const task = getSelectedAutoTask();
+  const historyEl = document.getElementById('auto-run-history-list');
+  if(!task || !historyEl) return;
+  historyEl.innerHTML = autoBuildRunHistoryHtml(task);
+}
+
+function autoInsertLocalRunningLog(task, trigger='manual'){
+  if(!task || !task.id) return '';
+  const nowIso = new Date().toISOString();
+  const tempId = `tmp-${Date.now()}-${Math.random().toString(16).slice(2,8)}`;
+  if(!Array.isArray(task.logs)) task.logs = [];
+  task.logs.push({
+    _tempId: tempId,
+    startAt: nowIso,
+    endAt: '',
+    at: nowIso,
+    statusFeedback: '执行请求已发出，等待 Codex 返回...',
+    experienceFeedback: '',
+    result: 'running',
+    execStatus: '执行中',
+    worker: String(task.targetAgent || 'unknown'),
+    trigger: String(trigger || 'manual'),
+    runFile: '',
+  });
+  task.logs = task.logs.slice(-50);
+  autoPendingRunLogs[String(task.id||'')] = task.logs[task.logs.length - 1];
+  autoRenderCurrentRunHistory();
+  return tempId;
+}
+
+function autoFinalizeLocalRunningLog(task, tempId, ok, message=''){
+  if(!task || !tempId) return;
+  const pendingKey = String(task.id || '');
+  if(!Array.isArray(task.logs)){
+    if(pendingKey) delete autoPendingRunLogs[pendingKey];
+    return;
+  }
+  const idx = task.logs.findIndex(x=>String((x||{})._tempId||'')===String(tempId));
+  if(idx < 0){
+    if(pendingKey) delete autoPendingRunLogs[pendingKey];
+    return;
+  }
+  const nowIso = new Date().toISOString();
+  task.logs[idx] = {
+    ...task.logs[idx],
+    endAt: nowIso,
+    at: nowIso,
+    result: ok ? 'manual_run' : 'error',
+    execStatus: ok ? '执行成功' : '执行失败',
+    statusFeedback: ok ? '执行已完成，等待后端同步详细结果...' : (message || '执行失败'),
+  };
+  if(pendingKey) delete autoPendingRunLogs[pendingKey];
+  autoRenderCurrentRunHistory();
+}
+
+async function autoRefreshRuntimePanels(){
+  if(activeTab !== 'automation' || autoRuntimeRefreshing) return;
+  const taskId = String(autoState.selectedId || '').trim();
+  if(!taskId) return;
+  autoRuntimeRefreshing = true;
+  try{
+    const tasksResp = await fetchJ(API + '/automation/tasks');
+    if(tasksResp && tasksResp.ok && Array.isArray(tasksResp.tasks)){
+      autoState.tasks = tasksResp.tasks;
+    }
+    const task = getSelectedAutoTask();
+    if(!task) return;
+
+    const historyEl = document.getElementById('auto-run-history-list');
+    if(historyEl){
+      historyEl.innerHTML = autoBuildRunHistoryHtml(task);
+    }
+
+    const statusEl = document.getElementById('auto-log-status');
+    if(statusEl){
+      statusEl.value = String(task.logStatus || '未初始化（点击保存后创建）');
+      statusEl.title = `反馈文档：${String(task.feedbackDocPath||'未创建')}\n经验文档：${String(task.experienceDocPath||'未创建')}`;
+    }
+    const feedbackPathEl = document.getElementById('auto-feedback-path');
+    if(feedbackPathEl) feedbackPathEl.textContent = String(task.feedbackDocPath || '（未创建）');
+    const experiencePathEl = document.getElementById('auto-experience-path');
+    if(experiencePathEl) experiencePathEl.textContent = String(task.experienceDocPath || '（未创建）');
+    if(autoLogModalState.open && autoLogModalState.mode === 'view' && String(autoLogModalState.taskId||'') === String(task.id||'')){
+      await autoRefreshOpenLogModal();
+    }
+  }catch(_){}
+  finally{
+    autoRuntimeRefreshing = false;
+  }
+}
+
+function autoStartRuntimeRefresh(){
+  autoStopRuntimeRefresh();
+  autoRuntimeRefreshTimer = setInterval(()=>{
+    autoRefreshRuntimePanels();
+  }, 2000);
+}
+
+function autoStopRuntimeRefresh(){
+  if(autoRuntimeRefreshTimer){
+    clearInterval(autoRuntimeRefreshTimer);
+    autoRuntimeRefreshTimer = null;
+  }
+  autoStopLogModalRefresh();
+  autoStopHistoryLogsRefresh();
+}
+
+async function autoSaveTaskDocs(kind){
+  const task = autoGetCurrentLogTask();
+  if(!task){ toast('未选择任务','err'); return; }
+  const docs = await autoLoadTaskDocs(task.id);
+  if(!docs || !docs.ok){ toast((docs && docs.error) ? docs.error : '日志加载失败','err'); return; }
+  const saveKind = String(kind || 'both').trim();
+  const payload = {
+    taskId: String(task.id || ''),
+  };
+  if(saveKind === 'feedback' || saveKind === 'both'){
+    payload.feedbackContent = String(docs.feedbackContent || '');
+  }
+  if(saveKind === 'experience' || saveKind === 'both'){
+    payload.experienceContent = String(docs.experienceContent || '');
+  }
+  try{
+    const r = await postJ(API + '/automation/task-docs-save', payload);
+    if(!r || !r.ok){ toast((r && r.error) ? r.error : '日志保存失败','err'); return; }
+    toast(saveKind === 'feedback' ? '反馈日志已保存' : saveKind === 'experience' ? '经验日志已保存' : '日志已保存','ok');
+    await loadAutomation();
+  }catch(e){
+    const msg = String((e && e.message) ? e.message : e || '');
+    if(msg.includes('接口返回非JSON') || msg.includes('404')){
+      toast('日志保存失败：后端接口未就绪，请重启 dashboard 服务','err');
+      return;
+    }
+    toast('日志保存失败: ' + msg,'err');
+  }
 }
 
 function isLearningModalOpen(){
@@ -4178,10 +5395,53 @@ function autoSetVal(id, v){
   if(el) el.value = String(v || '');
 }
 
+function autoBuildWorkerOptionsFromConfig(cfg){
+  const list = [];
+  const seen = new Set();
+  const agents = Array.isArray(cfg?.agents) ? cfg.agents : [];
+  for(const a of agents){
+    const id = String(a?.id || '').trim();
+    if(!id || seen.has(id)) continue;
+    seen.add(id);
+    const label = String(a?.label || a?.role || id).trim() || id;
+    list.push({ id, label });
+  }
+  if(!seen.has('codex')){
+    list.push({ id:'codex', label:'codex' });
+    seen.add('codex');
+  }
+  return list;
+}
+
+function autoResolveWorkerOptions(task){
+  const source = Array.isArray(autoState.workerOptions) ? autoState.workerOptions : [];
+  const list = [];
+  const seen = new Set();
+  for(const it of source){
+    const id = String(it?.id || '').trim();
+    if(!id || seen.has(id)) continue;
+    seen.add(id);
+    list.push({ id, label: String(it?.label || id).trim() || id });
+  }
+  if(!seen.has('codex')){
+    list.push({ id:'codex', label:'codex' });
+    seen.add('codex');
+  }
+  const current = String(task?.targetAgent || '').trim();
+  if(current && !seen.has(current)){
+    list.push({ id: current, label: current });
+  }
+  return list;
+}
+
 async function loadAutomation(){
   try{
-    const d = await fetchJ(API + '/automation/tasks');
+    const [d, cfg] = await Promise.all([
+      fetchJ(API + '/automation/tasks'),
+      fetchJ(API + '/agent-config').catch(()=>null),
+    ]);
     autoState.tasks = Array.isArray(d && d.tasks) ? d.tasks : [];
+    autoState.workerOptions = autoBuildWorkerOptionsFromConfig(cfg || {});
     if(!autoState.selectedId && autoState.tasks.length) autoState.selectedId = autoState.tasks[0].id;
     if(autoState.selectedId && !autoState.tasks.find(t=>String(t.id||'')===String(autoState.selectedId))){
       autoState.selectedId = autoState.tasks.length ? autoState.tasks[0].id : '';
@@ -4315,18 +5575,22 @@ function renderAutomation(){
     </div>
   `;
   const tasks = autoState.tasks || [];
+  const workerLabelMap = new Map(autoResolveWorkerOptions(null).map(w=>[String(w.id), String(w.label||w.id)]));
   listEl.innerHTML = tasks.length ? tasks.map(t=>`
     <div class="pm-proj ${String(t.id||'')===String(autoState.selectedId||'')?'active':''}" onclick="selectAutoTask('${esc(t.id||'')}')">
       <div class="pm-proj-head">
         <div class="t">${esc(t.title||'未命名任务')}</div>
         <span class="pm-tag ${t.enabled?'st-in_progress':'st-blocked'}">${t.enabled?'启用中':'已停用'}</span>
       </div>
-      <div class="m">${esc(t.scheduleExpr||'未设定时规则')} · ${esc(t.targetAgent||'shangshu')}</div>
+      <div class="m">${esc(t.scheduleExpr||'未设定时规则')} · ${esc(workerLabelMap.get(String(t.targetAgent||'')) || t.targetAgent || 'shangshu')}</div>
     </div>
   `).join('') : '<div class="pm-empty">暂无定时任务</div>';
 
   const task = getSelectedAutoTask();
   if(!task){
+    autoDocsLoadingToken += 1;
+    autoStopRunPlanTicker();
+    autoStopRuntimeRefresh();
     if(autoTextareaResizeObserver){
       try{ autoTextareaResizeObserver.disconnect(); }catch(_){}
       autoTextareaResizeObserver = null;
@@ -4342,6 +5606,11 @@ function renderAutomation(){
   titleEl.textContent = `定时任务 · ${task.title||''}`;
   const isEditingAutoTitle = autoEditingTitle && String(autoEditingTitleTaskId||'')===String(task.id||'');
   const autoTitleValue = isEditingAutoTitle ? String(autoEditingTitleValue||'') : String(task.title||'');
+  const workers = autoResolveWorkerOptions(task);
+  const selectedWorker = String(task.targetAgent || 'shangshu').trim() || 'shangshu';
+  const workerOptionHtml = workers
+    .map(w=>`<option value="${esc(w.id)}" ${String(w.id)===selectedWorker?'selected':''}>${esc(w.label)} · ${esc(w.id)}</option>`)
+    .join('');
   bodyEl.innerHTML = `
     <div class="pm-head" style="margin-bottom:10px">
       ${isEditingAutoTitle
@@ -4351,6 +5620,8 @@ function renderAutomation(){
             onblur="autoCommitTitle(this.value)">`
         : `<div class="tt pm-editable" ondblclick="autoBeginEditTitle()">${esc(task.title||'未命名任务')}</div>`}
       <div class="pm-head-right">
+        <button class="pm-icon-btn" style="${task.enabled?'color:#d2c1ff;border-color:#5d3aa0;background:#2a1a45':'color:#c6ffd8;border-color:#2f7f53;background:#173526'}" title="${task.enabled?'停用':'启用'}当前任务" onclick="autoToggleEnabled()">${task.enabled?'停用':'启用'}</button>
+        <button class="pm-icon-btn" title="手动执行一次" onclick="autoRunTask()">手动执行</button>
         <button class="pm-icon-btn" style="color:#ff9bb0;border-color:#6a2a3d;background:#3a1a26" title="删除任务" onclick="autoDeleteTask()">🗑</button>
       </div>
     </div>
@@ -4371,39 +5642,72 @@ function renderAutomation(){
         </div>
         <div class="auto-inline-row">
           <div class="lb">打工人</div>
-          <input id="auto-agent" class="pm-input" value="${esc(task.targetAgent||'shangshu')}" placeholder="例如：shangshu / bingbu">
+          <select id="auto-agent" class="pm-input">${workerOptionHtml || ''}</select>
         </div>
         <div class="auto-inline-row">
           <div class="lb">会话ID</div>
           <input id="auto-session" class="pm-input" value="${esc(task.targetSession||'')}" placeholder="可选，用于指定目标会话">
         </div>
+        <div class="auto-inline-row">
+          <div class="lb">代码路径</div>
+          <input id="auto-code-path" class="pm-input" value="${esc(task.codePath||'')}" placeholder="/Users/binlian/Documents/Github/edict（绝对路径）">
+        </div>
+        <div class="auto-inline-row">
+          <div class="lb">反馈日志路径</div>
+          <input id="auto-feedback-doc-path" class="pm-input" value="${esc(task.feedbackDocPath||'')}" placeholder="/Users/binlian/Documents/Github/edict/data/automation_task_docs/xxx__feedback.md">
+        </div>
+        <div class="auto-inline-row">
+          <div class="lb">经验日志路径</div>
+          <input id="auto-experience-doc-path" class="pm-input" value="${esc(task.experienceDocPath||'')}" placeholder="/Users/binlian/Documents/Github/edict/data/automation_task_docs/xxx__experience.md">
+        </div>
+        <div class="auto-inline-row">
+          <div class="lb">日志状态</div>
+          <input id="auto-log-status" class="pm-input" value="${esc(task.logStatus||'未初始化（点击保存后创建）')}" placeholder="点击保存后创建日志文档" readonly
+            title="反馈文档：${esc(task.feedbackDocPath||'未创建')}\n经验文档：${esc(task.experienceDocPath||'未创建')}">
+        </div>
       </div>
       <div class="auto-exec-right">
         <div class="auto-prompt-row">
-          <textarea id="auto-prompt" class="pm-text auto-prompt-glow" style="min-height:116px" placeholder="触发后发送给打工人的提示词">${esc(task.prompt||'')}</textarea>
+          <textarea id="auto-prompt" class="pm-text auto-prompt-glow" style="min-height:168px" placeholder="触发后发送给打工人的提示词">${esc(task.prompt||'')}</textarea>
           <button class="btn btn-g auto-parse-btn auto-save-side" title="保存配置" onclick="autoSaveTask()">保存</button>
         </div>
       </div>
     </div>
-    <label style="font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:8px"><input id="auto-enabled" type="checkbox" ${task.enabled?'checked':''}> 启用任务</label>
-    <div class="pm-actions">
-      <button class="btn btn-g" onclick="autoRunTask()">手动执行</button>
+    <div class="auto-run-plan">
+      <div class="auto-run-countdown" id="auto-next-run-countdown">--:--:--</div>
+      <div class="auto-run-next" id="auto-next-run-at"><b>下次执行时间：</b>计算中...</div>
     </div>
-    <div class="pm-sub">反馈与经验沉淀</div>
-    <textarea id="auto-status-feedback" class="pm-text" style="min-height:72px;margin-bottom:8px" placeholder="状态反馈（执行结果）">${esc(task.statusFeedback||'')}</textarea>
-    <textarea id="auto-exp-feedback" class="pm-text" style="min-height:96px;margin-bottom:8px" placeholder="经验反馈（可复用经验）">${esc(task.experienceFeedback||'')}</textarea>
-    <div class="pm-sub">执行历史</div>
-    <div class="pm-issues" style="max-height:220px">
-      ${(Array.isArray(task.logs)&&task.logs.length)? task.logs.slice().reverse().map(l=>`
-        <div class="pm-issue">
-          <div class="t">${esc(fmtLocalDateTime(l.at||'', { withSeconds: true }))}</div>
-          <div class="m"><span>${esc(l.result||'run')}</span></div>
-          <div class="m">${esc(l.statusFeedback||'')}</div>
-          <div class="m">${esc(l.experienceFeedback||'')}</div>
+    <div class="pm-sub" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span>执行历史</span>
+      <select class="auto-history-filter" onchange="autoSetHistoryStatusFilter(this.value)">
+        <option value="all" ${autoHistoryStatusFilter==='all'?'selected':''}>全部状态</option>
+        <option value="执行中" ${autoHistoryStatusFilter==='执行中'?'selected':''}>执行中</option>
+        <option value="执行成功" ${autoHistoryStatusFilter==='执行成功'?'selected':''}>执行成功</option>
+        <option value="前置跳过" ${autoHistoryStatusFilter==='前置跳过'?'selected':''}>前置跳过</option>
+        <option value="空转" ${autoHistoryStatusFilter==='空转'?'selected':''}>空转</option>
+        <option value="执行失败" ${autoHistoryStatusFilter==='执行失败'?'selected':''}>执行失败</option>
+      </select>
+    </div>
+    <div class="pm-issues" id="auto-run-history-list" style="max-height:220px">
+      ${autoBuildRunHistoryHtml(task)}
+    </div>
+    <div class="auto-doc-views">
+      <div class="auto-doc-card">
+        <div class="hd">
+          <div class="hd-main">反馈日志</div>
         </div>
-      `).join('') : '<div class="pm-empty">暂无执行历史</div>'}
+        <button class="auto-doc-path-btn" id="auto-feedback-path" onclick="autoOpenLogModal('feedback')">${esc(task.feedbackDocPath||'（未创建）')}</button>
+      </div>
+      <div class="auto-doc-card">
+        <div class="hd">
+          <div class="hd-main">经验日志</div>
+        </div>
+        <button class="auto-doc-path-btn" id="auto-experience-path" onclick="autoOpenLogModal('experience')">${esc(task.experienceDocPath||'（未创建）')}</button>
+      </div>
     </div>
   `;
+  autoRenderRunPlan(task);
+  autoStartRuntimeRefresh();
   autoBindTextareaSizeMemory(task.id);
 }
 
@@ -4462,13 +5766,14 @@ async function autoSaveTask(){
     taskId: task.id,
     title: autoVal('auto-title').trim(),
     requestText: autoVal('auto-request').trim(),
+    codePath: autoVal('auto-code-path').trim(),
+    feedbackDocPath: autoVal('auto-feedback-doc-path').trim(),
+    experienceDocPath: autoVal('auto-experience-doc-path').trim(),
     scheduleExpr: autoVal('auto-schedule').trim(),
     targetAgent: autoVal('auto-agent').trim(),
     targetSession: autoVal('auto-session').trim(),
     prompt: autoVal('auto-prompt').trim(),
-    enabled: !!document.getElementById('auto-enabled')?.checked,
-    statusFeedback: autoVal('auto-status-feedback').trim(),
-    experienceFeedback: autoVal('auto-exp-feedback').trim(),
+    enabled: !!task.enabled,
   };
   try{
     const r = await postJ(API + '/automation/task-update', payload);
@@ -4482,16 +5787,40 @@ async function autoSaveTask(){
 async function autoRunTask(){
   const task = getSelectedAutoTask();
   if(!task){ toast('未选择任务','err'); return; }
+  autoStartRuntimeRefresh();
+  const pendingKey = String(task.id || '');
+  if(pendingKey) delete autoPendingRunLogs[pendingKey];
   try{
     const r = await postJ(API + '/automation/task-run', {
       taskId: task.id,
-      statusFeedback: autoVal('auto-status-feedback').trim(),
-      experienceFeedback: autoVal('auto-exp-feedback').trim(),
     });
-    if(!r.ok){ toast(r.error||'执行失败','err'); return; }
+    if(!r.ok){
+      toast(r.error||'执行失败','err');
+      await autoRefreshRuntimePanels();
+      return;
+    }
     await loadAutomation();
+    await autoRefreshRuntimePanels();
     toast('已记录一次执行与反馈','ok');
-  }catch(e){ toast('执行失败: '+e.message,'err'); }
+  }catch(e){
+    toast('执行失败: '+e.message,'err');
+    await autoRefreshRuntimePanels();
+  }
+}
+
+async function autoToggleEnabled(){
+  const task = getSelectedAutoTask();
+  if(!task){ toast('未选择任务','err'); return; }
+  try{
+    const nextEnabled = !task.enabled;
+    const r = await postJ(API + '/automation/task-update', {
+      taskId: task.id,
+      enabled: nextEnabled,
+    });
+    if(!r.ok){ toast(r.error||'更新状态失败','err'); return; }
+    await loadAutomation();
+    toast(nextEnabled ? '任务已启用' : '任务已停用','ok');
+  }catch(e){ toast('更新状态失败: '+e.message,'err'); }
 }
 
 function autoOpenSystemDialog(title, message){
@@ -5664,6 +6993,15 @@ function smartBoardOpenSession(agentId, label, sessionAgentId, sessionId){
   setTimeout(()=>openAgentSingleSession(agentId, label, sessionAgentId, sessionId), 0);
 }
 
+function smartBoardOpenAutomationTask(taskId){
+  const tid = String(taskId || '').trim();
+  if(!tid) return;
+  closeSmartBoard();
+  switchToTab('automation');
+  autoState.selectedId = tid;
+  renderAutomation();
+}
+
 async function smartBoardOpenJzgTodo(projectId, itemId){
   const pid = String(projectId||'').trim();
   const iid = String(itemId||'').trim();
@@ -5725,7 +7063,7 @@ function _smartBoardRenderLoading(){
       <div class="sb-sec sb-slot-1 sb-empty"><div class="sb-sub">加载研发部问题...</div></div>
       <div class="sb-sec sb-slot-2 sb-empty"><div class="sb-sub">加载 PM 待办...</div></div>
       <div class="sb-sec sb-slot-3 sb-empty"><div class="sb-sub">加载人事部会话...</div></div>
-      <div class="sb-sec sb-slot-4 sb-empty"><div class="sb-sub">预留区 4</div></div>
+      <div class="sb-sec sb-slot-4 sb-empty"><div class="sb-sub">加载定时任务...</div></div>
       <div class="sb-sec sb-slot-5 sb-empty"><div class="sb-sub">预留区 5</div></div>
     </div>
   `;
@@ -5737,9 +7075,32 @@ function _smartBoardRender(data){
   const issueGroups = data.issueGroups || [];
   const sessionGroups = data.sessionGroups || [];
   const todoGroups = data.todoGroups || [];
+  const automationTasks = data.automationTasks || [];
   const issueCount = issueGroups.reduce((n,g)=>n+((g.items||[]).length),0);
   const sessionCount = sessionGroups.reduce((n,g)=>n+((g.items||[]).length),0);
   const todoCount = todoGroups.reduce((n,g)=>n+((g.items||[]).length),0);
+  const automationCount = automationTasks.length;
+
+  const inferAutoRunStatus = (task)=>{
+    const logs = Array.isArray(task && task.logs) ? task.logs : [];
+    if(!logs.length) return '未执行';
+    const last = logs[logs.length - 1] || {};
+    const explicit = String(last.execStatus || '').trim();
+    if(explicit) return explicit;
+    const result = String(last.result || '').toLowerCase();
+    if(result === 'running' || result === 'in_progress') return '执行中';
+    if(result.includes('error') || result.includes('fail')) return '执行失败';
+    if(result.includes('empty') || result.includes('idle') || result === 'noop') return '空转';
+    return '执行成功';
+  };
+  const statusClass = (s)=>{
+    const v = String(s || '');
+    if(v === '执行中') return 'st-in_progress';
+    if(v === '执行失败') return 'st-blocked';
+    if(v === '前置跳过' || v === '空转') return 'st-clarify';
+    if(v === '执行成功') return 'st-done';
+    return '';
+  };
 
   body.innerHTML = `
     <div class="sb-grid">
@@ -5812,7 +7173,29 @@ function _smartBoardRender(data){
     </div>
 
     <div class="sb-sec sb-slot-4 sb-empty">
-      <div class="sb-sub">预留区 4</div>
+      <div class="sb-hd">
+        <span class="sb-ttl">⏱ 定时任务看板</span>
+        <span class="sb-sub">${automationCount} 条</span>
+      </div>
+      <div class="sb-scroll">
+        ${automationTasks.length ? automationTasks.map(t=>{
+          const runStatus = inferAutoRunStatus(t);
+          const lastTs = (()=> {
+            const logs = Array.isArray(t.logs) ? t.logs : [];
+            if(!logs.length) return '';
+            const last = logs[logs.length - 1] || {};
+            return fmtLocalDateTime(last.endAt || last.at || last.startAt || '', { withSeconds: true });
+          })();
+          return `
+            <div class="sb-item clickable" onclick='smartBoardOpenAutomationTask(${JSON.stringify(t.id)})'>
+              <span class="tx">${esc(t.title||t.id)}</span>
+              <span class="pm-tag ${t.enabled ? 'st-in_progress' : 'st-blocked'}">${t.enabled ? '启用' : '停用'}</span>
+              <span class="meta">${esc(lastTs || '未执行')}</span>
+              <span class="pm-tag ${statusClass(runStatus)}">${esc(runStatus)}</span>
+            </div>
+          `;
+        }).join('') : '<div class="sb-sub">暂无定时任务</div>'}
+      </div>
     </div>
 
     <div class="sb-sec sb-slot-5 sb-empty">
@@ -5828,14 +7211,16 @@ async function loadSmartBoard(opts){
   smartBoardState.loading = true;
   if(showLoading) _smartBoardRenderLoading();
   try{
-    const [pmResp, jzgResp, offResp] = await Promise.all([
+    const [pmResp, jzgResp, offResp, autoResp] = await Promise.all([
       fetchJ(API+'/pm/projects').catch(()=>({ok:false, projects:[]})),
       fetchJ(API+'/jzg/projects').catch(()=>({ok:false, projects:[]})),
       fetchJ(API+'/officials-stats').catch(()=>({ok:false, officials:[]})),
+      fetchJ(API+'/automation/tasks').catch(()=>({ok:false, tasks:[]})),
     ]);
     const pmProjectsData = Array.isArray(pmResp.projects) ? pmResp.projects : [];
     const jzgProjectsData = Array.isArray(jzgResp.projects) ? jzgResp.projects : [];
     const officials = Array.isArray(offResp.officials) ? offResp.officials : [];
+    const automationTasks = Array.isArray(autoResp.tasks) ? autoResp.tasks : [];
 
     const issueGroups = pmProjectsData.map(p=>{
       const folderMap = new Map((Array.isArray(p.folders)?p.folders:[]).map(f=>[String(f.id||''), String(f.name||'默认文件夹')]));
@@ -5872,7 +7257,7 @@ async function loadSmartBoard(opts){
       return {agentId:id, label, items};
     }).filter(g=>(g.items||[]).length>0);
 
-    _smartBoardRender({issueGroups, sessionGroups, todoGroups});
+    _smartBoardRender({issueGroups, sessionGroups, todoGroups, automationTasks});
   }catch(e){
     const body = document.getElementById('smart-board-body');
     if(body) body.innerHTML = `
@@ -5880,7 +7265,7 @@ async function loadSmartBoard(opts){
         <div class="sb-sec sb-slot-1 sb-empty"><div class="sb-sub">加载失败：${esc(e.message)}</div></div>
         <div class="sb-sec sb-slot-2 sb-empty"><div class="sb-sub">请稍后重试</div></div>
         <div class="sb-sec sb-slot-3 sb-empty"><div class="sb-sub">会话区暂不可用</div></div>
-        <div class="sb-sec sb-slot-4 sb-empty"><div class="sb-sub">预留区 4</div></div>
+        <div class="sb-sec sb-slot-4 sb-empty"><div class="sb-sub">定时任务区暂不可用</div></div>
         <div class="sb-sec sb-slot-5 sb-empty"><div class="sb-sub">预留区 5</div></div>
       </div>
     `;
@@ -11463,6 +12848,10 @@ function switchToTab(tabId){
   tabEl.classList.add('active');
   panelEl.classList.add('active');
   activeTab = id;
+  if(activeTab !== 'automation'){
+    autoStopRunPlanTicker();
+    autoStopRuntimeRefresh();
+  }
   if(['models','skills'].includes(activeTab))loadAgentConfig();
   if(activeTab==='officials')loadOfficials();
   if(activeTab==='monitor')loadAgentsStatus();

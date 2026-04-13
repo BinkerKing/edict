@@ -58,6 +58,7 @@ _ACTIVE_TASK_DATA_DIR = None
 LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
 PM_FILE = DATA / 'project_management.json'
 AUTOMATION_FILE = DATA / 'automation_tasks.json'
+AUTOMATION_DOCS_DIR = DATA / 'automation_task_docs'
 PM_ISOLATION_FILE = DATA / 'agent_isolation_registry.json'
 AGENT_WORK_SCOPE_FILE = DATA / 'agent_work_scopes.json'
 AGENT_WORK_BINDINGS_FILE = DATA / 'agent_work_bindings.json'
@@ -99,7 +100,32 @@ JZG_DEFAULT_WEEKLY_TEMPLATE = (
     "- （由兵部补充）\n"
 )
 
-AUTOMATION_ALLOWED_AGENTS = {'taizi', 'zhongshu', 'menxia', 'shangshu', 'libu', 'hubu', 'bingbu', 'xingbu', 'rnd', 'libu_hr', 'zaochao'}
+AUTOMATION_ALLOWED_AGENTS = {'taizi', 'zhongshu', 'menxia', 'shangshu', 'libu', 'hubu', 'bingbu', 'xingbu', 'rnd', 'libu_hr', 'zaochao', 'codex'}
+
+AUTOMATION_AGENT_ALIAS = {
+    'taizi': 'taizi', '太子': 'taizi',
+    'zhongshu': 'zhongshu', '中书令': 'zhongshu', '中书省': 'zhongshu',
+    'menxia': 'menxia', '侍中': 'menxia', '门下省': 'menxia',
+    'shangshu': 'shangshu', '能效部长': 'shangshu', '能效部': 'shangshu', '尚书令': 'shangshu', '尚书省': 'shangshu',
+    'libu': 'libu', '扫地僧': 'libu', '藏经阁': 'libu', '礼部': 'libu',
+    'hubu': 'hubu', '户部尚书': 'hubu', '户部': 'hubu',
+    'bingbu': 'bingbu', '项目经理': 'bingbu', 'pm小组': 'bingbu', 'pm': 'bingbu', '兵部': 'bingbu',
+    'xingbu': 'xingbu', '刑部尚书': 'xingbu', '刑部': 'xingbu',
+    'rnd': 'rnd', '研发部': 'rnd', '研发总监': 'rnd',
+    'libu_hr': 'libu_hr', '人事部': 'libu_hr', '人事经理': 'libu_hr', '吏部': 'libu_hr',
+    'zaochao': 'zaochao', '监正': 'zaochao', '钦天监': 'zaochao',
+    'codex': 'codex',
+}
+
+
+def _normalize_automation_agent(agent_raw):
+    raw = str(agent_raw or '').strip()
+    if not raw:
+        return None
+    if raw in AUTOMATION_ALLOWED_AGENTS:
+        return raw
+    key = raw.lower().replace(' ', '')
+    return AUTOMATION_AGENT_ALIAS.get(key) or AUTOMATION_AGENT_ALIAS.get(raw)
 
 DEFAULT_AGENT_WORK_SCOPES = {
     'rnd': [
@@ -1842,6 +1868,325 @@ def _save_pm_data(data):
     atomic_json_write(PM_FILE, data)
 
 
+def _automation_safe_task_key(task_id):
+    key = re.sub(r'[^a-zA-Z0-9_.-]+', '_', str(task_id or '').strip())
+    return (key[:80] or 'task').strip('._-') or 'task'
+
+
+def _automation_rel_display_path(path_obj):
+    p = pathlib.Path(path_obj).expanduser()
+    try:
+        return str(p.resolve())
+    except Exception:
+        return str(p)
+
+
+def _automation_resolve_doc_paths(task):
+    if not isinstance(task, dict):
+        task = {}
+    key = _automation_safe_task_key(task.get('id'))
+    default_feedback = (AUTOMATION_DOCS_DIR / f'{key}__feedback.md').resolve()
+    default_experience = (AUTOMATION_DOCS_DIR / f'{key}__experience.md').resolve()
+    def _resolve_one(raw, fallback):
+        raw_s = str(raw or '').strip()
+        p = None
+        if raw_s:
+            cand = pathlib.Path(raw_s).expanduser()
+            if cand.is_absolute():
+                p = cand.resolve()
+            else:
+                p = (BASE.parent / cand).resolve()
+        if not p:
+            p = fallback
+        return p
+
+    feedback_path = _resolve_one(task.get('feedbackDocPath'), default_feedback)
+    experience_path = _resolve_one(task.get('experienceDocPath'), default_experience)
+    return feedback_path, experience_path
+
+
+def _normalize_absolute_code_path(value):
+    raw = str(value or '').strip()
+    if not raw:
+        return ''
+    p = pathlib.Path(raw).expanduser()
+    if not p.is_absolute():
+        return None
+    try:
+        return str(p.resolve())
+    except Exception:
+        return str(p)
+
+
+def _normalize_optional_absolute_path(value):
+    raw = str(value or '').strip()
+    if not raw:
+        return ''
+    p = pathlib.Path(raw).expanduser()
+    if not p.is_absolute():
+        return None
+    try:
+        return str(p.resolve())
+    except Exception:
+        return str(p)
+
+
+def _automation_build_log_status(task):
+    feedback_path, experience_path = _automation_resolve_doc_paths(task)
+    feedback_ok = feedback_path.exists()
+    experience_ok = experience_path.exists()
+    if feedback_ok and experience_ok:
+        status = '已就绪（反馈+经验）'
+    elif feedback_ok:
+        status = '部分就绪（仅反馈）'
+    elif experience_ok:
+        status = '部分就绪（仅经验）'
+    else:
+        status = '未初始化（点击保存后创建）'
+    return {
+        'logStatus': status,
+        'feedbackDocPath': _automation_rel_display_path(feedback_path),
+        'experienceDocPath': _automation_rel_display_path(experience_path),
+    }
+
+
+def _ensure_automation_docs(task):
+    feedback_path, experience_path = _automation_resolve_doc_paths(task)
+    AUTOMATION_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    title = str((task or {}).get('title') or '未命名任务').strip() or '未命名任务'
+    task_id = str((task or {}).get('id') or '').strip()
+    created_any = False
+
+    if not feedback_path.exists():
+        feedback_path.parent.mkdir(parents=True, exist_ok=True)
+        feedback_path.write_text(
+            (
+                f"# 定时任务反馈日志\n\n"
+                f"- 任务ID：{task_id or '-'}\n"
+                f"- 任务标题：{title}\n"
+                f"- 创建时间：{now_iso()}\n\n"
+                f"---\n\n"
+                f"## 执行记录\n\n"
+            ),
+            encoding='utf-8'
+        )
+        created_any = True
+
+    if not experience_path.exists():
+        experience_path.parent.mkdir(parents=True, exist_ok=True)
+        experience_path.write_text(
+            (
+                f"# 定时任务执行经验\n\n"
+                f"- 任务ID：{task_id or '-'}\n"
+                f"- 任务标题：{title}\n"
+                f"- 创建时间：{now_iso()}\n\n"
+                f"---\n\n"
+                f"## 可复用经验\n\n"
+            ),
+            encoding='utf-8'
+        )
+        created_any = True
+
+    task['feedbackDocPath'] = _automation_rel_display_path(feedback_path)
+    task['experienceDocPath'] = _automation_rel_display_path(experience_path)
+    task['docsReadyAt'] = now_iso()
+    task['logStatus'] = '已就绪（反馈+经验）'
+    return {
+        'created': created_any,
+        'feedback_path': feedback_path,
+        'experience_path': experience_path,
+    }
+
+
+def _automation_compact_summary(text, max_len=240):
+    raw = str(text or '').strip()
+    if not raw:
+        return '（无经验总结）'
+    lines = []
+    for line in raw.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        # 跳过常见标题行，保留真正内容
+        if re.match(r'^[#*`\-=\[\]【】]+$', s):
+            continue
+        lines.append(s)
+        if len(' '.join(lines)) >= max_len:
+            break
+    merged = ' '.join(lines).strip()
+    if not merged:
+        merged = raw.replace('\n', ' ').strip()
+    if len(merged) > max_len:
+        merged = merged[:max_len - 1].rstrip() + '…'
+    return merged or '（无经验总结）'
+
+
+def _automation_strip_system_feedback_sections(text):
+    raw = str(text or '')
+    if not raw.strip():
+        return raw
+    lines = raw.splitlines(keepends=True)
+    out = []
+    i = 0
+    n = len(lines)
+    while i < n:
+        line = lines[i]
+        if line.startswith('### 系统回执 ·'):
+            i += 1
+            while i < n:
+                cur = lines[i]
+                if cur.startswith('### ') or cur.startswith('开始记录') or cur.startswith('任务终结记录'):
+                    break
+                i += 1
+            continue
+        if '<!-- system-run-feedback:' in line:
+            i += 1
+            continue
+        out.append(line)
+        i += 1
+    cleaned = ''.join(out)
+    cleaned = re.sub(r'\n{4,}', '\n\n\n', cleaned)
+    return cleaned
+
+
+def _automation_cleanup_feedback_doc_for_codex(task):
+    try:
+        feedback_path, _ = _automation_resolve_doc_paths(task)
+        if not feedback_path.exists():
+            return
+        raw = feedback_path.read_text(encoding='utf-8', errors='replace')
+        cleaned = _automation_strip_system_feedback_sections(raw)
+        if cleaned != raw:
+            feedback_path.write_text(cleaned, encoding='utf-8')
+    except Exception:
+        # 清理失败不阻断主流程
+        pass
+
+
+def _automation_dedupe_experience_markdown(text):
+    raw = str(text or '')
+    if not raw.strip():
+        return raw
+
+    lines = raw.splitlines(keepends=True)
+    n = len(lines)
+    out = []
+    i = 0
+    seen_keys = set()
+
+    def _is_exp_start(line):
+        s = str(line or '').strip()
+        return s == '本次经验' or s.startswith('### 本次经验')
+
+    while i < n:
+        line = lines[i]
+        if not _is_exp_start(line):
+            out.append(line)
+            i += 1
+            continue
+
+        j = i + 1
+        while j < n:
+            if _is_exp_start(lines[j]):
+                break
+            # 新三级标题视为新分段（避免吞掉其他段落）
+            if lines[j].startswith('### '):
+                break
+            j += 1
+
+        block = ''.join(lines[i:j])
+        end_time_match = re.search(r'执行结束时间\s*[:：]\s*([^\n\r]+)', block)
+        if end_time_match:
+            dedupe_key = f"end:{end_time_match.group(1).strip()}"
+        else:
+            compact = re.sub(r'\s+', ' ', block).strip()
+            dedupe_key = 'hash:' + hashlib.sha1(compact.encode('utf-8', errors='ignore')).hexdigest()
+
+        if dedupe_key not in seen_keys:
+            seen_keys.add(dedupe_key)
+            out.append(block)
+        i = j
+
+    normalized = ''.join(out)
+    normalized = re.sub(r'\n{4,}', '\n\n\n', normalized)
+    return normalized
+
+
+def _automation_dedupe_experience_doc(task):
+    try:
+        _, experience_path = _automation_resolve_doc_paths(task)
+        if not experience_path.exists():
+            return
+        raw = experience_path.read_text(encoding='utf-8', errors='replace')
+        cleaned = _automation_dedupe_experience_markdown(raw)
+        if cleaned != raw:
+            experience_path.write_text(cleaned, encoding='utf-8')
+    except Exception:
+        # 去重失败不阻断主流程
+        pass
+
+
+def _automation_append_run_docs(
+    task,
+    run_at,
+    result,
+    status_feedback,
+    experience_feedback,
+    run_id='',
+    run_started_at='',
+    exec_status='',
+    trigger='',
+    worker='',
+):
+    ensured = _ensure_automation_docs(task)
+    feedback_path = ensured['feedback_path']
+    experience_path = ensured['experience_path']
+    run_label = str(run_at or now_iso())
+    result_label = str(result or 'run').strip() or 'run'
+    run_key = str(run_id or '').strip() or f"fallback-{run_label}-{result_label}"
+    start_label = str(run_started_at or '').strip() or '-'
+    trigger_label = str(trigger or '').strip() or '-'
+    worker_label = str(worker or '').strip() or '-'
+    normalized_status = _automation_normalize_exec_status(exec_status, fallback='执行成功')
+    feedback_marker = f"<!-- system-run-feedback:{run_key} -->"
+    experience_marker = f"<!-- system-run-experience:{run_key} -->"
+    exp_summary = _automation_compact_summary(experience_feedback)
+
+    # codex 负责反馈日志主记录，程序端不再写入反馈回执，避免重复
+    if worker_label.lower() != 'codex':
+        try:
+            feedback_text = feedback_path.read_text(encoding='utf-8', errors='replace')
+        except Exception:
+            feedback_text = ''
+        if feedback_marker not in feedback_text:
+            with feedback_path.open('a', encoding='utf-8') as f:
+                f.write(
+                    f"\n### 系统回执 · {run_label} · {result_label}\n"
+                    f"{feedback_marker}\n"
+                    f"- 执行开始时间: {start_label}\n"
+                    f"- 执行结束时间: {run_label}\n"
+                    f"- 执行方式: {trigger_label}\n"
+                    f"- 打工人: {worker_label}\n"
+                    f"- 任务终结状态: {normalized_status}\n"
+                    f"- 系统摘要: 已写入执行历史（不再回填建议正文）。\n"
+                )
+    else:
+        _automation_cleanup_feedback_doc_for_codex(task)
+
+    try:
+        experience_text = experience_path.read_text(encoding='utf-8', errors='replace')
+    except Exception:
+        experience_text = ''
+    if experience_marker not in experience_text:
+        with experience_path.open('a', encoding='utf-8') as f:
+            f.write(
+                f"\n### 系统经验回执 · {run_label}\n"
+                f"{experience_marker}\n"
+                f"- 本次经验摘要: {exp_summary}\n"
+                f"- 下次借鉴: 优先复用最近一次“任务终结记录”的结构化字段。\n"
+            )
+
+
 def _load_automation_data():
     data = atomic_json_read(AUTOMATION_FILE, {'tasks': []})
     if not isinstance(data, dict):
@@ -1861,10 +2206,12 @@ def _load_automation_data():
             target_agent = 'shangshu'
         target_session = str(it.get('targetSession') or '').strip()
         logs = it.get('logs') if isinstance(it.get('logs'), list) else []
-        normalized.append({
+        normalized_code_path = _normalize_absolute_code_path(it.get('codePath'))
+        row = {
             'id': task_id,
             'title': str(it.get('title') or '未命名任务').strip() or '未命名任务',
             'requestText': str(it.get('requestText') or '').strip(),
+            'codePath': normalized_code_path if isinstance(normalized_code_path, str) else '',
             'scheduleExpr': str(it.get('scheduleExpr') or '').strip(),
             'targetAgent': target_agent,
             'targetSession': target_session,
@@ -1876,7 +2223,12 @@ def _load_automation_data():
             'updatedAt': str(it.get('updatedAt') or now_iso()),
             'lastRunAt': str(it.get('lastRunAt') or ''),
             'logs': [x for x in logs if isinstance(x, dict)][-50:],
-        })
+            'feedbackDocPath': str(it.get('feedbackDocPath') or '').strip(),
+            'experienceDocPath': str(it.get('experienceDocPath') or '').strip(),
+            'docsReadyAt': str(it.get('docsReadyAt') or '').strip(),
+        }
+        row.update(_automation_build_log_status(row))
+        normalized.append(row)
     return {'tasks': normalized}
 
 
@@ -1921,7 +2273,9 @@ def _parse_automation_request(text):
             schedule_expr = f'每工作日 {int(m.group(1)):02d}:{m.group(2)}'
 
     target_agent = 'shangshu'
-    if any(k in raw for k in ('研发', '研发部', '研发总监', 'rnd')):
+    if any(k in lower for k in ('codex',)):
+        target_agent = 'codex'
+    elif any(k in raw for k in ('研发', '研发部', '研发总监', 'rnd')):
         target_agent = 'rnd'
     elif any(k in raw for k in ('PM', '项目经理', 'bingbu', '兵部')):
         target_agent = 'bingbu'
@@ -1960,10 +2314,12 @@ def _normalize_automation_parsed_payload(payload, fallback=None):
     target_agent = str(payload.get('targetAgent') or fb.get('targetAgent') or 'shangshu').strip()
     target_session = str(payload.get('targetSession') or fb.get('targetSession') or '').strip()
     prompt = str(payload.get('prompt') or fb.get('prompt') or '').strip()
-    if target_agent not in AUTOMATION_ALLOWED_AGENTS:
-        target_agent = str(fb.get('targetAgent') or 'shangshu').strip()
-        if target_agent not in AUTOMATION_ALLOWED_AGENTS:
-            target_agent = 'shangshu'
+    normalized_agent = _normalize_automation_agent(target_agent)
+    if normalized_agent:
+        target_agent = normalized_agent
+    else:
+        fb_agent = _normalize_automation_agent(fb.get('targetAgent'))
+        target_agent = fb_agent or 'shangshu'
     if not prompt:
         prompt = str(fb.get('prompt') or '').strip()
     return {
@@ -1990,7 +2346,7 @@ def _parse_automation_request_with_shangshu(text, fallback):
         "}\n"
         "约束：\n"
         "1) scheduleExpr 尽量输出中文规则，如“每日 09:30”“每周一 10:00”“每1小时”。\n"
-        "2) targetAgent 必须在集合内：taizi, zhongshu, menxia, shangshu, libu, hubu, bingbu, xingbu, rnd, libu_hr, zaochao。\n"
+        "2) targetAgent 必须在集合内：taizi, zhongshu, menxia, shangshu, libu, hubu, bingbu, xingbu, rnd, libu_hr, zaochao, codex。\n"
         "3) targetSession 可为空字符串。\n"
         "4) prompt 要写成可直接执行的完整提示词，不要太短。\n\n"
         f"用户任务描述：\n{raw_text}\n"
@@ -2020,7 +2376,7 @@ def automation_parse_request(text):
     }
 
 
-def automation_create_task(title, request_text, schedule_expr='', target_agent='shangshu', target_session='', prompt=''):
+def automation_create_task(title, request_text, schedule_expr='', target_agent='shangshu', target_session='', prompt='', code_path=''):
     title = str(title or '').strip() or '未命名任务'
     request_text = str(request_text or '').strip()
     if not request_text:
@@ -2032,14 +2388,17 @@ def automation_create_task(title, request_text, schedule_expr='', target_agent='
         target_agent = parsed.get('targetAgent', 'shangshu')
     if not prompt:
         prompt = parsed.get('prompt', request_text)
-    if target_agent not in AUTOMATION_ALLOWED_AGENTS:
-        target_agent = 'shangshu'
+    target_agent = _normalize_automation_agent(target_agent) or 'shangshu'
+    normalized_code_path = _normalize_absolute_code_path(code_path)
+    if normalized_code_path is None:
+        return {'ok': False, 'error': '代码路径必须是绝对路径'}
 
     data = _load_automation_data()
     task = {
         'id': 'AUTO-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(uuid.uuid4().hex[:4]),
         'title': title,
         'requestText': request_text,
+        'codePath': normalized_code_path or '',
         'scheduleExpr': str(schedule_expr or '').strip(),
         'targetAgent': target_agent,
         'targetSession': str(target_session or '').strip(),
@@ -2051,6 +2410,10 @@ def automation_create_task(title, request_text, schedule_expr='', target_agent='
         'updatedAt': now_iso(),
         'lastRunAt': '',
         'logs': [],
+        'feedbackDocPath': '',
+        'experienceDocPath': '',
+        'docsReadyAt': '',
+        'logStatus': '未初始化（点击保存后创建）',
     }
     data['tasks'].append(task)
     _save_automation_data(data)
@@ -2068,15 +2431,39 @@ def automation_update_task(task_id, patch):
         return {'ok': False, 'error': 'task not found'}
     if not isinstance(patch, dict):
         patch = {}
-    for k in ('title', 'requestText', 'scheduleExpr', 'targetSession', 'prompt', 'statusFeedback', 'experienceFeedback'):
+    if 'codePath' in patch and patch.get('codePath') is not None:
+        normalized_code_path = _normalize_absolute_code_path(patch.get('codePath'))
+        if normalized_code_path is None:
+            return {'ok': False, 'error': '代码路径必须是绝对路径'}
+        patch = dict(patch)
+        patch['codePath'] = normalized_code_path
+    if 'feedbackDocPath' in patch and patch.get('feedbackDocPath') is not None:
+        normalized_feedback_path = _normalize_optional_absolute_path(patch.get('feedbackDocPath'))
+        if normalized_feedback_path is None:
+            return {'ok': False, 'error': '反馈日志路径必须是绝对路径'}
+        patch = dict(patch)
+        patch['feedbackDocPath'] = normalized_feedback_path
+    if 'experienceDocPath' in patch and patch.get('experienceDocPath') is not None:
+        normalized_experience_path = _normalize_optional_absolute_path(patch.get('experienceDocPath'))
+        if normalized_experience_path is None:
+            return {'ok': False, 'error': '经验日志路径必须是绝对路径'}
+        patch = dict(patch)
+        patch['experienceDocPath'] = normalized_experience_path
+    for k in ('title', 'requestText', 'codePath', 'feedbackDocPath', 'experienceDocPath', 'scheduleExpr', 'targetSession', 'prompt', 'statusFeedback', 'experienceFeedback'):
         if k in patch and patch[k] is not None:
             t[k] = str(patch[k]).strip()
     if 'enabled' in patch:
         t['enabled'] = bool(patch.get('enabled'))
     if 'targetAgent' in patch and patch.get('targetAgent') is not None:
-        ag = str(patch.get('targetAgent')).strip()
-        if ag in AUTOMATION_ALLOWED_AGENTS:
-            t['targetAgent'] = ag
+        ag = _normalize_automation_agent(patch.get('targetAgent'))
+        if not ag:
+            allow = ', '.join(sorted(AUTOMATION_ALLOWED_AGENTS))
+            invalid = str(patch.get('targetAgent'))
+            return {'ok': False, 'error': f'打工人无效：{invalid}. 可用值：{allow}'}
+        t['targetAgent'] = ag
+    # 约定：在点击保存时自动创建反馈/经验文档
+    _ensure_automation_docs(t)
+    t.update(_automation_build_log_status(t))
     t['updatedAt'] = now_iso()
     _save_automation_data(data)
     return {'ok': True, 'task': t}
@@ -2097,7 +2484,7 @@ def automation_delete_task(task_id):
     return {'ok': True, 'task': removed}
 
 
-def automation_run_task(task_id, status_feedback='', experience_feedback=''):
+def automation_run_task(task_id, status_feedback='', experience_feedback='', trigger='manual'):
     tid = str(task_id or '').strip()
     if not tid:
         return {'ok': False, 'error': 'taskId required'}
@@ -2105,23 +2492,545 @@ def automation_run_task(task_id, status_feedback='', experience_feedback=''):
     t = next((x for x in data.get('tasks', []) if str(x.get('id') or '') == tid), None)
     if not t:
         return {'ok': False, 'error': 'task not found'}
-    run_at = now_iso()
+    run_started_at = now_iso()
+    run_trigger = str(trigger or 'manual').strip() or 'manual'
+    run_result = 'manual_run'
+    run_raw = ''
+    run_file = ''
+    run_worker = str(t.get('targetAgent') or '').strip() or 'unknown'
+    run_finished_at = ''
+    run_status_from_logs = ''
+    run_log_id = f"run-{datetime.datetime.now():%Y%m%d%H%M%S}-{uuid.uuid4().hex[:8]}"
+
+    # 先写入 running，确保执行中状态可被前端实时看到
+    t_logs = t.get('logs') if isinstance(t.get('logs'), list) else []
+    running_row = {
+        'id': run_log_id,
+        'startAt': run_started_at,
+        'endAt': '',
+        'at': run_started_at,
+        'statusFeedback': '执行请求已发出，等待执行结果...',
+        'experienceFeedback': '',
+        'result': 'running',
+        'execStatus': '执行中',
+        'worker': run_worker,
+        'trigger': run_trigger,
+        'runFile': '',
+    }
+    t_logs.append(running_row)
+    t['logs'] = t_logs[-50:]
+    t['updatedAt'] = run_started_at
+    _save_automation_data(data)
+
     if status_feedback is not None:
         t['statusFeedback'] = str(status_feedback).strip()
     if experience_feedback is not None:
         t['experienceFeedback'] = str(experience_feedback).strip()
+
+    if str(t.get('targetAgent') or '').strip() == 'codex':
+        codex_exec = _automation_execute_codex_task(t)
+        run_result = codex_exec.get('result', 'codex_run')
+        run_raw = str(codex_exec.get('raw') or '').strip()
+        run_file = str(codex_exec.get('run_file') or '').strip()
+        t['statusFeedback'] = str(codex_exec.get('status_feedback') or '').strip()
+        t['experienceFeedback'] = str(codex_exec.get('experience_feedback') or '').strip()
+        meta_from_codex = _automation_extract_exec_meta_from_text(t.get('statusFeedback', ''))
+        meta_from_feedback = _automation_extract_exec_meta_from_feedback_doc(t)
+        run_finished_at = str(meta_from_codex.get('endAt') or '').strip() or str(meta_from_feedback.get('endAt') or '').strip()
+        run_status_from_logs = str(meta_from_feedback.get('status') or '').strip() or str(meta_from_codex.get('status') or '').strip()
+        if not codex_exec.get('ok'):
+            # 失败也要落日志，便于复盘；并将 API 返回为失败态
+            run_result = 'codex_error'
+    else:
+        agent_exec = _automation_execute_agent_task(t)
+        run_result = agent_exec.get('result', 'agent_run')
+        run_raw = str(agent_exec.get('raw') or '').strip()
+        run_file = str(agent_exec.get('run_file') or '').strip()
+        t['statusFeedback'] = str(agent_exec.get('status_feedback') or '').strip()
+        t['experienceFeedback'] = str(agent_exec.get('experience_feedback') or '').strip()
+        meta_from_agent = _automation_extract_exec_meta_from_text(t.get('statusFeedback', ''))
+        meta_from_feedback = _automation_extract_exec_meta_from_feedback_doc(t)
+        run_finished_at = str(meta_from_agent.get('endAt') or '').strip() or str(meta_from_feedback.get('endAt') or '').strip()
+        run_status_from_logs = str(meta_from_feedback.get('status') or '').strip() or str(meta_from_agent.get('status') or '').strip()
+        if not agent_exec.get('ok'):
+            run_result = 'agent_error'
+
+    run_at = run_finished_at or now_iso()
+    start_dt = _automation_parse_iso_to_local(run_started_at)
+    end_dt = _automation_parse_iso_to_local(run_at)
+    if start_dt and end_dt and end_dt < start_dt:
+        # 避免出现“结束时间早于开始时间”的脏记录
+        run_at = now_iso()
+    run_exec_status = _automation_pick_exec_status(run_result, t.get('statusFeedback', ''))
+    if run_status_from_logs:
+        run_exec_status = _automation_normalize_exec_status(run_status_from_logs, fallback=run_exec_status)
     t['lastRunAt'] = run_at
-    t['updatedAt'] = run_at
+    t['updatedAt'] = now_iso()
+
     t_logs = t.get('logs') if isinstance(t.get('logs'), list) else []
-    t_logs.append({
+    idx = next((i for i, x in enumerate(t_logs) if str((x or {}).get('id') or '') == run_log_id), -1)
+    final_row = {
+        'id': run_log_id,
+        'startAt': run_started_at,
+        'endAt': run_at,
         'at': run_at,
         'statusFeedback': t.get('statusFeedback', ''),
         'experienceFeedback': t.get('experienceFeedback', ''),
-        'result': 'manual_run',
-    })
+        'result': run_result,
+        'execStatus': run_exec_status,
+        'worker': run_worker,
+        'trigger': run_trigger,
+        'runFile': run_file,
+    }
+    if idx >= 0:
+        t_logs[idx] = final_row
+    else:
+        t_logs.append(final_row)
     t['logs'] = t_logs[-50:]
+    _automation_append_run_docs(
+        t,
+        run_at=run_at,
+        result=run_result,
+        status_feedback=t.get('statusFeedback', ''),
+        experience_feedback=t.get('experienceFeedback', ''),
+        run_id=run_log_id,
+        run_started_at=run_started_at,
+        exec_status=run_exec_status,
+        trigger=run_trigger,
+        worker=run_worker,
+    )
+    _automation_dedupe_experience_doc(t)
+    t.update(_automation_build_log_status(t))
     _save_automation_data(data)
-    return {'ok': True, 'task': t}
+    if run_result in {'codex_error', 'agent_error'}:
+        return {'ok': False, 'error': t.get('statusFeedback') or '执行失败', 'task': t, 'raw': run_raw}
+    return {'ok': True, 'task': t, 'raw': run_raw}
+
+
+def automation_get_task_docs(task_id):
+    tid = str(task_id or '').strip()
+    if not tid:
+        return {'ok': False, 'error': 'taskId required'}
+    data = _load_automation_data()
+    t = next((x for x in data.get('tasks', []) if str(x.get('id') or '') == tid), None)
+    if not t:
+        return {'ok': False, 'error': 'task not found'}
+    if str(t.get('targetAgent') or '').strip().lower() == 'codex':
+        _automation_cleanup_feedback_doc_for_codex(t)
+    _automation_dedupe_experience_doc(t)
+    status_meta = _automation_build_log_status(t)
+    feedback_path, experience_path = _automation_resolve_doc_paths(t)
+
+    def _read_text(p):
+        try:
+            if not p.exists():
+                return ''
+            return p.read_text(encoding='utf-8', errors='replace')[:120000]
+        except Exception:
+            return ''
+
+    return {
+        'ok': True,
+        'taskId': tid,
+        'logStatus': status_meta.get('logStatus', ''),
+        'feedbackDocPath': status_meta.get('feedbackDocPath', ''),
+        'experienceDocPath': status_meta.get('experienceDocPath', ''),
+        'feedbackContent': _read_text(feedback_path),
+        'experienceContent': _read_text(experience_path),
+    }
+
+
+def automation_save_task_docs(task_id, feedback_content=None, experience_content=None):
+    tid = str(task_id or '').strip()
+    if not tid:
+        return {'ok': False, 'error': 'taskId required'}
+    data = _load_automation_data()
+    t = next((x for x in data.get('tasks', []) if str(x.get('id') or '') == tid), None)
+    if not t:
+        return {'ok': False, 'error': 'task not found'}
+    ensured = _ensure_automation_docs(t)
+    feedback_path = ensured['feedback_path']
+    experience_path = ensured['experience_path']
+
+    if feedback_content is not None:
+        text = str(feedback_content)
+        if len(text) > 500000:
+            return {'ok': False, 'error': '反馈日志过长（最多 500000 字符）'}
+        feedback_path.write_text(text, encoding='utf-8')
+        if str(t.get('targetAgent') or '').strip().lower() == 'codex':
+            _automation_cleanup_feedback_doc_for_codex(t)
+
+    if experience_content is not None:
+        text = str(experience_content)
+        if len(text) > 500000:
+            return {'ok': False, 'error': '经验日志过长（最多 500000 字符）'}
+        experience_path.write_text(text, encoding='utf-8')
+        _automation_dedupe_experience_doc(t)
+
+    t.update(_automation_build_log_status(t))
+    t['updatedAt'] = now_iso()
+    _save_automation_data(data)
+    return {
+        'ok': True,
+        'taskId': tid,
+        'feedbackDocPath': t.get('feedbackDocPath', ''),
+        'experienceDocPath': t.get('experienceDocPath', ''),
+        'logStatus': t.get('logStatus', ''),
+    }
+
+
+def automation_tick_due_tasks(now_local=None):
+    data = _load_automation_data()
+    tasks = data.get('tasks', []) if isinstance(data, dict) else []
+    if not isinstance(tasks, list):
+        tasks = []
+    now_dt = now_local if isinstance(now_local, datetime.datetime) else _automation_local_now()
+    triggered = []
+    errors = []
+
+    for t in tasks:
+        if not isinstance(t, dict):
+            continue
+        if not bool(t.get('enabled', False)):
+            continue
+        expr = str(t.get('scheduleExpr') or '').strip()
+        if not expr:
+            continue
+        last_local = _automation_parse_iso_to_local(t.get('lastRunAt'))
+        if not _automation_is_due(expr, now_dt, last_local):
+            continue
+        task_id = str(t.get('id') or '').strip()
+        if not task_id:
+            continue
+        result = automation_run_task(task_id, trigger='cron')
+        if result.get('ok'):
+            triggered.append({'taskId': task_id, 'title': t.get('title', ''), 'result': 'ok'})
+        else:
+            errors.append({
+                'taskId': task_id,
+                'title': t.get('title', ''),
+                'error': str(result.get('error') or 'run failed')[:300]
+            })
+
+    return {
+        'ok': True,
+        'now': now_dt.isoformat(),
+        'triggeredCount': len(triggered),
+        'errorCount': len(errors),
+        'triggered': triggered[:30],
+        'errors': errors[:30],
+    }
+
+
+def _automation_local_now():
+    # 调度语义按本机本地时间计算（与前端显示一致）
+    return datetime.datetime.now()
+
+
+def _automation_parse_iso_to_local(iso_text):
+    raw = str(iso_text or '').strip()
+    if not raw:
+        return None
+    try:
+        if raw.endswith('Z'):
+            dt = datetime.datetime.fromisoformat(raw.replace('Z', '+00:00'))
+            return dt.astimezone().replace(tzinfo=None)
+        dt = datetime.datetime.fromisoformat(raw)
+        if dt.tzinfo is not None:
+            return dt.astimezone().replace(tzinfo=None)
+        return dt
+    except Exception:
+        return None
+
+
+def _automation_same_minute(a, b):
+    if not a or not b:
+        return False
+    return (
+        a.year == b.year and a.month == b.month and a.day == b.day and
+        a.hour == b.hour and a.minute == b.minute
+    )
+
+
+def _automation_is_due(schedule_expr, now_local, last_run_local):
+    expr = str(schedule_expr or '').strip()
+    if not expr:
+        return False
+    if _automation_same_minute(now_local, last_run_local):
+        return False
+
+    m = re.search(r'每\s*(\d+)\s*分钟', expr)
+    if m:
+        interval = max(1, int(m.group(1)))
+        return now_local.minute % interval == 0
+
+    m = re.search(r'每\s*(\d+)\s*小时', expr)
+    if m:
+        interval = max(1, int(m.group(1)))
+        return now_local.minute == 0 and (now_local.hour % interval == 0)
+    if '每小时' in expr or '每 1 小时' in expr:
+        return now_local.minute == 0
+
+    m = re.search(r'每(?:日|天)\s*([01]?\d|2[0-3])[:：]([0-5]\d)', expr)
+    if m:
+        hh = int(m.group(1))
+        mm = int(m.group(2))
+        return now_local.hour == hh and now_local.minute == mm
+
+    m = re.search(r'每周([一二三四五六日天])\s*([01]?\d|2[0-3])[:：]([0-5]\d)', expr)
+    if m:
+        day_map = {'一': 0, '二': 1, '三': 2, '四': 3, '五': 4, '六': 5, '日': 6, '天': 6}
+        hh = int(m.group(2))
+        mm = int(m.group(3))
+        return now_local.weekday() == day_map.get(m.group(1), -1) and now_local.hour == hh and now_local.minute == mm
+
+    m = re.search(r'每工作日\s*([01]?\d|2[0-3])[:：]([0-5]\d)', expr)
+    if m:
+        hh = int(m.group(1))
+        mm = int(m.group(2))
+        return now_local.weekday() < 5 and now_local.hour == hh and now_local.minute == mm
+
+    return False
+
+
+def _automation_build_codex_prompt(task):
+    feedback_path, experience_path = _automation_resolve_doc_paths(task)
+    code_path = str(task.get('codePath') or '').strip() or str((BASE.parent).resolve())
+    title = str(task.get('title') or '未命名任务').strip() or '未命名任务'
+    request_text = str(task.get('requestText') or '').strip()
+    prompt_text = str(task.get('prompt') or '').strip()
+    target_session = str(task.get('targetSession') or '').strip()
+    schedule_expr = str(task.get('scheduleExpr') or '').strip()
+    return (
+        "你是 Codex 自动化执行代理。请在当前代码仓中执行以下定时任务，并输出可审计结果。\n"
+        f"任务ID: {str(task.get('id') or '').strip()}\n"
+        f"任务标题: {title}\n"
+        f"触发规则: {schedule_expr or '-'}\n"
+        f"代码路径: {code_path}\n"
+        f"目标会话ID: {target_session or '（未指定）'}\n"
+        f"反馈日志路径: {feedback_path}\n"
+        f"经验日志路径: {experience_path}\n\n"
+        f"任务描述:\n{request_text or '（空）'}\n\n"
+        f"执行提示词:\n{prompt_text or '（空）'}\n\n"
+        "执行要求：\n"
+        "1) 按提示词完成任务。\n"
+        "2) 给出执行结果摘要、关键改动、验证结果。\n"
+        "3) 若失败，明确失败原因与下一步建议。\n"
+        "4) 必须写入结构化日志，便于系统解析。\n\n"
+        "【反馈日志写入协议（必须遵守）】\n"
+        "A. 执行开始时，先写“开始记录”区块，字段名必须逐字一致：\n"
+        "- 执行开始时间: YYYY-MM-DDTHH:MM:SS+08:00\n"
+        "- 任务ID: ...\n"
+        "- 任务标题: ...\n"
+        "- 执行方式: manual_run 或 cron_run\n\n"
+        "B. 每处理完一个任务，写“任务处理记录”区块，字段名必须逐字一致：\n"
+        "- 问题ID: ...\n"
+        "- 处理结果: 完成 或 阻塞\n"
+        "- 改动文件: 逗号分隔路径\n"
+        "- 验证结果: 通过 或 失败（含原因）\n\n"
+        "C. 全部流程结束时，必须写“任务终结记录”区块，字段名必须逐字一致：\n"
+        "- 执行结束时间: YYYY-MM-DDTHH:MM:SS+08:00\n"
+        "- 任务终结状态: 执行完成 或 前置跳过 或 空转 或 执行失败\n"
+        "- 终结说明: 一句话说明结论\n"
+        "- 未完成项: 无 或 列出问题ID\n\n"
+        "D. 反馈日志禁止写入以下内容：\n"
+        "- 标题建议 / 执行要点 / 风险与回执建议 / 长段推理正文\n"
+        "- 经验反馈摘要\n"
+        "- 与结构化字段无关的自由发挥段落\n\n"
+        "【经验日志写入协议（必须遵守）】\n"
+        "写“本次经验”区块，字段名必须逐字一致：\n"
+        "- 执行结束时间: YYYY-MM-DDTHH:MM:SS+08:00\n"
+        "- 成功做法: ...\n"
+        "- 失败教训: ...\n"
+        "- 下次借鉴: ...\n\n"
+        "注意：\n"
+        "- 时间必须带秒，优先使用 +08:00 时区。\n"
+        "- 字段名必须保留，不要改写同义词。\n"
+        "- 若无法执行，仍需写“任务终结记录”，并给出“任务终结状态”。\n"
+    )
+
+
+def _automation_build_agent_prompt(task):
+    feedback_path, experience_path = _automation_resolve_doc_paths(task)
+    code_path = str(task.get('codePath') or '').strip() or str((BASE.parent).resolve())
+    title = str(task.get('title') or '未命名任务').strip() or '未命名任务'
+    request_text = str(task.get('requestText') or '').strip()
+    prompt_text = str(task.get('prompt') or '').strip()
+    target_session = str(task.get('targetSession') or '').strip()
+    return (
+        "你是自动化执行 Agent，请执行以下定时任务。\n"
+        f"任务ID: {str(task.get('id') or '').strip()}\n"
+        f"任务标题: {title}\n"
+        f"代码路径: {code_path}\n"
+        f"目标会话ID: {target_session or '（未指定）'}\n"
+        f"反馈日志路径: {feedback_path}\n"
+        f"经验日志路径: {experience_path}\n\n"
+        f"任务描述:\n{request_text or '（空）'}\n\n"
+        f"执行提示词:\n{prompt_text or '（空）'}\n\n"
+        "要求：\n"
+        "1) 必须按给定代码路径开展工作。\n"
+        "2) 反馈日志写入“开始记录/任务终结记录”。\n"
+        "3) 经验日志写入“本次经验”。\n"
+        "4) 输出简要执行回执，包含执行状态与关键结论。\n"
+    )
+
+
+def _automation_execute_codex_task(task):
+    task_id = str(task.get('id') or '').strip() or f"AUTO-{datetime.datetime.now():%Y%m%d%H%M%S}"
+    prompt = _automation_build_codex_prompt(task)
+    delegate = _run_codex_delegate_sync(
+        task_id=f"{task_id}-cron-{datetime.datetime.now():%Y%m%d%H%M%S}",
+        prompt=prompt,
+        agent_id='codex',
+        timeout_sec=600,
+    )
+    if not delegate.get('ok'):
+        return {
+            'ok': False,
+            'result': 'codex_error',
+            'status_feedback': f"Codex 执行失败：{str(delegate.get('error') or 'unknown')[:280]}",
+            'experience_feedback': '',
+            'raw': str(delegate.get('raw') or '')[:2000],
+            'run_file': str(delegate.get('runFile') or '').strip(),
+        }
+    final_text = str(delegate.get('raw') or '').strip()
+    short = final_text[:1200] if final_text else 'Codex 已执行完成，但未返回文本。'
+    return {
+        'ok': True,
+        'result': 'codex_run',
+        'status_feedback': short,
+        'experience_feedback': short,
+        'raw': final_text[:4000],
+        'run_file': str(delegate.get('runFile') or '').strip(),
+    }
+
+
+def _automation_execute_agent_task(task):
+    agent_id = str(task.get('targetAgent') or '').strip()
+    if not agent_id or agent_id == 'codex':
+        return {
+            'ok': False,
+            'result': 'agent_error',
+            'status_feedback': '未指定有效打工人',
+            'experience_feedback': '',
+            'raw': '',
+            'run_file': '',
+        }
+    prompt = _automation_build_agent_prompt(task)
+    session_id = str(task.get('targetSession') or '').strip()
+    ai = _run_agent_sync(agent_id, prompt, timeout_sec=600, session_id=session_id)
+    if not ai.get('ok'):
+        return {
+            'ok': False,
+            'result': 'agent_error',
+            'status_feedback': f"{agent_id} 执行失败：{str(ai.get('error') or 'unknown')[:280]}",
+            'experience_feedback': '',
+            'raw': str(ai.get('raw') or '')[:2000],
+            'run_file': '',
+        }
+    final_text = str(ai.get('raw') or '').strip()
+    short = final_text[:1200] if final_text else f'{agent_id} 已执行完成，但未返回文本。'
+    return {
+        'ok': True,
+        'result': 'agent_run',
+        'status_feedback': short,
+        'experience_feedback': short,
+        'raw': final_text[:4000],
+        'run_file': '',
+    }
+
+
+def _automation_try_parse_time_to_iso(raw_text):
+    raw = str(raw_text or '').strip()
+    if not raw:
+        return ''
+    text = raw
+    if re.match(r'^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}', text):
+        text = text.replace(' ', 'T', 1)
+    if re.match(r'.*[+-]\d{4}$', text):
+        text = text[:-5] + text[-5:-2] + ':' + text[-2:]
+    try:
+        dt = datetime.datetime.fromisoformat(text.replace('Z', '+00:00'))
+    except Exception:
+        return ''
+    if dt.tzinfo is None:
+        # 无时区按本地时间处理
+        return dt.isoformat()
+    return dt.astimezone(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
+
+
+def _automation_extract_exec_meta_from_text(text):
+    raw = str(text or '')
+    if not raw:
+        return {'endAt': '', 'status': ''}
+
+    status = ''
+    matches = list(re.finditer(
+        r'^[ \t>*-]*?(?:任务终结状态|执行状态|终结状态)\s*[:：]\s*([^\n\r]+)\s*$',
+        raw,
+        flags=re.IGNORECASE | re.MULTILINE
+    ))
+    if matches:
+        status_line = matches[-1].group(1).strip().strip('。.;；')
+        status = _automation_normalize_exec_status(status_line, fallback='')
+
+    end_at = ''
+    end_matches = list(re.finditer(
+        r'^[ \t>*-]*?执行结束时间\s*[:：]\s*([^\n\r]+)\s*$',
+        raw,
+        flags=re.IGNORECASE | re.MULTILINE
+    ))
+    if end_matches:
+        end_line = end_matches[-1].group(1).strip().strip('。.;；')
+        # 只取该字段的第一个时间串，避免后续说明文本污染
+        ts = re.search(r'(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)', end_line)
+        if ts:
+            end_at = _automation_try_parse_time_to_iso(ts.group(1))
+
+    return {'endAt': end_at, 'status': status}
+
+
+def _automation_extract_exec_meta_from_feedback_doc(task):
+    feedback_path, _ = _automation_resolve_doc_paths(task)
+    try:
+        if not feedback_path.exists():
+            return {'endAt': '', 'status': ''}
+        text = feedback_path.read_text(encoding='utf-8', errors='replace')
+    except Exception:
+        return {'endAt': '', 'status': ''}
+    return _automation_extract_exec_meta_from_text(text)
+
+
+def _automation_normalize_exec_status(status_text, fallback='执行成功'):
+    raw = str(status_text or '').strip()
+    if not raw:
+        return str(fallback or '执行成功')
+    s = raw.replace('：', ':').strip()
+    if '前置' in s and ('跳过' in s or '终止' in s):
+        return '前置跳过'
+    if s in {'执行成功', '执行完成', '完成'}:
+        return '执行成功'
+    if s in {'执行失败', '失败'}:
+        return '执行失败'
+    if s in {'执行中', '处理中'}:
+        return '执行中'
+    if s in {'空转'}:
+        return '空转'
+    if s in {'前置跳过'}:
+        return '前置跳过'
+    return s
+
+
+def _automation_pick_exec_status(result, status_feedback):
+    result_s = str(result or '').strip().lower()
+    fb = str(status_feedback or '').strip()
+    if result_s in {'running', 'in_progress'}:
+        return '执行中'
+    if result_s in {'codex_error', 'error', 'failed', 'fail'}:
+        return '执行失败'
+    if ('前置' in fb and ('跳过' in fb or '终止' in fb)) or ('本轮应终止' in fb) or ('前置校验' in fb and '终止' in fb):
+        return '前置跳过'
+    return '执行成功'
 
 
 def _load_agent_isolation_registry():
@@ -6911,6 +7820,12 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(pm_list_projects())
         elif p == '/api/automation/tasks':
             self.send_json(automation_list_tasks())
+        elif p.startswith('/api/automation/task-docs/'):
+            task_id = p.replace('/api/automation/task-docs/', '').strip()
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'task_id required'}, 400)
+            else:
+                self.send_json(automation_get_task_docs(task_id))
         elif p == '/api/jzg/projects':
             self.send_json(jzg_list_projects())
         elif p.startswith('/api/learning-plan/'):
@@ -7132,6 +8047,7 @@ class Handler(BaseHTTPRequestHandler):
                 target_agent=body.get('targetAgent', 'shangshu'),
                 target_session=body.get('targetSession', ''),
                 prompt=body.get('prompt', ''),
+                code_path=body.get('codePath', ''),
             ))
             return
 
@@ -7158,8 +8074,24 @@ class Handler(BaseHTTPRequestHandler):
                 return
             self.send_json(automation_run_task(
                 task_id,
-                status_feedback=body.get('statusFeedback', ''),
-                experience_feedback=body.get('experienceFeedback', ''),
+                status_feedback=body['statusFeedback'] if 'statusFeedback' in body else None,
+                experience_feedback=body['experienceFeedback'] if 'experienceFeedback' in body else None,
+            ))
+            return
+
+        if p == '/api/automation/tick':
+            self.send_json(automation_tick_due_tasks())
+            return
+
+        if p == '/api/automation/task-docs-save':
+            task_id = body.get('taskId', '').strip()
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'taskId required'}, 400)
+                return
+            self.send_json(automation_save_task_docs(
+                task_id,
+                feedback_content=body.get('feedbackContent', None),
+                experience_content=body.get('experienceContent', None),
             ))
             return
 

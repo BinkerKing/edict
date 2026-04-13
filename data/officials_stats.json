@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-12 21:09:43",
+  "generatedAt": "2026-04-13 11:25:47",
   "officials": [
     {
       "id": "zhongshu",
@@ -200,12 +200,12 @@
       "cost_cny": 0.07,
       "last_active": "2026-04-12 21:04",
       "heartbeat": {
-        "status": "active",
-        "label": "🟢 活跃 4分钟前",
-        "ageSec": 276
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 1,
+      "tasks_active": 0,
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,
@@ -265,7 +265,7 @@
         "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 0,
+      "tasks_active": 1,
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,

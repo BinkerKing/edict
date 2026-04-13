@@ -91,6 +91,10 @@ while true; do
   safe_run "$SCRIPT_DIR/sync_officials_stats.py"
   safe_run "$SCRIPT_DIR/refresh_live_data.py"
 
+  # 定时任务触发：按规则扫描并执行到点任务（含 codex 打工人）
+  curl -s -X POST "http://127.0.0.1:${DASHBOARD_PORT}/api/automation/tick" \
+    -H 'Content-Type: application/json' -d '{}' >> "$LOG" 2>&1 || true
+
   # 定期巡检：检测卡住的任务并自动重试
   SCAN_COUNTER=$((SCAN_COUNTER + INTERVAL))
   if (( SCAN_COUNTER >= SCAN_INTERVAL )); then
