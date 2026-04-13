@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13 11:59:10",
+  "generatedAt": "2026-04-13 12:14:20",
   "taskSource": "tasks_source.json",
   "officials": [
     {
@@ -883,7 +883,7 @@
         "sessionKey": "agent:rnd__pm__version-generate__bd197492:main",
         "sessionId": "8e805ac2-7f02-4420-9fdd-17f56f87989a",
         "updatedAt": 1776050367435,
-        "ageMs": 2382117,
+        "ageMs": 3292167,
         "systemSent": false,
         "abortedLastRun": false,
         "inputTokens": 20971,
@@ -896,8 +896,8 @@
       },
       "heartbeat": {
         "status": "stalled",
-        "label": "🔴 已停滞 39分钟",
-        "ageSec": 2382
+        "label": "🔴 已停滞 54分钟",
+        "ageSec": 3292
       }
     }
   ],
@@ -919,8 +919,8 @@
   },
   "syncStatus": {
     "ok": true,
-    "lastSyncAt": "2026-04-13 11:59:09",
-    "durationMs": 22,
+    "lastSyncAt": "2026-04-13 12:14:19",
+    "durationMs": 19,
     "source": "openclaw_runtime_sessions",
     "recordCount": 2,
     "scannedSessionFiles": 11,
@@ -929,7 +929,7 @@
   },
   "health": {
     "syncOk": true,
-    "syncLatencyMs": 22,
+    "syncLatencyMs": 19,
     "missingFieldCount": 0
   }
 }
