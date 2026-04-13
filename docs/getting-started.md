@@ -73,7 +73,7 @@ open http://127.0.0.1:7891
 
 > 💡 **兼容旧方式**：也可以分别手动运行 `bash scripts/run_loop.sh` 和 `python3 dashboard/server.py`，但建议优先使用统一脚本，避免进程状态不一致。
 
-> 💡 **看板即开即用**：`server.py` 内嵌 `dashboard/dashboard.html`，无需额外构建。Docker 镜像包含预构建的 React 前端。
+> 💡 **看板即开即用**：`server.py` 直接服务 `dashboard/dashboard.html`，无需额外构建步骤。
 
 ## 第五步：发送第一道旨意
 

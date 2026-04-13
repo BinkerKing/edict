@@ -231,27 +231,22 @@ function Setup-Visibility {
     }
 }
 
-# ── Step 4: 构建前端 ──
+# ── Step 4: 检查看板资源 ──
 function Build-Frontend {
-    Info "构建 React 前端..."
-    $node = Get-Command node -ErrorAction SilentlyContinue
-    if (-not $node) {
-        Warn "未找到 node，跳过前端构建。"
-        Warn "请安装 Node.js 18+ 后运行: cd edict\frontend && npm install && npm run build"
+    Info "检查看板资源..."
+    $dashboardHtml = Join-Path $REPO_DIR "dashboard\dashboard.html"
+    if (-not (Test-Path $dashboardHtml)) {
+        Warn "未找到 dashboard\dashboard.html，请检查仓库完整性"
         return
     }
-    $pkgJson = Join-Path $REPO_DIR "edict\frontend\package.json"
-    if (Test-Path $pkgJson) {
-        Push-Location (Join-Path $REPO_DIR "edict\frontend")
-        npm install --silent 2>$null
-        npm run build 2>$null
-        Pop-Location
-        $indexHtml = Join-Path $REPO_DIR "dashboard\dist\index.html"
-        if (Test-Path $indexHtml) {
-            Log "前端构建完成: dashboard\dist\"
-        } else {
-            Warn "前端构建可能失败，请手动检查"
-        }
+
+    Log "看板主页面已就绪: dashboard\dashboard.html"
+
+    $indexHtml = Join-Path $REPO_DIR "dashboard\dist\index.html"
+    if (Test-Path $indexHtml) {
+        Log "检测到可选静态资源: dashboard\dist\"
+    } else {
+        Info "未检测到 dashboard\dist，将直接使用 dashboard\dashboard.html"
     }
 }
 

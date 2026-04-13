@@ -361,28 +361,21 @@ sync_auth() {
   info "来源: $MAIN_AUTH"
 }
 
-# ── Step 4: 构建前端 ──────────────────────────────────────────
+# ── Step 4: 检查看板资源 ───────────────────────────────────────
 build_frontend() {
-  info "构建 React 前端..."
+  info "检查看板资源..."
 
-  if ! command -v node &>/dev/null; then
-    warn "未找到 node，跳过前端构建。看板将使用预构建版本（如果存在）"
-    warn "请安装 Node.js 18+ 后运行: cd edict/frontend && npm install && npm run build"
+  if [ -f "$REPO_DIR/dashboard/dashboard.html" ]; then
+    log "看板主页面已就绪: dashboard/dashboard.html"
+  else
+    warn "未找到 dashboard/dashboard.html，请检查仓库完整性"
     return
   fi
 
-  if [ -f "$REPO_DIR/edict/frontend/package.json" ]; then
-    cd "$REPO_DIR/edict/frontend"
-    npm install --silent 2>/dev/null || npm install
-    npm run build 2>/dev/null
-    cd "$REPO_DIR"
-    if [ -f "$REPO_DIR/dashboard/dist/index.html" ]; then
-      log "前端构建完成: dashboard/dist/"
-    else
-      warn "前端构建可能失败，请手动检查"
-    fi
+  if [ -f "$REPO_DIR/dashboard/dist/index.html" ]; then
+    log "检测到可选静态资源: dashboard/dist/"
   else
-    warn "未找到 edict/frontend/package.json，跳过前端构建"
+    info "未检测到 dashboard/dist，系统将直接使用 dashboard/dashboard.html"
   fi
 }
 
