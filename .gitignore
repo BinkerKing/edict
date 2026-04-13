@@ -2,6 +2,15 @@
 data/context_capsules/
 data/agent_isolation_registry.json
 data/agent_isolation_registry.json.lock
+data/**/*.lock
+data/**/*.backup.*
+data/**/automation_tasks.backup*
+data/codex_delegate/
+data/codex_delegate_context/
+data/regression-backup-*/
+data/cleanup-backup-*/
+data/tasks_source.backup-*
+data/live_status.backup-*
 
 # Logs
 *.log
