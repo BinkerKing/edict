@@ -1,97 +1,25 @@
 {
-  "generatedAt": "2026-04-13 12:16:21",
+  "generatedAt": "2026-04-15 23:43:57",
   "taskSource": "tasks_source.json",
   "officials": [
     {
-      "id": "zhongshu",
-      "label": "中书省",
-      "role": "中书令",
-      "emoji": "📜",
-      "rank": "正一品",
-      "model": "bailian-cn/qwen3-coder-plus",
-      "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
-      "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
-      "heartbeat": {
-        "status": "idle",
-        "label": "⚪ 待命",
-        "ageSec": null
-      },
-      "tasks_done": 0,
-      "tasks_active": 0,
-      "flow_participations": 6,
-      "participated_edicts": [
-        {
-          "id": "JJC-20260407-102939384",
-          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
-          "state": "Done"
-        }
-      ],
-      "merit_score": 12,
-      "merit_rank": 1
-    },
-    {
-      "id": "menxia",
-      "label": "门下省",
-      "role": "侍中",
-      "emoji": "🔍",
-      "rank": "正一品",
-      "model": "bailian-cn/qwen3-coder-plus",
-      "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
-      "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
-      "heartbeat": {
-        "status": "idle",
-        "label": "⚪ 待命",
-        "ageSec": null
-      },
-      "tasks_done": 0,
-      "tasks_active": 0,
-      "flow_participations": 4,
-      "participated_edicts": [
-        {
-          "id": "JJC-20260407-102939384",
-          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
-          "state": "Done"
-        }
-      ],
-      "merit_score": 8,
-      "merit_rank": 2
-    },
-    {
       "id": "taizi",
-      "label": "太子",
-      "role": "太子",
+      "label": "董事会",
+      "role": "秘书",
       "emoji": "🤴",
       "rank": "储君",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 2,
-      "tokens_in": 0,
-      "tokens_out": 0,
+      "sessions": 3,
+      "tokens_in": 17273,
+      "tokens_out": 114,
       "cache_read": 0,
       "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": "2026-04-12 14:45",
+      "tokens_total": 17387,
+      "messages": 1,
+      "cost_usd": 0.0535,
+      "cost_cny": 0.39,
+      "last_active": "2026-04-13 17:37",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -99,16 +27,10 @@
       },
       "tasks_done": 0,
       "tasks_active": 0,
-      "flow_participations": 1,
-      "participated_edicts": [
-        {
-          "id": "JJC-20260407-102939384",
-          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
-          "state": "Done"
-        }
-      ],
-      "merit_score": 4,
-      "merit_rank": 3
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 3,
+      "merit_rank": 1
     },
     {
       "id": "libu",
@@ -118,16 +40,16 @@
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
+      "sessions": 1,
+      "tokens_in": 1042,
+      "tokens_out": 252,
+      "cache_read": 24448,
       "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
+      "tokens_total": 1294,
+      "messages": 5,
+      "cost_usd": 0.0142,
+      "cost_cny": 0.1,
+      "last_active": "2026-04-13 20:07",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -143,44 +65,8 @@
           "state": "Done"
         }
       ],
-      "merit_score": 2,
-      "merit_rank": 4
-    },
-    {
-      "id": "hubu",
-      "label": "户部",
-      "role": "户部尚书",
-      "emoji": "💰",
-      "rank": "正二品",
-      "model": "bailian-cn/qwen3-coder-plus",
-      "model_short": "qwen3-coder-plus",
-      "sessions": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "cache_read": 0,
-      "cache_write": 0,
-      "tokens_total": 0,
-      "messages": 0,
-      "cost_usd": 0.0,
-      "cost_cny": 0.0,
-      "last_active": null,
-      "heartbeat": {
-        "status": "idle",
-        "label": "⚪ 待命",
-        "ageSec": null
-      },
-      "tasks_done": 0,
-      "tasks_active": 0,
-      "flow_participations": 1,
-      "participated_edicts": [
-        {
-          "id": "JJC-20260407-102939384",
-          "title": "给我做一个碳循环的计划，我体重86公斤，体脂23%，想减到1",
-          "state": "Done"
-        }
-      ],
-      "merit_score": 2,
-      "merit_rank": 5
+      "merit_score": 3,
+      "merit_rank": 2
     },
     {
       "id": "shangshu",
@@ -210,7 +96,7 @@
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,
-      "merit_rank": 6
+      "merit_rank": 3
     },
     {
       "id": "bingbu",
@@ -221,15 +107,15 @@
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
       "sessions": 1,
-      "tokens_in": 18199,
-      "tokens_out": 61,
-      "cache_read": 64,
+      "tokens_in": 18482,
+      "tokens_out": 324,
+      "cache_read": 0,
       "cache_write": 0,
-      "tokens_total": 18260,
-      "messages": 1,
-      "cost_usd": 0.0555,
-      "cost_cny": 0.4,
-      "last_active": "2026-04-12 18:55",
+      "tokens_total": 18806,
+      "messages": 3,
+      "cost_usd": 0.0603,
+      "cost_cny": 0.44,
+      "last_active": "2026-04-14 16:09",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
@@ -240,7 +126,7 @@
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,
-      "merit_rank": 7
+      "merit_rank": 4
     },
     {
       "id": "rnd",
@@ -251,32 +137,122 @@
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
       "sessions": 1,
-      "tokens_in": 19361,
-      "tokens_out": 1,
-      "cache_read": 64,
+      "tokens_in": 444,
+      "tokens_out": 184,
+      "cache_read": 25408,
       "cache_write": 0,
-      "tokens_total": 19362,
-      "messages": 4,
-      "cost_usd": 0.0581,
-      "cost_cny": 0.42,
-      "last_active": "2026-04-12 14:38",
+      "tokens_total": 628,
+      "messages": 27,
+      "cost_usd": 0.0117,
+      "cost_cny": 0.08,
+      "last_active": "2026-04-14 17:24",
       "heartbeat": {
         "status": "idle",
         "label": "⚪ 待命",
         "ageSec": null
       },
       "tasks_done": 0,
-      "tasks_active": 1,
+      "tasks_active": 0,
       "flow_participations": 0,
       "participated_edicts": [],
       "merit_score": 1,
+      "merit_rank": 5
+    },
+    {
+      "id": "zaochao",
+      "label": "情报处",
+      "role": "情报官",
+      "emoji": "📰",
+      "rank": "正三品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 1,
+      "tokens_in": 3966,
+      "tokens_out": 467,
+      "cache_read": 75008,
+      "cache_write": 0,
+      "tokens_total": 4433,
+      "messages": 217,
+      "cost_usd": 0.0414,
+      "cost_cny": 0.3,
+      "last_active": "2026-04-14 00:10",
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 1,
+      "merit_rank": 6
+    },
+    {
+      "id": "zhongshu",
+      "label": "战略研究部",
+      "role": "战略负责人",
+      "emoji": "📜",
+      "rank": "正一品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
+      "merit_rank": 7
+    },
+    {
+      "id": "menxia",
+      "label": "风险部",
+      "role": "合规",
+      "emoji": "🔍",
+      "rank": "正一品",
+      "model": "bailian-cn/qwen3-coder-plus",
+      "model_short": "qwen3-coder-plus",
+      "sessions": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "tokens_total": 0,
+      "messages": 0,
+      "cost_usd": 0.0,
+      "cost_cny": 0.0,
+      "last_active": null,
+      "heartbeat": {
+        "status": "idle",
+        "label": "⚪ 待命",
+        "ageSec": null
+      },
+      "tasks_done": 0,
+      "tasks_active": 0,
+      "flow_participations": 0,
+      "participated_edicts": [],
+      "merit_score": 0,
       "merit_rank": 8
     },
     {
-      "id": "xingbu",
-      "label": "刑部",
-      "role": "刑部尚书",
-      "emoji": "⚖️",
+      "id": "hubu",
+      "label": "金融部",
+      "role": "金融分析师",
+      "emoji": "💰",
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
@@ -303,10 +279,10 @@
       "merit_rank": 9
     },
     {
-      "id": "libu_hr",
-      "label": "吏部",
-      "role": "吏部尚书",
-      "emoji": "👔",
+      "id": "xingbu",
+      "label": "测试部",
+      "role": "测试员",
+      "emoji": "⚖️",
       "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
@@ -333,11 +309,11 @@
       "merit_rank": 10
     },
     {
-      "id": "zaochao",
-      "label": "钦天监",
-      "role": "朝报官",
-      "emoji": "📰",
-      "rank": "正三品",
+      "id": "libu_hr",
+      "label": "吏部",
+      "role": "吏部尚书",
+      "emoji": "👔",
+      "rank": "正二品",
       "model": "bailian-cn/qwen3-coder-plus",
       "model_short": "qwen3-coder-plus",
       "sessions": 0,
@@ -829,76 +805,6 @@
         "lastModified": null
       },
       "heartbeat": null
-    },
-    {
-      "id": "OC-rnd__pm__version-generate__bd197492-8e805ac2",
-      "title": "研发部会话",
-      "official": "研发总监",
-      "org": "研发部",
-      "state": "Review",
-      "now": "思考中: # 一人世界 - 版本更新日志",
-      "eta": "2026-04-13 11:19:27",
-      "block": "无",
-      "output": "/Users/binlian/.openclaw/agents/rnd__pm__version-generate__bd197492/sessions/8e805ac2-7f02-4420-9fdd-17f56f87989a.jsonl",
-      "flow": {
-        "draft": "agent=rnd__pm__version-generate__bd197492",
-        "review": "updatedAt=2026-04-13 11:19:27",
-        "dispatch": "sessionKey=agent:rnd__pm__version-generate__bd197492:main"
-      },
-      "ac": "来自 OpenClaw runtime sessions 的实时映射",
-      "activity": [
-        {
-          "at": "2026-04-13T03:19:27.393Z",
-          "kind": "assistant",
-          "text": "# 一人世界 - 版本更新日志"
-        },
-        {
-          "at": "2026-04-13T03:19:17.308Z",
-          "kind": "user",
-          "text": "User: [Mon 2026-04-13 11:19 GMT+8] 你是研发总监，负责输出版本更改清单。\n请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n要求：\n1) 输出 Markdown。\n2) 优..."
-        },
-        {
-          "at": "2026-04-10T17:51:21.383Z",
-          "kind": "assistant",
-          "text": "# 三省六部总控台 - 版本更新日志"
-        },
-        {
-          "at": "2026-04-10T17:51:19.293Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:51 GMT+8] 你是工部尚书，负责输出版本更改清单。\n请基于已完成的问题，生成一份简洁、可读的版本更新日志。\n要求：\n1) 输出 Markdown。\n2) 优..."
-        },
-        {
-          "at": "2026-04-10T17:47:15.093Z",
-          "kind": "assistant",
-          "text": "OK"
-        },
-        {
-          "at": "2026-04-10T17:47:12.648Z",
-          "kind": "user",
-          "text": "User: [Sat 2026-04-11 01:47 GMT+8] 请仅回复OK..."
-        }
-      ],
-      "sourceMeta": {
-        "agentId": "rnd__pm__version-generate__bd197492",
-        "sessionKey": "agent:rnd__pm__version-generate__bd197492:main",
-        "sessionId": "8e805ac2-7f02-4420-9fdd-17f56f87989a",
-        "updatedAt": 1776050367435,
-        "ageMs": 3413511,
-        "systemSent": false,
-        "abortedLastRun": false,
-        "inputTokens": 20971,
-        "outputTokens": 455,
-        "totalTokens": 21035
-      },
-      "outputMeta": {
-        "exists": true,
-        "lastModified": "2026-04-13 11:19:27"
-      },
-      "heartbeat": {
-        "status": "stalled",
-        "label": "🔴 已停滞 56分钟",
-        "ageSec": 3414
-      }
     }
   ],
   "history": [
@@ -914,22 +820,22 @@
     "officialCount": 11,
     "todayDone": 0,
     "totalDone": 1,
-    "inProgress": 1,
+    "inProgress": 0,
     "blocked": 0
   },
   "syncStatus": {
     "ok": true,
-    "lastSyncAt": "2026-04-13 12:16:20",
-    "durationMs": 22,
+    "lastSyncAt": "2026-04-15 23:43:57",
+    "durationMs": 31,
     "source": "openclaw_runtime_sessions",
-    "recordCount": 2,
-    "scannedSessionFiles": 11,
+    "recordCount": 1,
+    "scannedSessionFiles": 13,
     "missingFields": {},
     "error": null
   },
   "health": {
     "syncOk": true,
-    "syncLatencyMs": 22,
+    "syncLatencyMs": 31,
     "missingFieldCount": 0
   }
 }

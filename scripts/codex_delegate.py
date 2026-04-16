@@ -112,7 +112,14 @@ def save_history(
     hp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def build_prompt(user_prompt: str, task_id: str, agent_id: str, history: list[dict[str, str]], context_turns: int) -> str:
+def build_prompt(
+    user_prompt: str,
+    task_id: str,
+    agent_id: str,
+    history: list[dict[str, str]],
+    context_turns: int,
+    output_mode: str = "legacy",
+) -> str:
     context_lines: list[str] = []
     if history:
         trimmed = history[-max(0, context_turns):]
@@ -122,6 +129,22 @@ def build_prompt(user_prompt: str, task_id: str, agent_id: str, history: list[di
             context_lines.append(f"[历史{idx}·输入]\n{q}")
             context_lines.append(f"[历史{idx}·输出]\n{a}")
     context_block = "\n\n".join(context_lines) if context_lines else "无历史上下文。"
+
+    if output_mode == "json":
+        return (
+            "你是太子的外部智囊（Codex）。\n"
+            "请基于以下旨意输出结果，必须使用中文。\n\n"
+            f"任务ID: {task_id}\n"
+            f"当前调用方: {agent_id}\n\n"
+            "如果存在同任务历史上下文，请继承并保持口径一致；"
+            "若发现本次输入和历史冲突，要先指出冲突再给出当前建议。\n\n"
+            f"历史上下文（同任务+同agent）:\n{context_block}\n\n"
+            "输出约束（强制）：\n"
+            "1) 只输出一个 JSON 对象，不要 Markdown，不要解释，不要代码块。\n"
+            "2) 严格遵循旨意中给出的 JSON schema 字段与枚举。\n"
+            "3) 若信息不足，也必须输出符合 schema 的 JSON（例如用澄清动作表示）。\n\n"
+            f"旨意原文：\n{user_prompt.strip()}\n"
+        )
 
     return (
         "你是太子的外部智囊（Codex）。\n"
@@ -267,6 +290,12 @@ def main() -> int:
         default=4,
         help="How many historical turns to include for same task+agent (default: 4).",
     )
+    parser.add_argument(
+        "--output-mode",
+        default="legacy",
+        choices=["legacy", "json"],
+        help="Output shaping mode for delegate prompt (default: legacy).",
+    )
     args = parser.parse_args()
 
     raw_prompt = args.prompt.strip()
@@ -293,6 +322,7 @@ def main() -> int:
         agent_id=agent_id,
         history=history,
         context_turns=max(0, int(args.context_turns)),
+        output_mode=str(args.output_mode or "legacy").strip().lower(),
     )
     try:
         return_code, stdout, stderr, final_message = run_delegate(

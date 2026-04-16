@@ -6,17 +6,21 @@
     },
     {
       "name": "经济",
-      "enabled": false
+      "enabled": true
     },
     {
       "name": "AI大模型",
-      "enabled": true
+      "enabled": false
+    },
+    {
+      "name": "军事",
+      "enabled": false
     }
   ],
   "keywords": [],
   "custom_feeds": [],
   "notification": {
-    "enabled": false,
+    "enabled": true,
     "channel": "feishu",
     "webhook": ""
   }

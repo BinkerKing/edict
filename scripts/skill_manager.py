@@ -26,9 +26,8 @@ import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+from openclaw_config import OPENCLAW_HOME
 from utils import now_iso, safe_name, read_json
-
-OCLAW_HOME = Path.home() / '.openclaw'
 
 
 def _download_file(url: str, timeout: int = 30, retries: int = 3) -> str:
@@ -77,7 +76,7 @@ def add_remote(agent_id: str, name: str, source_url: str, description: str = '')
         return False
     
     # 设置 workspace
-    workspace = OCLAW_HOME / f'workspace-{agent_id}' / 'skills' / name
+    workspace = OPENCLAW_HOME / f'workspace-{agent_id}' / 'skills' / name
     workspace.mkdir(parents=True, exist_ok=True)
     skill_md = workspace / 'SKILL.md'
     
@@ -119,13 +118,13 @@ def add_remote(agent_id: str, name: str, source_url: str, description: str = '')
 
 def list_remote() -> bool:
     """列出所有已添加的远程 skills"""
-    if not OCLAW_HOME.exists():
-        print('❌ OCLAW_HOME 不存在')
+    if not OPENCLAW_HOME.exists():
+        print('❌ OPENCLAW_HOME 不存在')
         return False
     
     remote_skills = []
     
-    for ws_dir in OCLAW_HOME.glob('workspace-*'):
+    for ws_dir in OPENCLAW_HOME.glob('workspace-*'):
         agent_id = ws_dir.name.replace('workspace-', '')
         skills_dir = ws_dir / 'skills'
         if not skills_dir.exists():
@@ -174,7 +173,7 @@ def update_remote(agent_id: str, name: str) -> bool:
         print(f'❌ 错误：agent_id 或 skill 名称含非法字符')
         return False
     
-    workspace = OCLAW_HOME / f'workspace-{agent_id}' / 'skills' / name
+    workspace = OPENCLAW_HOME / f'workspace-{agent_id}' / 'skills' / name
     source_json = workspace / '.source.json'
     
     if not source_json.exists():
@@ -201,7 +200,7 @@ def remove_remote(agent_id: str, name: str) -> bool:
         print(f'❌ 错误：agent_id 或 skill 名称含非法字符')
         return False
     
-    workspace = OCLAW_HOME / f'workspace-{agent_id}' / 'skills' / name
+    workspace = OPENCLAW_HOME / f'workspace-{agent_id}' / 'skills' / name
     source_json = workspace / '.source.json'
     
     if not source_json.exists():
@@ -230,8 +229,8 @@ _HUB_BASE_ENV = 'OPENCLAW_SKILLS_HUB_BASE'
 
 def _get_hub_url(skill_name):
     """获取 skill 的 Hub URL，支持环境变量覆盖"""
-    base = (Path.home() / '.openclaw' / 'skills-hub-url').read_text().strip() \
-        if (Path.home() / '.openclaw' / 'skills-hub-url').exists() else None
+    hub_override = OPENCLAW_HOME / 'skills-hub-url'
+    base = hub_override.read_text().strip() if hub_override.exists() else None
     base = base or os.environ.get(_HUB_BASE_ENV) or OFFICIAL_SKILLS_HUB_BASE
     return f'{base.rstrip("/")}/{skill_name}/SKILL.md'
 
@@ -306,7 +305,7 @@ def import_official_hub(agent_ids: list) -> bool:
         print(f'   1. 检查网络: curl -I {OFFICIAL_SKILLS_HUB_BASE}/code_review/SKILL.md')
         print(f'   2. 设置代理: export https_proxy=http://your-proxy:port')
         print(f'   3. 使用镜像: export {_HUB_BASE_ENV}=https://ghproxy.com/{OFFICIAL_SKILLS_HUB_BASE}')
-        print(f'   4. 自定义源: echo "https://your-mirror/skills" > ~/.openclaw/skills-hub-url')
+        print(f'   4. 自定义源: echo "https://your-mirror/skills" > {OPENCLAW_HOME / "skills-hub-url"}')
         print(f'   5. 单独重试: python3 scripts/skill_manager.py add-remote --agent <agent> --name <skill> --source <url>')
     return success == total
 

@@ -2,6 +2,7 @@
 import argparse
 import pathlib
 import time
+from openclaw_config import OPENCLAW_AGENTS_HOME
 
 
 def _scan_for_task(root: pathlib.Path, task_id: str) -> list[str]:
@@ -26,7 +27,7 @@ def main() -> int:
     args = parser.parse_args()
 
     task_id = (args.task_id or "").strip()
-    root = pathlib.Path.home() / ".openclaw" / "agents" / "menxia" / "sessions"
+    root = OPENCLAW_AGENTS_HOME / "menxia" / "sessions"
     if not task_id:
         print("TRANSFER_FAIL")
         print("reason=empty-task-id")

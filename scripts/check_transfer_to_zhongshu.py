@@ -3,6 +3,7 @@ import argparse
 import json
 import pathlib
 import time
+from openclaw_config import OPENCLAW_AGENTS_HOME
 
 
 def _scan_for_task(root: pathlib.Path, task_id: str) -> list[str]:
@@ -61,7 +62,7 @@ def main() -> int:
 
     task_id = (args.task_id or "").strip()
     repo_root = pathlib.Path(__file__).resolve().parents[1]
-    root = pathlib.Path.home() / ".openclaw" / "agents" / "zhongshu" / "sessions"
+    root = OPENCLAW_AGENTS_HOME / "zhongshu" / "sessions"
     if not task_id:
         print("TRANSFER_FAIL")
         print("reason=empty-task-id")

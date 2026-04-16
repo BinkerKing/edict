@@ -20,7 +20,12 @@ from urllib.request import Request, urlopen
 scripts_dir = str(pathlib.Path(__file__).parent.parent / 'scripts')
 sys.path.insert(0, scripts_dir)
 from file_lock import atomic_json_read, atomic_json_write, atomic_json_update
+from openclaw_config import OPENCLAW_HOME, OPENCLAW_SKILLS_HOME, LEGACY_AGENTS_SKILLS_HOME
 from utils import validate_url, read_json, now_iso
+from api.meridian_api import handle_post as handle_meridian_post
+from api.secretary_api import handle_post as handle_secretary_post
+from services.meridian_ai_service import MeridianAIService
+from services.meridian_workflow_service import MeridianWorkflowService
 from court_discuss import (
     create_session as cd_create, advance_discussion as cd_advance,
     get_session as cd_get, conclude_session as cd_conclude,
@@ -36,9 +41,8 @@ if str(CHANNELS_DIR.parent) not in sys.path:
     sys.path.insert(0, str(CHANNELS_DIR.parent))
 from channels import get_channel, get_channel_info, CHANNELS as NOTIFICATION_CHANNELS
 
-OCLAW_HOME = pathlib.Path.home() / '.openclaw'
-OPENCLAW_SKILLS_HOME = OCLAW_HOME / 'skills'
-AGENTS_SKILLS_HOME = pathlib.Path.home() / '.agents' / 'skills'
+OCLAW_HOME = OPENCLAW_HOME
+AGENTS_SKILLS_HOME = LEGACY_AGENTS_SKILLS_HOME
 MAX_REQUEST_BODY = 30 * 1024 * 1024  # 30 MB
 ALLOWED_ORIGIN = None  # Set via --cors; None means restrict to localhost
 _DASHBOARD_PORT = 7891  # Updated at startup from --port arg
@@ -47,6 +51,7 @@ _DEFAULT_ORIGINS = {
 }
 _SAFE_NAME_RE = re.compile(r'^[a-zA-Z0-9_\-\u4e00-\u9fff]+$')
 _SAFE_SKILL_RE = re.compile(r'^[a-zA-Z0-9_\-.\u4e00-\u9fff]+$')
+_TRUE_SET = {'1', 'true', 'yes', 'on'}
 
 BASE = pathlib.Path(__file__).parent
 LEGACY_DASHBOARD_HTML = BASE / 'dashboard.html'  # 传统单页看板（当前主入口）
@@ -55,20 +60,28 @@ SCRIPTS = BASE.parent / 'scripts'
 _ACTIVE_TASK_DATA_DIR = None
 LEARNING_PLAN_FILE = DATA / 'learning_plans.json'
 PM_FILE = DATA / 'project_management.json'
+STRATEGY_FILE = DATA / 'strategy_research.json'
 AUTOMATION_FILE = DATA / 'automation_tasks.json'
 AUTOMATION_DOCS_DIR = DATA / 'automation_task_docs'
 PM_ISOLATION_FILE = DATA / 'agent_isolation_registry.json'
 AGENT_WORK_SCOPE_FILE = DATA / 'agent_work_scopes.json'
 AGENT_WORK_BINDINGS_FILE = DATA / 'agent_work_bindings.json'
+SECRETARY_MEMORY_FILE = DATA / 'secretary_memory.json'
+SECRETARY_TASKS_FILE = DATA / 'secretary_tasks.json'
+ENABLE_LEGACY_WORKFLOW = str(os.getenv('EDICT_ENABLE_LEGACY_WORKFLOW', '0')).strip().lower() in _TRUE_SET
 JZG_FILE = DATA / 'jiangzuojian.json'
 JZG_EXTERNAL_DOCS_DIR = DATA / 'external_docs'
 PM_DESIGN_FOLDER_ID = 'FLD-DESIGN'
 PM_DESIGN_FOLDER_NAME = '项目设计'
 PM_VERSION_FOLDER_ID = 'FLD-VERSION'
 PM_VERSION_FOLDER_NAME = '版本控制'
-PM_DESIGN_SECTIONS = ('requirements', 'architecture', 'function')
+PM_DESIGN_SECTIONS = ('topic_analysis', 'concept_refine', 'requirements', 'architecture', 'function')
 PM_SUGGESTION_STATUS = {'pending', 'adopted'}
 PM_VERSION_STATUS = {'draft', 'local', 'github'}
+PM_CODE_LOCAL_PATH_MAX = 800
+PM_CODE_GITHUB_PATH_MAX = 800
+STRATEGY_IDEA_DIR_ID = 'IDEA_POOL'
+STRATEGY_TRASH_DIR_ID = 'TRASH_BIN'
 JZG_FOLLOWUP_FOLDER_ID = 'JZG-FOLLOWUP'
 JZG_FOLLOWUP_FOLDER_NAME = '项目跟进'
 JZG_STRATEGY_FOLDER_ID = 'JZG-STRATEGY'
@@ -78,14 +91,14 @@ JZG_BOARD_FOLDER_NAME = '智能看板'
 JZG_DOC_DEFAULT_FOLDER_ID = 'JZG-DOC-DEFAULT'
 JZG_DOC_DEFAULT_FOLDER_NAME = '未分类'
 JZG_DEFAULT_DAILY_TEMPLATE = (
-    "【将作监日报】{date}\n"
+    "【日报】{date}\n"
     "项目：{project_name}\n\n"
-    "一、当日完成\n"
+    "一、当日工作成果\n"
     "{done_items}\n\n"
-    "二、当前未完成\n"
-    "{todo_items}\n\n"
-    "三、风险与建议\n"
-    "- （由兵部补充）\n"
+    "二、工作性质总结\n"
+    "- （请总结今日工作的类型特征、价值定位与协同方式）\n\n"
+    "三、风险分析\n"
+    "- （请基于今日已完成事项分析风险与建议，不引用未完成任务）\n"
 )
 JZG_DEFAULT_WEEKLY_TEMPLATE = (
     "【将作监周报】{start_date} ~ {end_date}\n"
@@ -101,17 +114,17 @@ JZG_DEFAULT_WEEKLY_TEMPLATE = (
 AUTOMATION_ALLOWED_AGENTS = {'taizi', 'zhongshu', 'menxia', 'shangshu', 'libu', 'hubu', 'bingbu', 'xingbu', 'rnd', 'libu_hr', 'zaochao', 'codex'}
 
 AUTOMATION_AGENT_ALIAS = {
-    'taizi': 'taizi', '太子': 'taizi',
-    'zhongshu': 'zhongshu', '中书令': 'zhongshu', '中书省': 'zhongshu',
-    'menxia': 'menxia', '侍中': 'menxia', '门下省': 'menxia',
+    'taizi': 'taizi', '太子': 'taizi', '秘书': 'taizi', '董事会': 'taizi',
+    'zhongshu': 'zhongshu', '中书令': 'zhongshu', '中书省': 'zhongshu', '战略负责人': 'zhongshu', '战略研究部': 'zhongshu',
+    'menxia': 'menxia', '侍中': 'menxia', '门下省': 'menxia', '合规': 'menxia', '风险部': 'menxia',
     'shangshu': 'shangshu', '能效部长': 'shangshu', '能效部': 'shangshu', '尚书令': 'shangshu', '尚书省': 'shangshu',
     'libu': 'libu', '扫地僧': 'libu', '藏经阁': 'libu', '礼部': 'libu',
-    'hubu': 'hubu', '户部尚书': 'hubu', '户部': 'hubu',
+    'hubu': 'hubu', '户部尚书': 'hubu', '户部': 'hubu', '金融分析师': 'hubu', '金融部': 'hubu',
     'bingbu': 'bingbu', '项目经理': 'bingbu', 'pm小组': 'bingbu', 'pm': 'bingbu', '兵部': 'bingbu',
-    'xingbu': 'xingbu', '刑部尚书': 'xingbu', '刑部': 'xingbu',
+    'xingbu': 'xingbu', '刑部尚书': 'xingbu', '刑部': 'xingbu', '测试员': 'xingbu', '测试部': 'xingbu',
     'rnd': 'rnd', '研发部': 'rnd', '研发总监': 'rnd',
     'libu_hr': 'libu_hr', '人事部': 'libu_hr', '人事经理': 'libu_hr', '吏部': 'libu_hr',
-    'zaochao': 'zaochao', '监正': 'zaochao', '钦天监': 'zaochao',
+    'zaochao': 'zaochao', '监正': 'zaochao', '钦天监': 'zaochao', '情报官': 'zaochao', '情报处': 'zaochao',
     'codex': 'codex',
 }
 
@@ -143,33 +156,83 @@ DEFAULT_AGENT_WORK_SCOPES = {
         },
         {
             'entry': '问题详情 · 研发部复审',
-            'service': '对问题给出实现拆分建议、技术路径与落地步骤。',
+            'service': '基于标题、描述、留言生成优化建议、待澄清问题与执行计划。',
             'invoke': 'agent',
             'bindingId': 'rnd_review',
             'match': ['问题详情-研发部复审触发', '研发部复审触发', 'rnd-review', '复审'],
         },
         {
             'entry': '问题详情 · 研发部催办',
-            'service': '针对长时间未推进问题发起催办并推动状态流转。',
+            'service': '对长期未推进问题生成推进建议，不直接改代码。',
             'invoke': 'agent',
             'bindingId': 'rnd_execute',
             'match': ['问题详情-研发部催办触发', '研发部催办触发', 'execute', '催办'],
         },
+        {
+            'entry': '快捷操作 · AI优化',
+            'service': '在快捷操作里对新建/历史任务做标题与描述优化建议。',
+            'invoke': 'agent',
+            'bindingId': 'rnd_quick_optimize',
+            'match': ['快捷操作-ai优化', 'ai优化', 'quick-optimize'],
+        },
     ],
     'bingbu': [
-        {'entry': 'PM小组 · 专家小组策议', 'service': '协助拆解需求优先级、方案路径与阶段目标。', 'invoke': 'agent'},
-        {'entry': 'PM小组 · 项目跟进', 'service': '输出当日待办推进建议与项目节奏提醒。', 'invoke': 'agent'},
-        {'entry': 'PM小组 · 版本协同', 'service': '支持版本计划梳理与发布前协同检查。', 'invoke': 'agent'},
+        {
+            'entry': 'PM小组 · 洗脑模版生成',
+            'service': '按要求生成日报/周报模版文本。',
+            'invoke': 'agent',
+            'bindingId': 'bingbu_report_template_generate',
+            'match': ['jzg/report-template-generate', '洗脑模版生成', '日报模版', '周报模版'],
+        },
+        {
+            'entry': 'PM小组 · 洗脑报告生成',
+            'service': '根据已完成/未完成任务生成日报或周报正文。',
+            'invoke': 'agent',
+            'bindingId': 'bingbu_followup_report_generate',
+            'match': ['jzg/followup-report-generate', '洗脑报告生成', '日报生成', '周报生成'],
+        },
+        {
+            'entry': 'PM小组 · 洗脑文档分析',
+            'service': '对上传文档输出摘要与标签。',
+            'invoke': 'agent',
+            'bindingId': 'bingbu_doc_analyze',
+            'match': ['jzg/doc-analyze', '文档分析', '洗脑文档分析'],
+        },
     ],
     'libu': [
-        {'entry': '藏经阁 · 细化目录', 'service': '将学习主题拆为可执行目录与阶段化学习路线。', 'invoke': 'agent'},
-        {'entry': '藏经阁 · 扫地僧问答', 'service': '围绕主题提供问答、总结与知识回写建议。', 'invoke': 'agent'},
-        {'entry': '藏经阁 · 主题笔记', 'service': '沉淀学习笔记结构，形成长期可复用知识资产。', 'invoke': 'ui'},
+        {
+            'entry': '藏经阁 · 学习主题10问',
+            'service': '围绕学习主题产出 10 个澄清问题。',
+            'invoke': 'agent',
+            'bindingId': 'libu_plan_start',
+            'match': ['learning-plan/start', '10问', '学习主题启动'],
+        },
+        {
+            'entry': '藏经阁 · 学习路径生成',
+            'service': '根据 10 问回答生成课程目录与学习路径。',
+            'invoke': 'agent',
+            'bindingId': 'libu_plan_answer',
+            'match': ['learning-plan/answer', '学习路径生成', '目录生成'],
+        },
+        {
+            'entry': '藏经阁 · 主题问答',
+            'service': '针对当前主题进行问答辅导。',
+            'invoke': 'agent',
+            'bindingId': 'libu_topic_chat',
+            'match': ['learning-plan/topic-chat', '主题问答', '扫地僧问答'],
+        },
+        {
+            'entry': '藏经阁 · 主题总结',
+            'service': '对主题问答进行总结回写。',
+            'invoke': 'agent',
+            'bindingId': 'libu_topic_summarize',
+            'match': ['learning-plan/topic-summarize', '主题总结', '总结回写'],
+        },
     ],
     'libu_hr': [
-        {'entry': '人事部 · 部门详情', 'service': '维护各 Agent 的模型、SOUL、技能与职责配置。', 'invoke': 'ui'},
-        {'entry': '人事部 · 会话治理', 'service': '查看会话概览并支持按会话进入对话面板。', 'invoke': 'ui'},
-        {'entry': '人事部 · 组织编排', 'service': '维护部门列表排序与人员治理结构。', 'invoke': 'ui'},
+        {'entry': '人事部 · 部门详情维护', 'service': '维护各 Agent 的模型、SOUL、技能与职责配置。', 'invoke': 'ui'},
+        {'entry': '人事部 · 会话面板治理', 'service': '查看会话概览并进入单会话对话面板。', 'invoke': 'ui'},
+        {'entry': '人事部 · 组织编排', 'service': '维护部门列表排序与分隔布局。', 'invoke': 'ui'},
         {
             'entry': '人事部 · SOUL重新整理',
             'service': '基于接口映射与会话触发记录，自动整理并生成可保存的 SOUL 草案。',
@@ -179,26 +242,44 @@ DEFAULT_AGENT_WORK_SCOPES = {
         },
     ],
     'taizi': [
-        {'entry': '任务统筹 · 新建旨意', 'service': '接收需求并发起任务流转，推进跨部门协作。', 'invoke': 'agent'},
-        {'entry': '任务统筹 · 状态流转', 'service': '根据任务状态触发部门承接与后续处理流程。', 'invoke': 'agent'},
+        {
+            'entry': '秘书 · 需求理解与建单',
+            'service': '将自然语言需求拆解为动作，并在研发部创建对应任务单。',
+            'invoke': 'agent',
+            'bindingId': 'taizi_secretary_plan',
+            'match': ['secretary/plan', 'secretary/execute', '秘书建单'],
+        },
     ],
     'zhongshu': [
-        {'entry': '文书治理 · 模板输出', 'service': '规范文书结构与记录格式，保证信息可追溯。', 'invoke': 'agent'},
+        {'entry': '战略研究部 · 当前菜单能力', 'service': '当前菜单未接入该 Agent 的会话触发能力。', 'invoke': 'ui'},
     ],
     'menxia': [
-        {'entry': '审校治理 · 质检复核', 'service': '审查交付完整性，提出修正意见与风险提示。', 'invoke': 'agent'},
+        {'entry': '风险部 · 当前菜单能力', 'service': '当前菜单未接入该 Agent 的会话触发能力。', 'invoke': 'ui'},
     ],
     'shangshu': [
-        {'entry': '中枢调度 · 统筹协同', 'service': '协调多部门执行节奏，保障关键事项闭环。', 'invoke': 'agent'},
+        {
+            'entry': '能效部 · 任务描述解析',
+            'service': '点击“解析”后，将任务描述转换为触发条件/打工人/提示词。',
+            'invoke': 'agent',
+            'bindingId': 'shangshu_automation_parse',
+            'match': ['automation/parse-request', '能效部解析', '任务描述解析'],
+        },
+        {
+            'entry': '能效部 · 任务执行(打工人为shangshu)',
+            'service': '当打工人选择 shangshu 时，按配置提示词执行自动任务。',
+            'invoke': 'agent',
+            'bindingId': 'shangshu_automation_execute',
+            'match': ['automation/task-run', 'automation/tick', 'shangshu执行'],
+        },
     ],
     'hubu': [
-        {'entry': '资源治理 · 成本视图', 'service': '汇总资源投入与关键消耗数据，提供决策参考。', 'invoke': 'agent'},
+        {'entry': '金融部 · 当前菜单能力', 'service': '当前菜单未接入该 Agent 的会话触发能力。', 'invoke': 'ui'},
     ],
     'xingbu': [
-        {'entry': '规则治理 · 风险约束', 'service': '维护流程边界与规则检查，提示异常风险。', 'invoke': 'agent'},
+        {'entry': '测试部 · 当前菜单能力', 'service': '当前菜单未接入该 Agent 的会话触发能力。', 'invoke': 'ui'},
     ],
     'zaochao': [
-        {'entry': '朝报治理 · 摘要播报', 'service': '汇总当日关键信息并形成可读简报。', 'invoke': 'agent'},
+        {'entry': '情报处 · 天下要闻展示', 'service': '当前菜单以内置聚合接口展示为主，暂未直接拉起情报处会话。', 'invoke': 'ui'},
     ],
 }
 
@@ -219,9 +300,53 @@ DEFAULT_AGENT_WORK_BINDINGS = {
         'agentId': 'rnd',
         'source': 'dashboard.html::pmRndReview(execute) -> POST /api/pm/rnd-review',
     },
+    'rnd_quick_optimize': {
+        'agentId': 'rnd',
+        'source': 'dashboard.html::quickTaskAiOptimize -> POST /api/pm/rnd-review',
+    },
+    'bingbu_report_template_generate': {
+        'agentId': 'bingbu',
+        'source': 'dashboard.html::jzgGenerateReportTemplate -> POST /api/jzg/report-template-generate',
+    },
+    'bingbu_followup_report_generate': {
+        'agentId': 'bingbu',
+        'source': 'dashboard.html::jzgGenerateFollowupReport -> POST /api/jzg/followup-report-generate',
+    },
+    'bingbu_doc_analyze': {
+        'agentId': 'bingbu',
+        'source': 'dashboard.html::jzgAnalyzeDoc -> POST /api/jzg/doc-analyze',
+    },
+    'libu_plan_start': {
+        'agentId': 'libu',
+        'source': 'dashboard.html::startLearningPlan -> POST /api/learning-plan/start',
+    },
+    'libu_plan_answer': {
+        'agentId': 'libu',
+        'source': 'dashboard.html::answerLearningPlan -> POST /api/learning-plan/answer',
+    },
+    'libu_topic_chat': {
+        'agentId': 'libu',
+        'source': 'dashboard.html::chatLearningTopic -> POST /api/learning-plan/topic-chat',
+    },
+    'libu_topic_summarize': {
+        'agentId': 'libu',
+        'source': 'dashboard.html::summarizeLearningTopic -> POST /api/learning-plan/topic-summarize',
+    },
     'hr_soul_reorganize': {
         'agentId': 'libu_hr',
         'source': 'dashboard.html::reorganizeSoul -> POST /api/agent-soul/reorganize',
+    },
+    'shangshu_automation_parse': {
+        'agentId': 'shangshu',
+        'source': 'dashboard.html::automationParseRequest -> POST /api/automation/parse-request',
+    },
+    'shangshu_automation_execute': {
+        'agentId': 'shangshu',
+        'source': 'server.py::_automation_execute_agent_task(targetAgent=shangshu)',
+    },
+    'taizi_secretary_plan': {
+        'agentId': 'taizi',
+        'source': 'dashboard.html::secretaryAnalyze/secretaryExecute -> POST /api/secretary/*',
     },
 }
 
@@ -236,6 +361,15 @@ def cors_headers(h):
     h.send_header('Access-Control-Allow-Origin', origin)
     h.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     h.send_header('Access-Control-Allow-Headers', 'Content-Type')
+
+
+def _legacy_workflow_disabled_response(endpoint: str):
+    return {
+        'ok': False,
+        'error': f'legacy workflow disabled: {endpoint}',
+        'code': 'LEGACY_WORKFLOW_DISABLED',
+        'hint': 'set EDICT_ENABLE_LEGACY_WORKFLOW=1 to re-enable',
+    }
 
 
 def _iter_task_data_dirs():
@@ -431,15 +565,22 @@ def _candidate_agent_soul_paths(agent_id):
     if not _SAFE_NAME_RE.match(requested_agent_id):
         return None, None, []
     normalized = _normalize_agent_id(requested_agent_id)
+    project_agent_id = 'taizi' if normalized == 'main' else normalized
     cfg = read_json(DATA / 'agent_config.json', {})
     agents = cfg.get('agents', []) if isinstance(cfg, dict) else []
     ag = next((a for a in agents if a.get('id') == normalized), None)
 
     candidates = []
+    # 项目内 SOUL 作为单一真源（人事部展示/编辑与运行时保持一致）
+    project_agents_dir = BASE.parent / 'agents'
+    candidates.extend([
+        project_agents_dir / project_agent_id / 'SOUL.md',
+        project_agents_dir / project_agent_id / 'soul.md',
+    ])
     if ag and ag.get('workspace'):
         ws = pathlib.Path(str(ag.get('workspace'))).expanduser()
         candidates.extend([ws / 'soul.md', ws / 'SOUL.md'])
-    ws_default = OCLAW_HOME / f'workspace-{normalized}'
+    ws_default = OCLAW_HOME / f'workspace-{project_agent_id}'
     candidates.extend([ws_default / 'soul.md', ws_default / 'SOUL.md'])
     return requested_agent_id, normalized, candidates
 
@@ -448,6 +589,7 @@ def _resolve_agent_soul_path(agent_id, must_exist=True):
     requested_agent_id, normalized, candidates = _candidate_agent_soul_paths(agent_id)
     if not requested_agent_id:
         return {'ok': False, 'error': f'agent_id 非法: {agent_id}'}
+    project_agent_id = 'taizi' if normalized == 'main' else normalized
 
     allowed_roots = (OCLAW_HOME.resolve(), BASE.parent.resolve())
     for p in candidates:
@@ -463,8 +605,8 @@ def _resolve_agent_soul_path(agent_id, must_exist=True):
 
     if must_exist:
         return {'ok': False, 'error': f'未找到 {requested_agent_id} 的 SOUL 文件'}
-    # 兜底：默认写入 workspace-<agent>/SOUL.md
-    fallback = (OCLAW_HOME / f'workspace-{normalized}' / 'SOUL.md').resolve()
+    # 兜底：默认写入项目 agents/<agent>/SOUL.md，确保人事部编辑就是项目 SOUL
+    fallback = (BASE.parent / 'agents' / project_agent_id / 'SOUL.md').resolve()
     if any(str(fallback).startswith(str(root)) for root in allowed_roots):
         return {'ok': True, 'agentId': normalized, 'path': str(fallback)}
     return {'ok': False, 'error': f'未找到 {requested_agent_id} 的 SOUL 写入路径'}
@@ -1030,6 +1172,45 @@ def _extract_json_payload(text: str):
     return None
 
 
+def _extract_json_payload_lenient(text: str):
+    raw = str(text or '').strip()
+    if not raw:
+        return None
+    # 尝试提取首个平衡 JSON 对象
+    chunk = ''
+    for i, ch in enumerate(raw):
+        if ch != '{':
+            continue
+        depth = 0
+        for j in range(i, len(raw)):
+            c = raw[j]
+            if c == '{':
+                depth += 1
+            elif c == '}':
+                depth -= 1
+                if depth == 0:
+                    chunk = raw[i:j + 1]
+                    break
+        if chunk:
+            break
+    if not chunk:
+        chunk = raw
+    # 常见格式修复：中文引号/尾逗号/注释
+    fixed = chunk
+    fixed = fixed.replace('\ufeff', '')
+    fixed = fixed.replace('“', '"').replace('”', '"').replace('‘', "'").replace('’', "'")
+    fixed = re.sub(r'//[^\n\r]*', '', fixed)
+    fixed = re.sub(r'/\*[\s\S]*?\*/', '', fixed)
+    fixed = re.sub(r',(\s*[}\]])', r'\1', fixed)
+    try:
+        obj = json.loads(fixed)
+        if isinstance(obj, dict):
+            return obj
+        return None
+    except Exception:
+        return None
+
+
 def _extract_pm_review_text_payload(text: str):
     raw = str(text or '').strip()
     if not raw:
@@ -1291,11 +1472,10 @@ def _run_agent_sync(agent_id: str, message: str, timeout_sec: int = 420, session
                 bad = ('error' in low) or ('failed' in low) or ('timeout' in low) or _looks_like_context_overflow(summary)
                 if not bad:
                     return {'ok': True, 'raw': summary}
-            if status and status != 'ok':
-                err = str(obj.get('error') or obj.get('summary') or '执行失败').strip()
-                return {'ok': False, 'error': err[:500], 'raw': stdout[:2000]}
-            # 兜底取 summary，避免空文本
-            if summary:
+                if status and status != 'ok':
+                    err = str(obj.get('error') or obj.get('summary') or '执行失败').strip()
+                    return {'ok': False, 'error': err[:500], 'raw': stdout[:2000]}
+                # 兜底取 summary，避免空文本
                 return {'ok': True, 'raw': summary}
             return {'ok': False, 'error': '模型未返回有效文本', 'raw': stdout[:2000]}
         except Exception:
@@ -1321,7 +1501,14 @@ def _extract_between_markers(text: str, begin_marker: str, end_marker: str) -> s
     return raw[b:e].strip()
 
 
-def _run_codex_delegate_sync(task_id: str, prompt: str, agent_id: str = 'rnd', timeout_sec: int = 300):
+def _run_codex_delegate_sync(
+    task_id: str,
+    prompt: str,
+    agent_id: str = 'rnd',
+    timeout_sec: int = 300,
+    context_turns: int = 4,
+    output_mode: str = 'legacy',
+):
     """
     通过 scripts/codex_delegate.py 调用本机 Codex CLI。
     成功时返回 {'ok': True, 'raw': <final_message>, 'runFile': ...}
@@ -1344,6 +1531,8 @@ def _run_codex_delegate_sync(task_id: str, prompt: str, agent_id: str = 'rnd', t
         '--cwd', str(BASE.parent),
         '--agent-id', aid,
         '--timeout', str(timeout_sec),
+        '--context-turns', str(max(0, min(24, int(context_turns or 4)))),
+        '--output-mode', ('json' if str(output_mode or '').strip().lower() == 'json' else 'legacy'),
     ]
     try:
         result = subprocess.run(
@@ -1378,6 +1567,105 @@ def _run_codex_delegate_sync(task_id: str, prompt: str, agent_id: str = 'rnd', t
     if not final_message:
         return {'ok': False, 'error': 'codex_delegate 未返回 FINAL_MESSAGE', 'raw': merged[:3000], 'runFile': run_file}
     return {'ok': True, 'raw': final_message, 'runFile': run_file}
+
+
+_MERIDIAN_AI_SERVICE = None
+
+
+def _get_meridian_ai_service():
+    global _MERIDIAN_AI_SERVICE
+    if _MERIDIAN_AI_SERVICE is None:
+        _MERIDIAN_AI_SERVICE = MeridianAIService(
+            run_codex_fn=_run_codex_delegate_sync,
+            extract_json_fn=_extract_json_payload,
+            extract_json_lenient_fn=_extract_json_payload_lenient,
+            default_code_paths=[
+                str((BASE / 'dashboard.html').resolve()),
+                str((BASE / 'server.py').resolve()),
+            ],
+        )
+    return _MERIDIAN_AI_SERVICE
+
+
+def meridian_tongmai_decision(
+    node_title: str,
+    node_path: str,
+    feedback_text: str,
+    agent_id: str = 'codex',
+    code_paths=None,
+    tree_snapshot=None,
+    node_snapshot=None,
+    detail_snapshot: str = '',
+    details_snapshot_map=None,
+    feedback_thread=None,
+    constraints=None,
+    session_key: str = '',
+    context_turns: int = 10,
+):
+    return _get_meridian_ai_service().tongmai_decision(
+        node_title=node_title,
+        node_path=node_path,
+        feedback_text=feedback_text,
+        agent_id=agent_id,
+        code_paths=code_paths,
+        tree_snapshot=tree_snapshot,
+        node_snapshot=node_snapshot,
+        detail_snapshot=detail_snapshot,
+        details_snapshot_map=details_snapshot_map,
+        feedback_thread=feedback_thread,
+        constraints=constraints,
+        session_key=session_key,
+        context_turns=context_turns,
+    )
+
+
+def meridian_openxue_detail(
+    node_title: str,
+    node_path: str,
+    current_detail: str = '',
+    agent_id: str = 'codex',
+    code_paths=None,
+    tree_snapshot=None,
+    node_snapshot=None,
+    details_snapshot_map=None,
+    feedback_thread=None,
+    session_key: str = '',
+    context_turns: int = 10,
+):
+    return _get_meridian_ai_service().openxue_detail(
+        node_title=node_title,
+        node_path=node_path,
+        current_detail=current_detail,
+        agent_id=agent_id,
+        code_paths=code_paths,
+        tree_snapshot=tree_snapshot,
+        node_snapshot=node_snapshot,
+        details_snapshot_map=details_snapshot_map,
+        feedback_thread=feedback_thread,
+        session_key=session_key,
+        context_turns=context_turns,
+    )
+
+
+_MERIDIAN_WORKFLOW_SERVICE = None
+
+
+def _get_meridian_workflow_service():
+    global _MERIDIAN_WORKFLOW_SERVICE
+    if _MERIDIAN_WORKFLOW_SERVICE is None:
+        _MERIDIAN_WORKFLOW_SERVICE = MeridianWorkflowService(
+            tongmai_decision_fn=meridian_tongmai_decision,
+            openxue_detail_fn=meridian_openxue_detail,
+        )
+    return _MERIDIAN_WORKFLOW_SERVICE
+
+
+def meridian_tongmai_run(payload: dict):
+    return _get_meridian_workflow_service().tongmai_run(payload)
+
+
+def meridian_openxue_run(payload: dict):
+    return _get_meridian_workflow_service().openxue_run(payload)
 
 
 def _load_learning_plans():
@@ -1847,6 +2135,270 @@ def _save_pm_data(data):
     atomic_json_write(PM_FILE, data)
 
 
+def _default_strategy_data():
+    now = now_iso()
+    return {
+        'directories': [
+            {'id': STRATEGY_IDEA_DIR_ID, 'name': '想法池', 'fixed': True},
+            {'id': STRATEGY_TRASH_DIR_ID, 'name': '回收桶', 'fixed': True},
+        ],
+        'items': [],
+        'updatedAt': now,
+    }
+
+
+def _normalize_strategy_data(data):
+    raw = data if isinstance(data, dict) else {}
+    dirs = raw.get('directories')
+    if not isinstance(dirs, list):
+        dirs = []
+    normalized_dirs = []
+    seen = set()
+    for d in dirs:
+        if not isinstance(d, dict):
+            continue
+        did = str(d.get('id') or '').strip()
+        name = str(d.get('name') or '').strip()
+        if not did or did in seen:
+            continue
+        seen.add(did)
+        normalized_dirs.append({
+            'id': did[:50],
+            'name': (name or did)[:80],
+            'fixed': bool(d.get('fixed', False)),
+        })
+    # 固定目录：想法池、回收桶
+    normalized_dirs = [
+        x for x in normalized_dirs
+        if str(x.get('id') or '') not in {STRATEGY_IDEA_DIR_ID, STRATEGY_TRASH_DIR_ID}
+    ]
+    normalized_dirs.insert(0, {'id': STRATEGY_IDEA_DIR_ID, 'name': '想法池', 'fixed': True})
+    normalized_dirs.insert(1, {'id': STRATEGY_TRASH_DIR_ID, 'name': '回收桶', 'fixed': True})
+
+    valid_dir_ids = {x.get('id') for x in normalized_dirs}
+    items = raw.get('items')
+    if not isinstance(items, list):
+        items = []
+    now = now_iso()
+    normalized_items = []
+    seen_item_ids = set()
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        iid = str(it.get('id') or '').strip() or _new_pm_id('IDEA')
+        if iid in seen_item_ids:
+            continue
+        seen_item_ids.add(iid)
+        folder_id = str(it.get('folderId') or it.get('dirId') or '').strip()
+        if folder_id and folder_id not in valid_dir_ids:
+            folder_id = ''
+        normalized_items.append({
+            'id': iid,
+            'folderId': folder_id,
+            'title': str(it.get('title') or '').strip()[:200],
+            'summary': str(it.get('summary') or '').strip()[:2000],
+            'starred': bool(it.get('starred', False)),
+            'status': str(it.get('status') or 'open').strip().lower()[:30] or 'open',
+            'priority': str(it.get('priority') or 'P2').strip().upper()[:10] or 'P2',
+            'pendingQuestions': str(it.get('pendingQuestions') or '').strip()[:6000],
+            'plan': str(it.get('plan') or '').strip()[:8000],
+            'conclusion': str(it.get('conclusion') or '').strip()[:8000],
+            'createdAt': str(it.get('createdAt') or now),
+            'updatedAt': str(it.get('updatedAt') or now),
+        })
+    normalized_items.sort(key=lambda x: x.get('updatedAt', ''), reverse=True)
+    return {
+        'directories': normalized_dirs,
+        'items': normalized_items,
+        'updatedAt': str(raw.get('updatedAt') or now),
+    }
+
+
+def _load_strategy_data():
+    raw = atomic_json_read(STRATEGY_FILE, _default_strategy_data())
+    data = _normalize_strategy_data(raw)
+    # 回写规范化结果，确保结构稳定
+    atomic_json_write(STRATEGY_FILE, data)
+    return data
+
+
+def _save_strategy_data(data):
+    atomic_json_write(STRATEGY_FILE, _normalize_strategy_data(data))
+
+
+def strategy_get_board():
+    return {'ok': True, **_load_strategy_data()}
+
+
+def strategy_create_item(dir_id, title, summary=''):
+    data = _load_strategy_data()
+    title_s = str(title or '').strip()
+    if not title_s:
+        return {'ok': False, 'error': 'title required'}
+    directories = data.get('directories') or []
+    valid_dir_ids = {str(d.get('id') or '').strip() for d in directories}
+    did = str(dir_id or '').strip()
+    if did and did not in valid_dir_ids:
+        did = ''
+    now = now_iso()
+    row = {
+        'id': _new_pm_id('IDEA'),
+        'folderId': did,
+        'title': title_s[:200],
+        'summary': str(summary or '').strip()[:2000],
+        'starred': False,
+        'status': 'open',
+        'priority': 'P2',
+        'pendingQuestions': '',
+        'plan': '',
+        'conclusion': '',
+        'createdAt': now,
+        'updatedAt': now,
+    }
+    data.setdefault('items', []).insert(0, row)
+    data['updatedAt'] = now
+    _save_strategy_data(data)
+    return {'ok': True, 'item': row, **_load_strategy_data()}
+
+
+def strategy_update_item(item_id, patch):
+    data = _load_strategy_data()
+    iid = str(item_id or '').strip()
+    if not iid:
+        return {'ok': False, 'error': 'itemId required'}
+    items = data.get('items') or []
+    row = next((x for x in items if str(x.get('id') or '') == iid), None)
+    if not row:
+        return {'ok': False, 'error': f'item {iid} not found'}
+    p = patch if isinstance(patch, dict) else {}
+    now = now_iso()
+    if 'title' in p:
+        t = str(p.get('title') or '').strip()
+        if not t:
+            return {'ok': False, 'error': 'title required'}
+        row['title'] = t[:200]
+    if 'summary' in p:
+        row['summary'] = str(p.get('summary') or '').strip()[:2000]
+    if 'starred' in p:
+        val = p.get('starred')
+        if isinstance(val, str):
+            row['starred'] = val.strip().lower() in {'1', 'true', 'yes', 'on'}
+        else:
+            row['starred'] = bool(val)
+    if 'folderId' in p:
+        fid = str(p.get('folderId') or '').strip()
+        valid = {str(x.get('id') or '').strip() for x in (data.get('directories') or [])}
+        if fid and fid not in valid:
+            return {'ok': False, 'error': f'folderId 无效: {fid}'}
+        row['folderId'] = fid
+    if 'status' in p:
+        row['status'] = str(p.get('status') or 'open').strip().lower()[:30] or 'open'
+    if 'priority' in p:
+        row['priority'] = str(p.get('priority') or 'P2').strip().upper()[:10] or 'P2'
+    if 'pendingQuestions' in p:
+        row['pendingQuestions'] = str(p.get('pendingQuestions') or '').strip()[:6000]
+    if 'plan' in p:
+        row['plan'] = str(p.get('plan') or '').strip()[:8000]
+    if 'conclusion' in p:
+        row['conclusion'] = str(p.get('conclusion') or '').strip()[:8000]
+    row['updatedAt'] = now
+    data['updatedAt'] = now
+    _save_strategy_data(data)
+    return {'ok': True, 'item': row, **_load_strategy_data()}
+
+
+def strategy_delete_item(item_id):
+    data = _load_strategy_data()
+    iid = str(item_id or '').strip()
+    if not iid:
+        return {'ok': False, 'error': 'itemId required'}
+    items = data.get('items') or []
+    idx = next((i for i, x in enumerate(items) if str(x.get('id') or '') == iid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'item {iid} not found'}
+    removed = items.pop(idx)
+    data['items'] = items
+    data['updatedAt'] = now_iso()
+    _save_strategy_data(data)
+    return {'ok': True, 'item': removed, **_load_strategy_data()}
+
+
+def strategy_create_folder(name):
+    data = _load_strategy_data()
+    n = str(name or '').strip()
+    if not n:
+        return {'ok': False, 'error': 'name required'}
+    lowered = n.lower()
+    exists = next((x for x in (data.get('directories') or []) if str(x.get('name') or '').strip().lower() == lowered), None)
+    if exists:
+        return {'ok': False, 'error': '文件夹已存在'}
+    row = {
+        'id': _new_pm_id('FDR'),
+        'name': n[:80],
+        'fixed': False,
+    }
+    data.setdefault('directories', []).append(row)
+    data['updatedAt'] = now_iso()
+    _save_strategy_data(data)
+    return {'ok': True, 'folder': row, **_load_strategy_data()}
+
+
+def strategy_delete_folder(folder_id):
+    fid = str(folder_id or '').strip()
+    if not fid:
+        return {'ok': False, 'error': 'folderId required'}
+    if fid in {STRATEGY_IDEA_DIR_ID, STRATEGY_TRASH_DIR_ID}:
+        return {'ok': False, 'error': '固定目录不可删除'}
+    data = _load_strategy_data()
+    dirs = data.get('directories') or []
+    idx = next((i for i, x in enumerate(dirs) if str(x.get('id') or '') == fid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'folder {fid} not found'}
+    removed = dirs.pop(idx)
+    for it in (data.get('items') or []):
+        if str(it.get('folderId') or '').strip() == fid:
+            it['folderId'] = ''
+            it['updatedAt'] = now_iso()
+    data['directories'] = dirs
+    data['updatedAt'] = now_iso()
+    _save_strategy_data(data)
+    return {'ok': True, 'folder': removed, **_load_strategy_data()}
+
+
+def strategy_reorder_folders(folder_ids):
+    if not isinstance(folder_ids, list):
+        return {'ok': False, 'error': 'folderIds required'}
+    data = _load_strategy_data()
+    dirs = data.get('directories') or []
+    fixed_ids = {STRATEGY_IDEA_DIR_ID, STRATEGY_TRASH_DIR_ID}
+    fixed_dirs = [d for d in dirs if str((d or {}).get('id') or '') in fixed_ids]
+    normal_dirs = [d for d in dirs if str((d or {}).get('id') or '') not in fixed_ids]
+    normal_map = {str((d or {}).get('id') or ''): d for d in normal_dirs}
+
+    ordered = []
+    seen = set()
+    for fid in folder_ids:
+        did = str(fid or '').strip()
+        if not did or did in seen:
+            continue
+        row = normal_map.get(did)
+        if row is None:
+            continue
+        ordered.append(row)
+        seen.add(did)
+    for d in normal_dirs:
+        did = str((d or {}).get('id') or '').strip()
+        if did and did not in seen:
+            ordered.append(d)
+
+    idea_dir = next((d for d in fixed_dirs if str((d or {}).get('id') or '') == STRATEGY_IDEA_DIR_ID), {'id': STRATEGY_IDEA_DIR_ID, 'name': '想法池', 'fixed': True})
+    trash_dir = next((d for d in fixed_dirs if str((d or {}).get('id') or '') == STRATEGY_TRASH_DIR_ID), {'id': STRATEGY_TRASH_DIR_ID, 'name': '回收桶', 'fixed': True})
+    data['directories'] = [idea_dir, trash_dir, *ordered]
+    data['updatedAt'] = now_iso()
+    _save_strategy_data(data)
+    return {'ok': True, **_load_strategy_data()}
+
+
 def _automation_safe_task_key(task_id):
     key = re.sub(r'[^a-zA-Z0-9_.-]+', '_', str(task_id or '').strip())
     return (key[:80] or 'task').strip('._-') or 'task'
@@ -2264,17 +2816,17 @@ def _parse_automation_request(text):
         target_agent = 'libu'
     elif any(k in raw for k in ('尚书', 'shangshu')):
         target_agent = 'shangshu'
-    elif any(k in raw for k in ('中书', 'zhongshu')):
+    elif any(k in raw for k in ('中书', '战略', 'zhongshu')):
         target_agent = 'zhongshu'
-    elif any(k in raw for k in ('门下', 'menxia')):
+    elif any(k in raw for k in ('门下', '风险', '合规', 'menxia')):
         target_agent = 'menxia'
-    elif any(k in raw for k in ('太子', 'taizi')):
+    elif any(k in raw for k in ('太子', '秘书', '董事会', 'taizi')):
         target_agent = 'taizi'
-    elif any(k in raw for k in ('刑部', 'xingbu')):
+    elif any(k in raw for k in ('刑部', '测试', 'xingbu')):
         target_agent = 'xingbu'
-    elif any(k in raw for k in ('户部', 'hubu')):
+    elif any(k in raw for k in ('户部', '金融', 'hubu')):
         target_agent = 'hubu'
-    elif any(k in raw for k in ('钦天监', 'zaochao')):
+    elif any(k in raw for k in ('钦天监', '情报', 'zaochao')):
         target_agent = 'zaochao'
     parsed_prompt = raw
     return {
@@ -3395,6 +3947,42 @@ def _ensure_pm_project_design(project):
         item.setdefault('content', '')
         item.setdefault('updatedAt', now)
         item.setdefault('updatedBy', '')
+        if sec == 'topic_analysis':
+            raw_chat = item.get('chat')
+            if not isinstance(raw_chat, list):
+                raw_chat = []
+            norm_chat = []
+            for m in raw_chat[-120:]:
+                if not isinstance(m, dict):
+                    continue
+                role = str(m.get('role') or '').strip().lower()
+                if role not in {'user', 'codex', 'rnd'}:
+                    role = 'user'
+                text = str(m.get('text') or '').strip()
+                if not text:
+                    continue
+                norm_chat.append({
+                    'role': role,
+                    'text': text[:12000],
+                    'at': str(m.get('at') or now),
+                })
+            item['chat'] = norm_chat
+            raw_ideas = item.get('valuableIdeas')
+            if not isinstance(raw_ideas, list):
+                raw_ideas = []
+            norm_ideas = []
+            for it in raw_ideas[-200:]:
+                if not isinstance(it, dict):
+                    continue
+                txt = str(it.get('text') or '').strip()
+                if not txt:
+                    continue
+                norm_ideas.append({
+                    'id': str(it.get('id') or _new_pm_id('IDEA')),
+                    'text': txt[:1000],
+                    'at': str(it.get('at') or now),
+                })
+            item['valuableIdeas'] = norm_ideas
         raw_suggestions = item.get('suggestions')
         if not isinstance(raw_suggestions, list):
             raw_suggestions = []
@@ -3452,6 +4040,20 @@ def _ensure_pm_project_versions(project):
         })
     normalized.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
     project['versions'] = normalized
+
+
+def _ensure_pm_project_code_info(project):
+    if not isinstance(project, dict):
+        return
+    raw = project.get('codeInfo')
+    if not isinstance(raw, dict):
+        raw = {}
+    local_path = str(raw.get('localPath') or '').strip()
+    github_path = str(raw.get('githubPath') or '').strip()
+    project['codeInfo'] = {
+        'localPath': local_path[:PM_CODE_LOCAL_PATH_MAX],
+        'githubPath': github_path[:PM_CODE_GITHUB_PATH_MAX],
+    }
 
 
 def _ensure_pm_project_runtime(project):
@@ -3591,22 +4193,26 @@ def pm_list_projects():
         _ensure_pm_project_folders(p)
         _ensure_pm_project_design(p)
         _ensure_pm_project_versions(p)
+        _ensure_pm_project_code_info(p)
         _ensure_pm_project_runtime(p)
     projects_sorted = sorted(projects, key=lambda x: x.get('updatedAt', ''), reverse=True)
     _save_pm_data(data)
     return {'ok': True, 'projects': projects_sorted}
 
 
-def pm_create_project(name, description=''):
+def pm_create_project(name, description='', owner='rnd'):
     name = str(name or '').strip()
     if not name:
         return {'ok': False, 'error': '项目名称不能为空'}
+    owner_norm = str(owner or 'rnd').strip().lower()
+    if owner_norm not in {'rnd', 'zhongshu'}:
+        owner_norm = 'rnd'
     data = _load_pm_data()
     proj = {
         'id': _new_pm_id('PRJ'),
         'name': name[:120],
         'description': str(description or '').strip()[:2000],
-        'owner': 'rnd',
+        'owner': owner_norm,
         'folders': [
             {'id': PM_DESIGN_FOLDER_ID, 'name': PM_DESIGN_FOLDER_NAME},
             {'id': PM_VERSION_FOLDER_ID, 'name': PM_VERSION_FOLDER_NAME},
@@ -3615,6 +4221,8 @@ def pm_create_project(name, description=''):
         'design': {
             'brief': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
             'sections': {
+                'topic_analysis': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
+                'concept_refine': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
                 'requirements': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
                 'architecture': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
                 'function': {'content': '', 'updatedAt': now_iso(), 'updatedBy': ''},
@@ -3622,6 +4230,10 @@ def pm_create_project(name, description=''):
         },
         'items': [],
         'versions': [],
+        'codeInfo': {
+            'localPath': '',
+            'githubPath': '',
+        },
         'runtime': {
             'rndSessionId': '',
             'updatedAt': now_iso(),
@@ -3629,17 +4241,19 @@ def pm_create_project(name, description=''):
         'createdAt': now_iso(),
         'updatedAt': now_iso(),
     }
+    _ensure_pm_project_code_info(proj)
     _ensure_pm_project_runtime(proj)
     data['projects'].insert(0, proj)
     _save_pm_data(data)
     return {'ok': True, 'project': proj}
 
 
-def pm_update_project(project_id, name=None, description=None):
+def pm_update_project(project_id, name=None, description=None, code_local_path=None, code_github_path=None):
     data = _load_pm_data()
     project = _find_project(data, project_id)
     if not project:
         return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_code_info(project)
     if name is not None:
         n = str(name or '').strip()
         if not n:
@@ -3647,6 +4261,10 @@ def pm_update_project(project_id, name=None, description=None):
         project['name'] = n[:120]
     if description is not None:
         project['description'] = str(description or '').strip()[:2000]
+    if code_local_path is not None:
+        project['codeInfo']['localPath'] = str(code_local_path or '').strip()[:PM_CODE_LOCAL_PATH_MAX]
+    if code_github_path is not None:
+        project['codeInfo']['githubPath'] = str(code_github_path or '').strip()[:PM_CODE_GITHUB_PATH_MAX]
     project['updatedAt'] = now_iso()
     _save_pm_data(data)
     return {'ok': True, 'project': project}
@@ -3669,6 +4287,454 @@ def _find_project(data, project_id):
 
 def _find_item(project, item_id):
     return next((i for i in (project.get('items') or []) if i.get('id') == item_id), None)
+
+
+def _default_secretary_memory():
+    return {
+        'updatedAt': now_iso(),
+        'systemKnowledge': {
+            'content': (
+                "一人世界系统当前以菜单功能驱动：研发部、PM小组、藏经阁、人事部、能效部。\n"
+                "秘书的职责：理解用户一句话需求 -> 拆解动作 -> 在研发部建单并移交。\n"
+                "秘书不直接替研发部执行代码实现。"
+            )
+        },
+        'interfaceKnowledge': {
+            'items': [
+                {'method': 'POST', 'path': '/api/secretary/plan', 'purpose': '秘书需求理解与动作拆解'},
+                {'method': 'POST', 'path': '/api/secretary/execute', 'purpose': '按确认计划在研发部建单并移交'},
+                {'method': 'POST', 'path': '/api/pm/item-create', 'purpose': '研发部创建问题单'},
+                {'method': 'POST', 'path': '/api/pm/item-update', 'purpose': '更新问题单字段/状态/目录'},
+                {'method': 'POST', 'path': '/api/pm/item-reply', 'purpose': '给问题单追加留言记录'},
+            ],
+        },
+        'userFeedback': [],
+        'userPreferences': {
+            'content': (
+                "用户偏好：先给动作拆解确认，再执行建单；状态流转遵循各部门自身规则；\n"
+                "不使用旧三省六部工作流语义。"
+            )
+        },
+    }
+
+
+def _normalize_secretary_memory(payload):
+    base = _default_secretary_memory()
+    p = payload if isinstance(payload, dict) else {}
+    system_content = str((((p.get('systemKnowledge') or {}).get('content')) or base['systemKnowledge']['content'])).strip()
+    user_pref = str((((p.get('userPreferences') or {}).get('content')) or base['userPreferences']['content'])).strip()
+    raw_if = (((p.get('interfaceKnowledge') or {}).get('items')) if isinstance(p.get('interfaceKnowledge'), dict) else None)
+    items = []
+    if isinstance(raw_if, list):
+        for it in raw_if:
+            if not isinstance(it, dict):
+                continue
+            m = str(it.get('method') or '').strip().upper()[:10]
+            path = str(it.get('path') or '').strip()[:200]
+            purpose = str(it.get('purpose') or '').strip()[:240]
+            if not m or not path:
+                continue
+            items.append({'method': m, 'path': path, 'purpose': purpose})
+            if len(items) >= 120:
+                break
+    if not items:
+        items = base['interfaceKnowledge']['items']
+
+    raw_fb = p.get('userFeedback')
+    feedback = []
+    if isinstance(raw_fb, list):
+        for it in raw_fb:
+            if not isinstance(it, dict):
+                continue
+            fid = str(it.get('id') or '').strip() or _new_pm_id('SFB')
+            text = str(it.get('text') or '').strip()[:2000]
+            if not text:
+                continue
+            try:
+                rating = int(it.get('rating') or 0)
+            except Exception:
+                rating = 0
+            if rating < 1:
+                rating = 1
+            if rating > 5:
+                rating = 5
+            feedback.append({
+                'id': fid,
+                'taskId': str(it.get('taskId') or '').strip(),
+                'rating': rating,
+                'text': text,
+                'createdAt': str(it.get('createdAt') or now_iso()),
+            })
+            if len(feedback) >= 200:
+                break
+
+    return {
+        'updatedAt': str(p.get('updatedAt') or now_iso()),
+        'systemKnowledge': {'content': system_content or base['systemKnowledge']['content']},
+        'interfaceKnowledge': {'items': items},
+        'userFeedback': feedback,
+        'userPreferences': {'content': user_pref or base['userPreferences']['content']},
+    }
+
+
+def _load_secretary_memory():
+    data = atomic_json_read(SECRETARY_MEMORY_FILE, _default_secretary_memory())
+    mem = _normalize_secretary_memory(data)
+    return mem
+
+
+def _save_secretary_memory(memory):
+    payload = _normalize_secretary_memory(memory)
+    payload['updatedAt'] = now_iso()
+    atomic_json_write(SECRETARY_MEMORY_FILE, payload)
+    return payload
+
+
+def _load_secretary_tasks():
+    data = atomic_json_read(SECRETARY_TASKS_FILE, {'tasks': []})
+    tasks = data.get('tasks') if isinstance(data, dict) else []
+    tasks = tasks if isinstance(tasks, list) else []
+    out = []
+    for it in tasks:
+        if not isinstance(it, dict):
+            continue
+        out.append({
+            'id': str(it.get('id') or '').strip() or _new_pm_id('SEC'),
+            'sourceText': str(it.get('sourceText') or '').strip()[:5000],
+            'summary': str(it.get('summary') or '').strip()[:800],
+            'projectId': str(it.get('projectId') or '').strip(),
+            'projectName': str(it.get('projectName') or '').strip()[:120],
+            'folderId': str(it.get('folderId') or '').strip(),
+            'folderName': str(it.get('folderName') or '').strip()[:120],
+            'pmItemId': str(it.get('pmItemId') or '').strip(),
+            'pmItemTitle': str(it.get('pmItemTitle') or '').strip()[:240],
+            'status': str(it.get('status') or 'done').strip().lower(),
+            'rating': (int(it.get('rating')) if str(it.get('rating') or '').isdigit() else 0),
+            'comment': str(it.get('comment') or '').strip()[:2000],
+            'actions': (it.get('actions') if isinstance(it.get('actions'), list) else []),
+            'createdAt': str(it.get('createdAt') or now_iso()),
+            'updatedAt': str(it.get('updatedAt') or now_iso()),
+        })
+    out.sort(key=lambda x: str(x.get('createdAt') or ''), reverse=True)
+    return {'tasks': out}
+
+
+def _save_secretary_tasks(tasks):
+    rows = tasks if isinstance(tasks, list) else []
+    payload = {'updatedAt': now_iso(), 'tasks': rows}
+    atomic_json_write(SECRETARY_TASKS_FILE, payload)
+    return payload
+
+
+def secretary_list_tasks():
+    data = _load_secretary_tasks()
+    return {'ok': True, 'tasks': data.get('tasks', [])[:200]}
+
+
+def secretary_rate_task(task_id, rating, comment=''):
+    tid = str(task_id or '').strip()
+    if not tid:
+        return {'ok': False, 'error': 'taskId required'}
+    try:
+        score = int(rating)
+    except Exception:
+        return {'ok': False, 'error': 'rating 必须是 1-5'}
+    if score < 1 or score > 5:
+        return {'ok': False, 'error': 'rating 必须是 1-5'}
+    cmt = str(comment or '').strip()[:2000]
+
+    tasks_data = _load_secretary_tasks()
+    rows = tasks_data.get('tasks', [])
+    target = next((x for x in rows if str((x or {}).get('id') or '') == tid), None)
+    if not target:
+        return {'ok': False, 'error': f'秘书任务 {tid} 不存在'}
+    target['rating'] = score
+    target['comment'] = cmt
+    target['updatedAt'] = now_iso()
+    _save_secretary_tasks(rows)
+
+    mem = _load_secretary_memory()
+    fb = mem.get('userFeedback') if isinstance(mem.get('userFeedback'), list) else []
+    fb.append({
+        'id': _new_pm_id('SFB'),
+        'taskId': tid,
+        'rating': score,
+        'text': cmt or f'评分 {score}',
+        'createdAt': now_iso(),
+    })
+    mem['userFeedback'] = fb[-200:]
+    _save_secretary_memory(mem)
+    return {'ok': True, 'task': target, 'message': '评分与评价已记录到秘书经验库'}
+
+
+def secretary_update_memory(system_content=None, user_pref_content=None):
+    mem = _load_secretary_memory()
+    if system_content is not None:
+        mem['systemKnowledge'] = {'content': str(system_content or '').strip()[:40000]}
+    if user_pref_content is not None:
+        mem['userPreferences'] = {'content': str(user_pref_content or '').strip()[:40000]}
+    saved = _save_secretary_memory(mem)
+    return {'ok': True, 'memory': saved}
+
+
+def _find_pm_project_for_secretary(project_name=''):
+    data = _load_pm_data()
+    projects = data.get('projects') if isinstance(data, dict) else []
+    projects = projects if isinstance(projects, list) else []
+    if not projects:
+        return None, data
+    name = str(project_name or '').strip()
+    if name:
+        low = name.lower()
+        hit = next((p for p in projects if low in str((p or {}).get('name') or '').lower()), None)
+        if hit:
+            return hit, data
+    # 默认优先“一人世界”
+    hit = next((p for p in projects if '一人世界' in str((p or {}).get('name') or '')), None)
+    if hit:
+        return hit, data
+    # 兜底取最近更新项目
+    projects_sorted = sorted(projects, key=lambda x: str((x or {}).get('updatedAt') or ''), reverse=True)
+    return (projects_sorted[0] if projects_sorted else None), data
+
+
+def _find_pm_folder_for_secretary(project, folder_name=''):
+    if not isinstance(project, dict):
+        return ''
+    _ensure_pm_project_folders(project)
+    folders = project.get('folders') or []
+    folders = folders if isinstance(folders, list) else []
+    name = str(folder_name or '').strip()
+    if name:
+        low = name.lower()
+        hit = next((f for f in folders if low in str((f or {}).get('name') or '').lower()), None)
+        if hit:
+            return str(hit.get('id') or '').strip()
+    # 默认优先“人事部”
+    hit = next((f for f in folders if '人事部' in str((f or {}).get('name') or '')), None)
+    if hit:
+        return str(hit.get('id') or '').strip()
+    # 兜底首个业务目录（排除系统目录）
+    hit = next((f for f in folders if str((f or {}).get('id') or '') not in {PM_DESIGN_FOLDER_ID, PM_VERSION_FOLDER_ID}), None)
+    if hit:
+        return str(hit.get('id') or '').strip()
+    return ''
+
+
+def _secretary_plan_fallback(text, project, folder_id):
+    msg = str(text or '').strip()
+    title = msg[:160] if msg else '秘书自动拆解任务'
+    if '去掉' in msg or '删除' in msg:
+        task_type = 'opt'
+    elif 'bug' in msg.lower() or '报错' in msg:
+        task_type = 'bug'
+    else:
+        task_type = 'req'
+    return {
+        'summary': f"将需求落到研发部问题单：{title}",
+        'projectId': str((project or {}).get('id') or ''),
+        'projectName': str((project or {}).get('name') or ''),
+        'folderId': str(folder_id or ''),
+        'folderName': '',
+        'taskType': task_type,
+        'priority': 'P2',
+        'taskTitle': title,
+        'taskDescription': msg,
+        'actions': [
+            '在研发部对应项目目录下创建新问题单',
+            '写入秘书对需求的理解',
+            '执行该任务并回写结果',
+            '完成后将状态更新为已完成',
+        ],
+        'analysisBy': 'fallback',
+    }
+
+
+def secretary_plan(text, project_name='', folder_name=''):
+    req = str(text or '').strip()
+    if not req:
+        return {'ok': False, 'error': '请输入秘书指令'}
+    project, _data = _find_pm_project_for_secretary(project_name)
+    if not project:
+        return {'ok': False, 'error': '未找到可用项目，请先在研发部创建项目'}
+    memory = _load_secretary_memory()
+    system_knowledge = str((((memory.get('systemKnowledge') or {}).get('content')) or '')).strip()
+    user_pref = str((((memory.get('userPreferences') or {}).get('content')) or '')).strip()
+    fb_rows = memory.get('userFeedback') if isinstance(memory.get('userFeedback'), list) else []
+    recent_feedback = '\n'.join([
+        f"- 评分{int(x.get('rating') or 0)}：{str(x.get('text') or '').strip()[:180]}"
+        for x in fb_rows[-8:]
+        if isinstance(x, dict)
+    ]) or '- 暂无'
+    iface_rows = ((memory.get('interfaceKnowledge') or {}).get('items') if isinstance(memory.get('interfaceKnowledge'), dict) else [])
+    iface_lines = []
+    if isinstance(iface_rows, list):
+        for it in iface_rows[:40]:
+            if not isinstance(it, dict):
+                continue
+            iface_lines.append(
+                f"- {str(it.get('method') or '').upper()} {str(it.get('path') or '').strip()}: {str(it.get('purpose') or '').strip()}"
+            )
+    iface_text = '\n'.join(iface_lines) or '- 暂无'
+    folder_id = _find_pm_folder_for_secretary(project, folder_name)
+    fallback = _secretary_plan_fallback(req, project, folder_id)
+
+    prompt = (
+        "你是秘书 Agent（taizi），负责把用户自然语言指令转换为研发部可执行任务。\n"
+        "仅输出 JSON，不要解释，不要 Markdown。\n"
+        "输出格式：\n"
+        "{\n"
+        "  \"summary\":\"一句话理解\",\n"
+        "  \"taskTitle\":\"任务标题\",\n"
+        "  \"taskDescription\":\"任务描述\",\n"
+        "  \"taskType\":\"bug|req|opt\",\n"
+        "  \"priority\":\"P0|P1|P2|P3\",\n"
+        "  \"actions\":[\"动作1\",\"动作2\"],\n"
+        "  \"targetProjectName\":\"项目名\",\n"
+        "  \"targetFolderName\":\"目录名\"\n"
+        "}\n"
+        "约束：\n"
+        "1) 只考虑当前菜单功能，不要提三省六部旧流程。\n"
+        "2) 动作必须可落地到“研发部问题单”。\n\n"
+        "【系统知识】\n"
+        f"{system_knowledge[:6000]}\n\n"
+        "【接口说明】\n"
+        f"{iface_text[:6000]}\n\n"
+        "【用户偏好】\n"
+        f"{user_pref[:3000]}\n\n"
+        "【用户近期反馈】\n"
+        f"{recent_feedback[:3000]}\n\n"
+        f"候选项目：{project.get('name','')}\n"
+        f"候选目录：{folder_name or '人事部'}\n"
+        f"用户原话：{req}\n"
+    )
+    ai = _run_agent_sync('taizi', prompt, timeout_sec=180)
+    if not ai.get('ok'):
+        return {'ok': True, 'plan': fallback, 'warning': f"秘书分析失败，已用兜底规则：{str(ai.get('error') or '')[:120]}"}
+    raw = str(ai.get('raw') or '').strip()
+    parsed = _extract_json_payload(raw)
+    if not isinstance(parsed, dict):
+        return {'ok': True, 'plan': fallback, 'warning': '秘书返回不可解析，已用兜底规则'}
+
+    task_title = str(parsed.get('taskTitle') or fallback.get('taskTitle') or '').strip()[:200]
+    if not task_title:
+        task_title = fallback.get('taskTitle') or '秘书自动拆解任务'
+    task_desc = str(parsed.get('taskDescription') or req).strip()[:6000]
+    task_type = str(parsed.get('taskType') or fallback.get('taskType') or 'req').strip().lower()
+    if task_type not in {'bug', 'req', 'opt'}:
+        task_type = 'req'
+    priority = str(parsed.get('priority') or fallback.get('priority') or 'P2').strip().upper()
+    if priority not in {'P0', 'P1', 'P2', 'P3'}:
+        priority = 'P2'
+    target_project_name = str(parsed.get('targetProjectName') or project.get('name') or '').strip()
+    target_folder_name = str(parsed.get('targetFolderName') or folder_name or '人事部').strip()
+
+    target_project, _ = _find_pm_project_for_secretary(target_project_name or project.get('name') or '')
+    if not target_project:
+        target_project = project
+    target_folder_id = _find_pm_folder_for_secretary(target_project, target_folder_name)
+
+    actions = parsed.get('actions') if isinstance(parsed.get('actions'), list) else []
+    normalized_actions = []
+    for x in actions:
+        s = str(x or '').strip()
+        if not s:
+            continue
+        normalized_actions.append(s[:120])
+        if len(normalized_actions) >= 12:
+            break
+    if not normalized_actions:
+        normalized_actions = fallback.get('actions') or []
+
+    plan = {
+        'summary': str(parsed.get('summary') or fallback.get('summary') or '').strip()[:500],
+        'projectId': str((target_project or {}).get('id') or ''),
+        'projectName': str((target_project or {}).get('name') or ''),
+        'folderId': str(target_folder_id or ''),
+        'folderName': target_folder_name,
+        'taskType': task_type,
+        'priority': priority,
+        'taskTitle': task_title,
+        'taskDescription': task_desc,
+        'actions': normalized_actions,
+        'analysisBy': 'taizi',
+        'raw': raw[:4000],
+        'sourceText': req,
+    }
+    return {'ok': True, 'plan': plan}
+
+
+def secretary_execute(plan):
+    if not isinstance(plan, dict):
+        return {'ok': False, 'error': 'plan 格式非法'}
+    project_id = str(plan.get('projectId') or '').strip()
+    folder_id = str(plan.get('folderId') or '').strip()
+    title = str(plan.get('taskTitle') or '').strip()
+    desc = str(plan.get('taskDescription') or '').strip()
+    task_type = str(plan.get('taskType') or 'req').strip().lower()
+    priority = str(plan.get('priority') or 'P2').strip().upper()
+    actions = plan.get('actions') if isinstance(plan.get('actions'), list) else []
+    summary = str(plan.get('summary') or '').strip()
+    if not project_id or not title:
+        return {'ok': False, 'error': 'plan 缺少 projectId 或 taskTitle'}
+
+    created = pm_create_item(project_id, title, task_type, priority, desc)
+    if not created.get('ok'):
+        return created
+    item = created.get('item') or {}
+    item_id = str(item.get('id') or '').strip()
+    if not item_id:
+        return {'ok': False, 'error': '创建任务后未获得 itemId'}
+    # 迁移到指定目录；状态保持研发部自己的规则（默认 pending_release）
+    pm_update_item(project_id, item_id, folder_id=folder_id)
+
+    explain_lines = []
+    if summary:
+        explain_lines.append(f"秘书理解：{summary}")
+    if actions:
+        explain_lines.append('动作拆解：')
+        for i, a in enumerate(actions, 1):
+            explain_lines.append(f"{i}. {str(a)}")
+    if explain_lines:
+        pm_add_reply(project_id, item_id, '\n'.join(explain_lines)[:8000], role='codex')
+
+    # 记录秘书任务：秘书职责到“建单移交”即完成
+    tasks_data = _load_secretary_tasks()
+    rows = tasks_data.get('tasks', [])
+    secretary_task = {
+        'id': _new_pm_id('SEC'),
+        'sourceText': str(plan.get('sourceText') or desc or title)[:5000],
+        'summary': str(summary or title)[:800],
+        'projectId': project_id,
+        'projectName': str(plan.get('projectName') or ''),
+        'folderId': folder_id,
+        'folderName': str(plan.get('folderName') or ''),
+        'pmItemId': item_id,
+        'pmItemTitle': title,
+        'status': 'done',
+        'rating': 0,
+        'comment': '',
+        'actions': [str(x)[:120] for x in actions if str(x).strip()][:20],
+        'createdAt': now_iso(),
+        'updatedAt': now_iso(),
+    }
+    rows.insert(0, secretary_task)
+    _save_secretary_tasks(rows[:400])
+
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    item = _find_item(project, item_id) if project else None
+    return {
+        'ok': True,
+        'project': project,
+        'item': item,
+        'secretaryTask': {
+            'status': 'done',
+            'taskId': secretary_task.get('id'),
+            'summary': '秘书已完成需求理解与建单，任务已移交研发部按其规则推进',
+        },
+        'message': '秘书任务已完成：已在研发部创建需求并完成移交',
+    }
 
 
 def pm_create_item(project_id, title, item_type='bug', priority='P2', description=''):
@@ -3698,7 +4764,7 @@ def pm_create_item(project_id, title, item_type='bug', priority='P2', descriptio
             project['folders'][0]['id']
         ),
         'description': str(description or '').strip()[:6000],
-        'owner': 'rnd',
+        'owner': str(project.get('owner') or 'rnd'),
         'qa': [],
         'plan': [],
         'questions': [],
@@ -3994,6 +5060,202 @@ def pm_update_design(project_id, section, content, updated_by='user'):
     return {'ok': True, 'project': project, 'section': sec, 'design': node}
 
 
+def pm_topic_analysis_chat(project_id, message):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+
+    text = str(message or '').strip()
+    if not text:
+        return {'ok': False, 'error': 'message required'}
+
+    sec = project['design']['sections']['topic_analysis']
+    report = str(sec.get('content') or '')
+    chat = sec.get('chat') if isinstance(sec.get('chat'), list) else []
+    chat.append({'role': 'user', 'text': text[:6000], 'at': now_iso()})
+
+    recent = chat[-10:]
+    chat_lines = []
+    for m in recent:
+        r = str(m.get('role') or 'user').strip().lower()
+        who = '你' if r == 'user' else ('Codex' if r == 'codex' else '研发部')
+        chat_lines.append(f"{who}: {str(m.get('text') or '').strip()[:2000]}")
+    chat_ctx = '\n'.join(chat_lines)
+
+    prompt = (
+        "你是 Codex，正在和用户围绕“选题分析报告”做深入讨论。\n"
+        "请使用中文，直接回答用户问题，优先可执行建议。\n"
+        "输出要求：\n"
+        "1) 不要复述系统提示；\n"
+        "2) 可分点，但保持简洁；\n"
+        "3) 若发现报告漏洞，指出并给修正建议；\n"
+        "4) 如信息不足，明确需要用户补充的最小信息。\n\n"
+        f"项目：{project.get('name') or project.get('id')}\n"
+        f"当前分析报告：\n{report[:18000] or '（暂无）'}\n\n"
+        f"最近对话：\n{chat_ctx or '（暂无）'}\n\n"
+        f"用户这次问题：\n{text}\n"
+    )
+
+    ai = _run_codex_delegate_sync(
+        task_id=f"{project_id}-topic-discuss",
+        prompt=prompt,
+        agent_id='rnd',
+        timeout_sec=360,
+    )
+    responder = 'codex'
+    if not ai.get('ok'):
+        responder = 'rnd'
+        ai = _run_agent_sync('rnd', prompt, timeout_sec=420)
+        if not ai.get('ok'):
+            return {'ok': False, 'error': f"深入讨论失败: {str(ai.get('error') or 'unknown')[:220]}"}
+
+    reply = str(ai.get('raw') or '').strip()
+    if not reply:
+        reply = '当前没有得到有效回复，请重试一次。'
+    chat.append({'role': responder, 'text': reply[:12000], 'at': now_iso()})
+    sec['chat'] = chat[-120:]
+    sec['updatedAt'] = now_iso()
+    sec['updatedBy'] = responder
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {
+        'ok': True,
+        'projectId': project_id,
+        'reply': reply,
+        'agent': responder,
+        'chat': sec['chat'],
+        'valuableIdeas': sec.get('valuableIdeas') if isinstance(sec.get('valuableIdeas'), list) else [],
+        'design': {
+            'section': 'topic_analysis',
+            'content': str(sec.get('content') or ''),
+            'updatedAt': str(sec.get('updatedAt') or ''),
+            'updatedBy': str(sec.get('updatedBy') or ''),
+            'valuableIdeas': sec.get('valuableIdeas') if isinstance(sec.get('valuableIdeas'), list) else [],
+        },
+    }
+
+
+def pm_topic_analysis_add_idea(project_id, text):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+    idea = str(text or '').strip()
+    if not idea:
+        return {'ok': False, 'error': 'idea text required'}
+    sec = project['design']['sections']['topic_analysis']
+    ideas = sec.get('valuableIdeas') if isinstance(sec.get('valuableIdeas'), list) else []
+    now = now_iso()
+    ideas.insert(0, {
+        'id': _new_pm_id('IDEA'),
+        'text': idea[:1000],
+        'at': now,
+    })
+    sec['valuableIdeas'] = ideas[:200]
+    sec['updatedAt'] = now
+    sec['updatedBy'] = 'user'
+    project['updatedAt'] = now
+    _save_pm_data(data)
+    return {
+        'ok': True,
+        'projectId': project_id,
+        'valuableIdeas': sec['valuableIdeas'],
+        'design': {
+            'section': 'topic_analysis',
+            'content': str(sec.get('content') or ''),
+            'updatedAt': str(sec.get('updatedAt') or ''),
+            'updatedBy': str(sec.get('updatedBy') or ''),
+            'valuableIdeas': sec.get('valuableIdeas') if isinstance(sec.get('valuableIdeas'), list) else [],
+        },
+    }
+
+
+def pm_topic_analysis_delete_idea(project_id, idea_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+    iid = str(idea_id or '').strip()
+    if not iid:
+        return {'ok': False, 'error': 'ideaId required'}
+    sec = project['design']['sections']['topic_analysis']
+    ideas = sec.get('valuableIdeas') if isinstance(sec.get('valuableIdeas'), list) else []
+    idx = next((i for i, x in enumerate(ideas) if str((x or {}).get('id') or '') == iid), -1)
+    if idx < 0:
+        return {'ok': False, 'error': f'想法 {iid} 不存在'}
+    removed = ideas.pop(idx)
+    now = now_iso()
+    sec['valuableIdeas'] = ideas
+    sec['updatedAt'] = now
+    sec['updatedBy'] = 'user'
+    project['updatedAt'] = now
+    _save_pm_data(data)
+    return {
+        'ok': True,
+        'projectId': project_id,
+        'deletedIdea': removed,
+        'valuableIdeas': ideas,
+        'design': {
+            'section': 'topic_analysis',
+            'content': str(sec.get('content') or ''),
+            'updatedAt': str(sec.get('updatedAt') or ''),
+            'updatedBy': str(sec.get('updatedBy') or ''),
+            'valuableIdeas': ideas,
+        },
+    }
+
+
+def pm_topic_analysis_update_idea(project_id, idea_id, text):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+    iid = str(idea_id or '').strip()
+    if not iid:
+        return {'ok': False, 'error': 'ideaId required'}
+    new_text = str(text or '').strip()
+    if not new_text:
+        return {'ok': False, 'error': 'text required'}
+    sec = project['design']['sections']['topic_analysis']
+    ideas = sec.get('valuableIdeas') if isinstance(sec.get('valuableIdeas'), list) else []
+    target = next((x for x in ideas if str((x or {}).get('id') or '') == iid), None)
+    if not isinstance(target, dict):
+        return {'ok': False, 'error': f'想法 {iid} 不存在'}
+    target['text'] = new_text[:1000]
+    target['at'] = now_iso()
+    sec['valuableIdeas'] = ideas
+    sec['updatedAt'] = now_iso()
+    sec['updatedBy'] = 'user'
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return {
+        'ok': True,
+        'projectId': project_id,
+        'updatedIdea': target,
+        'valuableIdeas': ideas,
+        'design': {
+            'section': 'topic_analysis',
+            'content': str(sec.get('content') or ''),
+            'updatedAt': str(sec.get('updatedAt') or ''),
+            'updatedBy': str(sec.get('updatedBy') or ''),
+            'valuableIdeas': ideas,
+        },
+    }
+
+
 def pm_create_design_suggestion(project_id, section, text):
     data = _load_pm_data()
     project = _find_project(data, project_id)
@@ -4102,11 +5364,39 @@ def pm_generate_design(project_id, section):
         return {'ok': False, 'error': f'不支持的设计章节: {section}'}
 
     titles = {
+        'topic_analysis': '选题分析（方向评估）',
+        'concept_refine': '实化构想（大功能与工作流细化）',
         'requirements': '需求说明（PRD）',
         'architecture': '架构设计（含流程图）',
         'function': '功能设计（FSD）',
     }
     hints = {
+        'topic_analysis': '请输出选题分析，覆盖可借鉴产品、需求匹配、漏洞风险、意义评估、实施门槛、优先级建议与下一步验证。',
+        'concept_refine': (
+            "请把想法细化为“可落地蓝图 + 大功能结构 + 每个功能的说明与工作流”。\n"
+            "请严格按以下 Markdown 结构输出：\n"
+            "## 蓝图与构想总结\n"
+            "- 目标用户与核心价值\n- 产品边界与取舍\n- 最小可行闭环（MVP）\n"
+            "## 菜单结构\n"
+            "- 一级功能A\n"
+            "  - 二级能力A1\n"
+            "    - 三级工作流A1-1\n"
+            "    - 三级工作流A1-2\n"
+            "  - 二级能力A2\n"
+            "    - 三级工作流A2-1\n"
+            "- 一级功能B\n"
+            "  - 二级能力B1\n"
+            "    - 三级工作流B1-1\n\n"
+            "## 功能说明\n"
+            "### 一级功能A\n"
+            "- 目标\n- 满足的要求\n- 关键功能\n- 核心工作流\n- 边界与风险\n"
+            "### 一级功能B\n"
+            "- 目标\n- 满足的要求\n- 关键功能\n- 核心工作流\n- 边界与风险\n"
+            "要求：\n"
+            "1) 菜单结构必须至少三层；\n"
+            "2) 功能说明要与菜单结构一一对应；\n"
+            "3) 结构清晰、可执行、避免空话，尽量覆盖项目当前问题与方向描述。"
+        ),
         'requirements': '请输出结构化 PRD，至少包含背景/目标、用户与场景、功能范围、非功能需求、里程碑与验收标准。',
         'architecture': '请输出顶层架构设计，包含 Mermaid 流程图/结构图代码块，以及关键模块职责、数据流、边界与风险。',
         'function': '请基于 PRD 输出 FSD，包含功能拆解、流程、接口与字段、状态机/异常、测试要点。',
@@ -4115,10 +5405,24 @@ def pm_generate_design(project_id, section):
     latest_txt = '\n'.join([f"- [{it.get('status')}] {it.get('title')}" for it in latest_items[:20]])
     brief_text = str((((project.get('design') or {}).get('brief') or {}).get('content') or '')).strip()
     node = project['design']['sections'][sec]
+    topic_sec = (project.get('design') or {}).get('sections', {}).get('topic_analysis', {}) or {}
     current_content = str(node.get('content') or '').strip()
+    topic_content = str(topic_sec.get('content') or '').strip()
+    topic_chat = topic_sec.get('chat') if isinstance(topic_sec.get('chat'), list) else []
+    topic_ideas = topic_sec.get('valuableIdeas') if isinstance(topic_sec.get('valuableIdeas'), list) else []
     suggestions = node.get('suggestions') or []
     pending_suggestions = [s for s in suggestions if str(s.get('status') or '').lower() == 'pending']
     pending_txt = '\n'.join([f"- {s.get('text')}" for s in pending_suggestions])
+    topic_chat_txt = '\n'.join([
+        f"- {str((m or {}).get('role') or 'user')}: {str((m or {}).get('text') or '')[:220]}"
+        for m in topic_chat[-10:]
+        if isinstance(m, dict) and str((m or {}).get('text') or '').strip()
+    ])
+    topic_ideas_txt = '\n'.join([
+        f"- {str((it or {}).get('text') or '')[:260]}"
+        for it in topic_ideas[:30]
+        if isinstance(it, dict) and str((it or {}).get('text') or '').strip()
+    ])
     rewrite_keywords = ('重新编写', '重写', '推倒重写', '从零编写', '全量重写', '完全重写')
     rewrite_requested = any(any(k in str(s.get('text') or '') for k in rewrite_keywords) for s in pending_suggestions)
     generate_mode = 'rewrite' if rewrite_requested else 'incremental'
@@ -4137,6 +5441,12 @@ def pm_generate_design(project_id, section):
         f"{mode_rule}\n"
         f"问题清单参考（节选）：\n{latest_txt or '- 暂无'}\n\n"
         f"当前已有文档（请先学习后再修改）：\n{current_content[:12000] or '- 当前为空'}\n\n"
+        + (
+            f"选题分析报告（重点参考）：\n{topic_content[:18000] or '- 暂无'}\n\n"
+            f"选题阶段关键对话（节选）：\n{topic_chat_txt or '- 暂无'}\n\n"
+            f"鱼塘有价值想法（节选）：\n{topic_ideas_txt or '- 暂无'}\n\n"
+            if sec == 'concept_refine' else ''
+        ) +
         f"待采纳整改建议（必须逐条落实）：\n{pending_txt or '- 暂无'}\n\n"
         f"{hints[sec]}\n"
         "输出要求：仅输出 Markdown 正文，不要输出解释。"
@@ -4144,7 +5454,25 @@ def pm_generate_design(project_id, section):
     lane = _resolve_isolated_agent('rnd', project.get('id', ''), 'pm', f'design-{sec}')
     if not lane.get('ok'):
         return {'ok': False, 'error': lane.get('error', '隔离路由失败')}
-    ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=300)
+    ai_source = 'rnd'
+    if sec == 'concept_refine':
+        delegate = _run_codex_delegate_sync(
+            task_id=f"{project_id}-concept-refine",
+            prompt=prompt,
+            agent_id=lane['agentId'],
+            timeout_sec=420,
+        )
+        if delegate.get('ok'):
+            ai = delegate
+            ai_source = 'codex'
+        else:
+            # 若 Codex 会话不可用，回退研发部会话，并把完整上下文作为首轮输入，确保理解一致
+            sid = _get_pm_rnd_session_id(project)
+            ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=420, session_id=sid)
+            ai_source = 'rnd'
+    else:
+        ai = _run_agent_sync(lane['agentId'], prompt, timeout_sec=300)
+        ai_source = 'rnd'
     if not ai.get('ok'):
         return {'ok': False, 'error': ai.get('error', '研发部生成失败')}
     content = str(ai.get('raw') or '').strip()
@@ -4154,13 +5482,359 @@ def pm_generate_design(project_id, section):
     node['content'] = content[:30000]
     now = now_iso()
     node['updatedAt'] = now
-    node['updatedBy'] = 'rnd'
+    node['updatedBy'] = ai_source
     for s in pending_suggestions:
         s['status'] = 'adopted'
         s['updatedAt'] = now
     project['updatedAt'] = now
     _save_pm_data(data)
     return {'ok': True, 'project': project, 'section': sec, 'design': node}
+
+
+def _pm_update_topic_analysis_state(project_id, mutator):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return None
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+    mutator(project)
+    project['updatedAt'] = now_iso()
+    _save_pm_data(data)
+    return project
+
+
+def _pm_is_topic_analysis_stale(job, stale_seconds=600):
+    if not isinstance(job, dict):
+        return False
+    if str(job.get('status') or '').strip().lower() != 'running':
+        return False
+    ts = str(job.get('updatedAt') or job.get('startedAt') or '').strip()
+    if not ts:
+        return False
+    try:
+        dt = datetime.datetime.fromisoformat(ts.replace('Z', '+00:00'))
+        now_dt = datetime.datetime.now(datetime.timezone.utc)
+        return (now_dt - dt).total_seconds() > max(120, int(stale_seconds or 600))
+    except Exception:
+        return False
+
+
+def _pm_mark_topic_analysis_stale(project_id):
+    now = now_iso()
+
+    def _mut(project):
+        runtime = project.setdefault('runtime', {})
+        job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+        job.update({
+            'status': 'failed',
+            'message': '分析任务已中断（服务重启或超时），请点击“开始分析”重试',
+            'updatedAt': now,
+        })
+        runtime['topicAnalysisJob'] = job
+        sec = project['design']['sections']['topic_analysis']
+        cur = str(sec.get('content') or '').strip()
+        note = "⚠️ 分析任务中断：服务重启或任务超时。可重新点击“开始分析”。"
+        sec['content'] = (cur + ("\n\n---\n\n" if cur else '') + note).strip()
+        sec['updatedAt'] = now
+        sec['updatedBy'] = 'codex'
+
+    return _pm_update_topic_analysis_state(project_id, _mut)
+
+
+def pm_get_topic_analysis_status(project_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+    section = (project.get('design') or {}).get('sections', {}).get('topic_analysis', {}) or {}
+    runtime = project.get('runtime') or {}
+    job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+    if _pm_is_topic_analysis_stale(job):
+        project = _pm_mark_topic_analysis_stale(project_id) or project
+        runtime = project.get('runtime') or {}
+        job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+        section = (project.get('design') or {}).get('sections', {}).get('topic_analysis', {}) or {}
+    if not job:
+        job = {
+            'status': 'idle',
+            'message': '未开始',
+            'progress': 0,
+            'steps': [],
+            'updatedAt': now_iso(),
+        }
+    return {
+        'ok': True,
+        'projectId': project_id,
+        'job': job,
+        'design': {
+            'section': 'topic_analysis',
+            'content': str(section.get('content') or ''),
+            'updatedAt': str(section.get('updatedAt') or ''),
+            'updatedBy': str(section.get('updatedBy') or ''),
+            'chat': section.get('chat') if isinstance(section.get('chat'), list) else [],
+            'valuableIdeas': section.get('valuableIdeas') if isinstance(section.get('valuableIdeas'), list) else [],
+        },
+    }
+
+
+def _pm_mark_topic_analysis_failed(project_id, message):
+    msg = str(message or '分析失败').strip()[:400]
+
+    def _mut(project):
+        runtime = project.setdefault('runtime', {})
+        job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+        job.update({
+            'status': 'failed',
+            'message': msg or '分析失败',
+            'updatedAt': now_iso(),
+        })
+        runtime['topicAnalysisJob'] = job
+        sec = project['design']['sections']['topic_analysis']
+        current = str(sec.get('content') or '').strip()
+        if current:
+            sec['content'] = f"{current}\n\n---\n\n⚠️ 分析中断：{msg or '分析失败'}"
+        else:
+            sec['content'] = f"⚠️ 分析中断：{msg or '分析失败'}"
+        sec['updatedAt'] = now_iso()
+        sec['updatedBy'] = 'codex'
+
+    _pm_update_topic_analysis_state(project_id, _mut)
+
+
+def _pm_run_topic_analysis_job(project_id):
+    try:
+        snapshot = pm_get_topic_analysis_status(project_id)
+        if not snapshot.get('ok'):
+            return
+        data = _load_pm_data()
+        project = _find_project(data, project_id)
+        if not project:
+            return
+        brief_text = str((((project.get('design') or {}).get('brief') or {}).get('content') or '')).strip()
+        project_name = str(project.get('name') or project.get('id') or '未命名项目')
+        project_desc = str(project.get('description') or '').strip()
+
+        def _update_running(message, progress=None, append_md=None, step_item=None, updated_by=None):
+            now = now_iso()
+
+            def _mut(p):
+                runtime = p.setdefault('runtime', {})
+                job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+                job['status'] = 'running'
+                job['message'] = str(message or '').strip()[:220]
+                if progress is not None:
+                    try:
+                        job['progress'] = max(0, min(100, int(progress)))
+                    except Exception:
+                        pass
+                steps = job.get('steps')
+                if not isinstance(steps, list):
+                    steps = []
+                if isinstance(step_item, dict):
+                    steps.append(step_item)
+                job['steps'] = steps
+                if updated_by:
+                    job['agent'] = str(updated_by or '').strip()[:40]
+                job['updatedAt'] = now
+                runtime['topicAnalysisJob'] = job
+                sec = p['design']['sections']['topic_analysis']
+                if append_md:
+                    cur = str(sec.get('content') or '')
+                    sec['content'] = (cur + ('\n\n' if cur.strip() else '') + str(append_md)).strip()
+                sec['updatedAt'] = now
+                if updated_by:
+                    sec['updatedBy'] = str(updated_by or '').strip()[:40]
+                else:
+                    sec['updatedBy'] = 'codex'
+
+            _pm_update_topic_analysis_state(project_id, _mut)
+
+        fallback_used = {'v': False}
+        fallback_reason = {'msg': ''}
+
+        def _ask_codex(prompt, timeout_sec=240, task_suffix='topic-analysis'):
+            delegate_task_id = f"{project_id}-{str(task_suffix or 'topic-analysis')}".strip()[:120]
+            # 优先通过 codex_delegate 走本机 Codex（无需 codex agent workspace）
+            ai = _run_codex_delegate_sync(
+                task_id=delegate_task_id,
+                prompt=prompt,
+                agent_id='rnd',
+                timeout_sec=max(120, min(900, int(timeout_sec or 240))),
+            )
+            if ai.get('ok'):
+                ai['_agent'] = 'codex'
+                return ai
+            # codex_delegate 不可用时回退研发部，避免任务直接失败
+            fallback_used['v'] = True
+            fallback_reason['msg'] = str(ai.get('error') or '').strip()[:160]
+            ai2 = _run_agent_sync('rnd', prompt, timeout_sec=timeout_sec)
+            ai2['_agent'] = 'rnd'
+            return ai2
+
+        _update_running('正在规划分析维度…', progress=5)
+
+        aspect_prompt = (
+            "你是资深产品战略分析师。请先只输出 JSON：\n"
+            "{\"aspects\":[\"维度1\",\"维度2\",...]}。\n"
+            "任务：针对一个产品想法，列出最值得优先分析的 6~8 个维度，覆盖但不限于：可借鉴竞品、需求匹配、漏洞风险、真实意义/是否多此一举、落地复杂度、验证路径。\n"
+            "不要输出任何解释文本。\n"
+            f"项目：{project_name}\n"
+            f"项目说明：{project_desc or '（无）'}\n"
+            f"一句话想法：{brief_text or '（未提供）'}\n"
+        )
+        aspects = ['可借鉴产品', '可满足需求', '漏洞与风险', '价值与必要性', '落地复杂度', '验证路径']
+        aspect_ai = _ask_codex(aspect_prompt, timeout_sec=120, task_suffix='topic-aspects')
+        if aspect_ai.get('ok'):
+            payload = _extract_json_payload(str(aspect_ai.get('raw') or ''))
+            ai_aspects = []
+            if isinstance(payload, dict) and isinstance(payload.get('aspects'), list):
+                for x in payload.get('aspects'):
+                    s = str(x or '').strip()
+                    if s:
+                        ai_aspects.append(s[:40])
+            if ai_aspects:
+                aspects = ai_aspects
+        aspects = aspects[:8]
+
+        _update_running(
+            '已规划分析维度，开始逐条深挖…',
+            progress=10,
+            append_md="## 选题分析维度\n" + '\n'.join([f"- {a}" for a in aspects]),
+            step_item={'title': '分析维度规划', 'status': 'done', 'at': now_iso()},
+            updated_by=aspect_ai.get('_agent') if isinstance(aspect_ai, dict) else None,
+        )
+
+        for idx, aspect in enumerate(aspects, start=1):
+            pct = 10 + int((idx - 1) * 85 / max(1, len(aspects)))
+            _update_running(
+                f"分析中（{idx}/{len(aspects)}）：{aspect}",
+                progress=pct,
+            )
+            one_prompt = (
+                "你是 Codex，现在做产品选题审视。请只输出 Markdown 正文，不要 JSON。\n"
+                "输出结构：\n"
+                f"### {aspect}\n"
+                "- 结论：...\n"
+                "- 依据：...\n"
+                "- 潜在问题：...\n"
+                "- 建议动作：...\n"
+                "要求：避免空话，尽量具体；可在不确定处标注“需进一步验证”。\n"
+                f"项目：{project_name}\n"
+                f"项目说明：{project_desc or '（无）'}\n"
+                f"一句话想法：{brief_text or '（未提供）'}\n"
+            )
+            one_ai = _ask_codex(one_prompt, timeout_sec=300, task_suffix=f'topic-{idx}')
+            if not one_ai.get('ok'):
+                _pm_mark_topic_analysis_failed(project_id, f"Codex 分析失败（{aspect}）：{one_ai.get('error') or 'unknown'}")
+                return
+            md = str(one_ai.get('raw') or '').strip()
+            if not md:
+                md = f"### {aspect}\n- 结论：暂无输出，需重试。\n- 依据：-\n- 潜在问题：-\n- 建议动作：-\n"
+            _update_running(
+                f"已完成：{aspect}",
+                progress=10 + int(idx * 85 / max(1, len(aspects))),
+                append_md=md,
+                step_item={'title': aspect, 'status': 'done', 'at': now_iso()},
+                updated_by=one_ai.get('_agent') if isinstance(one_ai, dict) else None,
+            )
+
+        _update_running(
+            '分析完成',
+            progress=100,
+            append_md=(
+                "---\n\n## 综合判断\n请结合以上维度，优先推进“高价值、低不确定”的最小验证方案（MVP）。"
+                + (
+                    "\n\n> 注：Codex delegate 不可用，已自动回退研发部 Agent 生成本次分析。"
+                    + (f"（原因：{fallback_reason['msg']}）" if fallback_reason['msg'] else '')
+                    if fallback_used['v'] else ''
+                )
+            ),
+            step_item={'title': '综合判断', 'status': 'done', 'at': now_iso()},
+            updated_by=('rnd' if fallback_used['v'] else 'codex'),
+        )
+
+        def _finish(project):
+            runtime = project.setdefault('runtime', {})
+            job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+            job['status'] = 'done'
+            job['message'] = '分析完成'
+            job['progress'] = 100
+            job['agent'] = 'rnd' if fallback_used['v'] else 'codex'
+            job['updatedAt'] = now_iso()
+            runtime['topicAnalysisJob'] = job
+            sec = project['design']['sections']['topic_analysis']
+            sec['updatedAt'] = now_iso()
+            sec['updatedBy'] = 'rnd' if fallback_used['v'] else 'codex'
+
+        _pm_update_topic_analysis_state(project_id, _finish)
+    except Exception as e:
+        _pm_mark_topic_analysis_failed(project_id, f'后台分析异常：{str(e)[:180]}')
+
+
+def pm_start_topic_analysis(project_id):
+    data = _load_pm_data()
+    project = _find_project(data, project_id)
+    if not project:
+        return {'ok': False, 'error': f'项目 {project_id} 不存在'}
+    _ensure_pm_project_folders(project)
+    _ensure_pm_project_design(project)
+    _ensure_pm_project_runtime(project)
+    brief_text = str((((project.get('design') or {}).get('brief') or {}).get('content') or '')).strip()
+    if not brief_text:
+        return {'ok': False, 'error': '请先填写“一句话描述（PRD 方向）”，再开始分析'}
+    runtime = project.setdefault('runtime', {})
+    cur_job = runtime.get('topicAnalysisJob') if isinstance(runtime.get('topicAnalysisJob'), dict) else {}
+    if _pm_is_topic_analysis_stale(cur_job):
+        now = now_iso()
+        cur_job['status'] = 'failed'
+        cur_job['message'] = '上次分析已中断，已自动转为可重试状态'
+        cur_job['updatedAt'] = now
+        runtime['topicAnalysisJob'] = cur_job
+    if str(cur_job.get('status') or '').strip().lower() == 'running':
+        section = project['design']['sections']['topic_analysis']
+        return {
+            'ok': True,
+            'running': True,
+            'project': project,
+            'job': cur_job,
+            'design': section,
+        }
+
+    now = now_iso()
+    runtime['topicAnalysisJob'] = {
+        'status': 'running',
+        'message': '分析任务已启动',
+        'progress': 1,
+        'steps': [],
+        'startedAt': now,
+        'updatedAt': now,
+        'agent': 'codex',
+    }
+    section = project['design']['sections']['topic_analysis']
+    section['content'] = (
+        f"## 选题分析启动\n"
+        f"- 项目：{project.get('name') or project.get('id')}\n"
+        f"- 一句话想法：{brief_text}\n"
+        f"- 启动时间：{now.replace('T',' ')[:19]}\n"
+    )
+    section['updatedAt'] = now
+    section['updatedBy'] = 'codex'
+    project['updatedAt'] = now
+    _save_pm_data(data)
+
+    threading.Thread(target=_pm_run_topic_analysis_job, args=(project_id,), daemon=True).start()
+    return {
+        'ok': True,
+        'running': True,
+        'project': project,
+        'job': runtime.get('topicAnalysisJob'),
+        'design': section,
+    }
 
 
 def pm_generate_version(project_id):
@@ -4985,7 +6659,7 @@ def jzg_generate_report_template(project_id, mode='daily', requirement='', curre
     existing_tpl = str((((project.get('followups') or {}).get('reportTemplates') or {}).get(md) or '')).strip()
     base_tpl = str(current_template or '').strip() or existing_tpl or default_tpl
     vars_hint = (
-        "{project_name}, {date}, {done_items}, {todo_items}"
+        "{project_name}, {date}, {done_items}"
         if md == 'daily' else
         "{project_name}, {start_date}, {end_date}, {done_items}, {todo_items}"
     )
@@ -4996,6 +6670,8 @@ def jzg_generate_report_template(project_id, mode='daily', requirement='', curre
         "1) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
         "2) JSON 格式固定为：{\"template\":\"...\"}\n"
         "3) 必须保留并合理使用变量占位符，允许调整结构和措辞。\n"
+        "3.1) 若是日报模版，禁止出现“未完成/待办”段落。\n"
+        "3.2) 日报模版必须包含“当日工作成果（润色补充）/工作性质总结/风险分析”三个部分。\n"
         f"4) 本次可用变量：{vars_hint}\n\n"
         f"模版类型：{'日报' if md == 'daily' else '周报'}\n"
         f"项目名称：{project.get('name') or project.get('id') or '未命名项目'}\n"
@@ -5075,6 +6751,8 @@ def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='
                 done_items.append(it)
         else:
             todo_items.append(it)
+    if md == 'daily':
+        todo_items = []
 
     tpl = str(template or '').strip()
     if not tpl:
@@ -5089,10 +6767,12 @@ def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='
 
     prompt = (
         "你是兵部尚书，擅长把任务清单整理成正式日报/周报。\n"
-        "请严格参考“模版格式”，并基于已完成/未完成任务生成一版表达清晰、可直接发送的中文报告。\n"
+        "请严格参考“模版格式”，生成一版表达清晰、可直接发送的中文报告。\n"
         "要求：\n"
         "1) 必须遵循模版结构，不要丢段落标题。\n"
         "2) 可润色措辞，但不要编造不存在的任务。\n"
+        "2.1) 若是日报：只基于“本次已完成任务”写作，禁止出现未完成任务/待办事项清单。\n"
+        "2.2) 若是日报：对已完成事项做语言补充美化，并给出“工作性质总结”和“风险分析”。\n"
         "3) 只输出 JSON 对象，不要 Markdown，不要解释。\n"
         "4) JSON 格式固定为：{\"report\":\"...\"}\n\n"
         f"报告类型：{'日报' if md == 'daily' else '周报'}\n"
@@ -5102,7 +6782,7 @@ def jzg_generate_followup_report(project_id, mode='daily', date='', start_date='
         f"{tpl[:12000]}\n\n"
         "本次已完成任务：\n"
         f"{done_text}\n\n"
-        "当前未完成任务：\n"
+        "当前未完成任务（日报场景请忽略该段）：\n"
         f"{todo_text}\n"
     )
     ai = _run_agent_sync('bingbu', prompt, timeout_sec=300)
@@ -5637,7 +7317,7 @@ def _next_jjc_task_id():
     return f'JJC-{dt:%Y%m%d}-{dt:%H%M%S}{ms % 1000:03d}'
 
 
-def handle_create_task(title, org='中书省', official='中书令', priority='normal', template_id='', params=None, target_dept=''):
+def handle_create_task(title, org='战略研究部', official='战略负责人', priority='normal', template_id='', params=None, target_dept=''):
     """从看板创建新任务（圣旨模板下旨）。"""
     if not title or not title.strip():
         return {'ok': False, 'error': '任务标题不能为空'}
@@ -5656,16 +7336,16 @@ def handle_create_task(title, org='中书省', official='中书令', priority='n
         return {'ok': False, 'error': f'「{title}」不是有效旨意，请输入具体工作指令'}
     # 生成 task id: JJC-YYYYMMDD-HHMMSSmmm（持久单调递增）
     task_id = _next_jjc_task_id()
-    # 正确流程起点：皇上 -> 太子分拣
+    # 正确流程起点：皇上 -> 董事会分拣
     # target_dept 记录模板建议的最终执行部门（仅供尚书省派发参考）
-    initial_org = '太子'
+    initial_org = '董事会'
     new_task = {
         'id': task_id,
         'title': title,
         'official': official,
         'org': initial_org,
         'state': 'Taizi',
-        'now': '等待太子接旨分拣',
+        'now': '等待秘书接旨分拣',
         'eta': '-',
         'block': '无',
         'output': '',
@@ -5694,11 +7374,11 @@ def handle_create_task(title, org='中书省', official='中书令', priority='n
 
     dispatch_for_state(task_id, new_task, 'Taizi', trigger='imperial-edict')
 
-    return {'ok': True, 'taskId': task_id, 'message': f'旨意 {task_id} 已下达，正在派发给太子'}
+    return {'ok': True, 'taskId': task_id, 'message': f'旨意 {task_id} 已下达，正在派发给秘书'}
 
 
 def handle_review_action(task_id, action, comment=''):
-    """门下省御批：准奏/封驳。"""
+    """风险部御批：准奏/封驳。"""
     tasks = load_tasks()
     task = next((t for t in tasks if t.get('id') == task_id), None)
     if not task:
@@ -5712,8 +7392,8 @@ def handle_review_action(task_id, action, comment=''):
     if action == 'approve':
         if task['state'] == 'Menxia':
             task['state'] = 'Assigned'
-            task['now'] = '门下省准奏，移交尚书省派发'
-            remark = f'✅ 准奏：{comment or "门下省审议通过"}'
+            task['now'] = '风险部准奏，移交尚书省派发'
+            remark = f'✅ 准奏：{comment or "风险部审议通过"}'
             to_dept = '尚书省'
         else:  # Review
             task['state'] = 'Done'
@@ -5724,15 +7404,15 @@ def handle_review_action(task_id, action, comment=''):
         round_num = (task.get('review_round') or 0) + 1
         task['review_round'] = round_num
         task['state'] = 'Zhongshu'
-        task['now'] = f'封驳退回中书省修订（第{round_num}轮）'
+        task['now'] = f'封驳退回战略研究部修订（第{round_num}轮）'
         remark = f'🚫 封驳：{comment or "需要修改"}'
-        to_dept = '中书省'
+        to_dept = '战略研究部'
     else:
         return {'ok': False, 'error': f'未知操作: {action}'}
 
     task.setdefault('flow_log', []).append({
         'at': now_iso(),
-        'from': '门下省' if task.get('state') != 'Done' else '皇上',
+        'from': '风险部' if task.get('state') != 'Done' else '皇上',
         'to': to_dept,
         'remark': remark
     })
@@ -5753,17 +7433,17 @@ def handle_review_action(task_id, action, comment=''):
 # ══ Agent 在线状态检测 ══
 
 _AGENT_DEPTS = [
-    {'id':'taizi',   'label':'太子',  'emoji':'🤴', 'role':'太子',     'rank':'储君'},
-    {'id':'zhongshu','label':'中书省','emoji':'📜', 'role':'中书令',   'rank':'正一品'},
-    {'id':'menxia',  'label':'门下省','emoji':'🔍', 'role':'侍中',     'rank':'正一品'},
+    {'id':'taizi',   'label':'董事会',  'emoji':'🤴', 'role':'秘书',     'rank':'储君'},
+    {'id':'zhongshu','label':'战略研究部','emoji':'📜', 'role':'战略负责人',   'rank':'正一品'},
+    {'id':'menxia',  'label':'风险部','emoji':'🔍', 'role':'合规',     'rank':'正一品'},
     {'id':'shangshu','label':'尚书省','emoji':'📮', 'role':'尚书令',   'rank':'正一品'},
-    {'id':'hubu',    'label':'户部',  'emoji':'💰', 'role':'户部尚书', 'rank':'正二品'},
+    {'id':'hubu',    'label':'金融部',  'emoji':'💰', 'role':'金融分析师', 'rank':'正二品'},
     {'id':'libu',    'label':'藏经阁',  'emoji':'📝', 'role':'扫地僧', 'rank':'正二品'},
     {'id':'bingbu',  'label':'PM小组',  'emoji':'⚔️', 'role':'项目经理', 'rank':'正二品'},
-    {'id':'xingbu',  'label':'刑部',  'emoji':'⚖️', 'role':'刑部尚书', 'rank':'正二品'},
+    {'id':'xingbu',  'label':'测试部',  'emoji':'⚖️', 'role':'测试员', 'rank':'正二品'},
     {'id':'rnd',  'label':'研发部',  'emoji':'💻', 'role':'研发总监', 'rank':'正二品'},
     {'id':'libu_hr', 'label':'人事部',  'emoji':'👔', 'role':'人事经理', 'rank':'正二品'},
-    {'id':'zaochao', 'label':'钦天监','emoji':'📰', 'role':'朝报官',   'rank':'正三品'},
+    {'id':'zaochao', 'label':'情报处','emoji':'📰', 'role':'情报官',   'rank':'正三品'},
 ]
 _BASE_AGENT_IDS = {x['id'] for x in _AGENT_DEPTS}
 
@@ -6434,10 +8114,10 @@ _STATE_AGENT_MAP = {
     'Pending': 'zhongshu', # 待处理，默认中书省
 }
 _ORG_AGENT_MAP = {
-    '礼部': 'libu', '藏经阁': 'libu', '户部': 'hubu', '兵部': 'bingbu',
+    '礼部': 'libu', '藏经阁': 'libu', '户部': 'hubu', '金融部': 'hubu', '兵部': 'bingbu',
     'PM小组': 'bingbu',
-    '刑部': 'xingbu', '工部': 'rnd', '研发部': 'rnd', '吏部': 'libu_hr', '人事部': 'libu_hr',
-    '中书省': 'zhongshu', '门下省': 'menxia', '尚书省': 'shangshu',
+    '刑部': 'xingbu', '测试部': 'xingbu', '工部': 'rnd', '研发部': 'rnd', '吏部': 'libu_hr', '人事部': 'libu_hr',
+    '中书省': 'zhongshu', '战略研究部': 'zhongshu', '门下省': 'menxia', '风险部': 'menxia', '尚书省': 'shangshu',
 }
 
 _TERMINAL_STATES = {'Done', 'Cancelled'}
@@ -6484,7 +8164,7 @@ def _ensure_scheduler(task):
 def _scheduler_add_flow(task, remark, to=''):
     task.setdefault('flow_log', []).append({
         'at': now_iso(),
-        'from': '太子调度',
+        'from': '董事会调度',
         'to': to or task.get('org', ''),
         'remark': f'🧭 {remark}'
     })
@@ -6580,7 +8260,7 @@ def handle_scheduler_escalate(task_id, reason=''):
     current_level = int(sched.get('escalationLevel') or 0)
     next_level = min(current_level + 1, 2)
     target = 'menxia' if next_level == 1 else 'shangshu'
-    target_label = '门下省' if next_level == 1 else '尚书省'
+    target_label = '风险部' if next_level == 1 else '尚书省'
 
     sched['escalationLevel'] = next_level
     sched['lastEscalatedAt'] = now_iso()
@@ -6589,7 +8269,7 @@ def handle_scheduler_escalate(task_id, reason=''):
     save_tasks(tasks)
 
     msg = (
-        f'🧭 太子调度升级通知\n'
+        f'🧭 董事会调度升级通知\n'
         f'任务ID: {task_id}\n'
         f'当前状态: {state}\n'
         f'停滞处理: 请你介入协调推进\n'
@@ -6615,7 +8295,7 @@ def handle_scheduler_rollback(task_id, reason=''):
     old_state = task.get('state', '')
     task['state'] = snap_state
     task['org'] = snapshot.get('org', task.get('org', ''))
-    task['now'] = f'↩️ 太子调度自动回滚：{reason or "恢复到上个稳定节点"}'
+    task['now'] = f'↩️ 董事会调度自动回滚：{reason or "恢复到上个稳定节点"}'
     task['block'] = '无'
     sched['retryCount'] = 0
     sched['escalationLevel'] = 0
@@ -6679,7 +8359,7 @@ def handle_scheduler_scan(threshold_sec=600):
         if level < 2:
             next_level = level + 1
             target = 'menxia' if next_level == 1 else 'shangshu'
-            target_label = '门下省' if next_level == 1 else '尚书省'
+            target_label = '风险部' if next_level == 1 else '尚书省'
             sched['escalationLevel'] = next_level
             sched['lastEscalatedAt'] = now_iso()
             _scheduler_add_flow(task, f'停滞{stalled_sec}秒，升级至{target_label}协调', to=target_label)
@@ -6695,7 +8375,7 @@ def handle_scheduler_scan(threshold_sec=600):
                 old_state = state
                 task['state'] = snap_state
                 task['org'] = snapshot.get('org', task.get('org', ''))
-                task['now'] = '↩️ 太子调度自动回滚到稳定节点'
+                task['now'] = '↩️ 董事会调度自动回滚到稳定节点'
                 task['block'] = '无'
                 sched['retryCount'] = 0
                 sched['escalationLevel'] = 0
@@ -6716,7 +8396,7 @@ def handle_scheduler_scan(threshold_sec=600):
 
     for task_id, state, target, target_label, stalled_sec in pending_escalates:
         msg = (
-            f'🧭 太子调度升级通知\n'
+            f'🧭 董事会调度升级通知\n'
             f'任务ID: {task_id}\n'
             f'当前状态: {state}\n'
             f'已停滞: {stalled_sec} 秒\n'
@@ -6776,18 +8456,18 @@ def handle_repair_flow_order():
             continue
 
         first = flow_log[0]
-        if first.get('from') != '皇上' or first.get('to') != '中书省':
+        if first.get('from') != '皇上' or first.get('to') not in ('中书省', '战略研究部'):
             continue
 
-        first['to'] = '太子'
+        first['to'] = '董事会'
         remark = first.get('remark', '')
         if isinstance(remark, str) and remark.startswith('下旨：'):
             first['remark'] = remark
 
-        if task.get('state') == 'Zhongshu' and task.get('org') == '中书省' and len(flow_log) == 1:
+        if task.get('state') == 'Zhongshu' and task.get('org') in ('中书省', '战略研究部') and len(flow_log) == 1:
             task['state'] = 'Taizi'
-            task['org'] = '太子'
-            task['now'] = '等待太子接旨分拣'
+            task['org'] = '董事会'
+            task['now'] = '等待秘书接旨分拣'
 
         task['updatedAt'] = now_iso()
         fixed += 1
@@ -7446,23 +9126,26 @@ def get_task_activity(task_id):
 
 # 状态推进顺序（手动推进用）
 _STATE_FLOW = {
-    'Pending':  ('Taizi', '皇上', '太子', '待处理旨意转交太子分拣'),
-    'Taizi':    ('Zhongshu', '太子', '中书省', '太子分拣完毕，转中书省起草'),
-    'Zhongshu': ('Menxia', '中书省', '门下省', '中书省方案提交门下省审议'),
-    'Menxia':   ('Assigned', '门下省', '尚书省', '门下省准奏，转尚书省派发'),
+    'Pending':  ('Taizi', '皇上', '董事会', '待处理旨意转交董事会分拣'),
+    'Taizi':    ('Zhongshu', '董事会', '战略研究部', '董事会分拣完毕，转战略研究部起草'),
+    'Zhongshu': ('Menxia', '战略研究部', '风险部', '战略研究部方案提交风险部审议'),
+    'Menxia':   ('Assigned', '风险部', '尚书省', '风险部准奏，转尚书省派发'),
     'Assigned': ('Doing', '尚书省', '六部', '尚书省开始派发执行'),
     'Next':     ('Doing', '尚书省', '六部', '待执行任务开始执行'),
     'Doing':    ('Review', '六部', '尚书省', '各部完成，进入汇总'),
-    'Review':   ('Done', '尚书省', '太子', '全流程完成，回奏太子转报皇上'),
+    'Review':   ('Done', '尚书省', '董事会', '全流程完成，回奏董事会转报皇上'),
 }
 _STATE_LABELS = {
-    'Pending': '待处理', 'Taizi': '太子', 'Zhongshu': '中书省', 'Menxia': '门下省',
+    'Pending': '待处理', 'Taizi': '董事会', 'Zhongshu': '战略研究部', 'Menxia': '风险部',
     'Assigned': '尚书省', 'Next': '待执行', 'Doing': '执行中', 'Review': '审查', 'Done': '完成',
 }
 
 
 def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
     """推进/审批后自动派发对应 Agent（后台异步，不阻塞响应）。"""
+    if not ENABLE_LEGACY_WORKFLOW:
+        log.info(f'⏭️ 旧工作流已禁用，跳过派发: {task_id} state={new_state} trigger={trigger}')
+        return
     agent_id = _STATE_AGENT_MAP.get(new_state)
     if agent_id is None and new_state in ('Doing', 'Next'):
         org = task.get('org', '')
@@ -7520,24 +9203,24 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
             f'任务ID: {task_id}\n'
             f'旨意: {title}\n'
             f'⚠️ 看板已有此任务，请勿重复创建。直接用 kanban_update.py 更新状态。\n'
-            f'请立即转交中书省起草执行方案。'
+            f'请立即转交战略研究部起草执行方案。'
         ),
         'zhongshu': (
-            f'📜 旨意已到中书省，请起草方案\n'
+            f'📜 旨意已到战略研究部，请起草方案\n'
             f'任务ID: {task_id}\n'
             f'旨意: {title}\n'
             f'⚠️ 看板已有此任务记录，请勿重复创建。直接用 kanban_update.py state 更新状态。\n'
-            f'请立即起草执行方案，走完完整三省流程（中书起草→门下审议→尚书派发→六部执行）。'
+            f'请立即起草执行方案，走完完整三省流程（战略研究部起草→风险部审议→尚书派发→六部执行）。'
         ),
         'menxia': (
-            f'📋 中书省方案提交审议\n'
+            f'📋 战略研究部方案提交审议\n'
             f'任务ID: {task_id}\n'
             f'旨意: {title}\n'
             f'⚠️ 看板已有此任务，请勿重复创建。\n'
-            f'请审议中书省方案，给出准奏或封驳意见。'
+            f'请审议战略研究部方案，给出准奏或封驳意见。'
         ),
         'shangshu': (
-            f'📮 门下省已准奏，请派发执行\n'
+            f'📮 风险部已准奏，请派发执行\n'
             f'任务ID: {task_id}\n'
             f'旨意: {title}\n'
             f'{"建议派发部门: " + target_dept if target_dept else ""}\n'
@@ -7754,6 +9437,10 @@ class Handler(BaseHTTPRequestHandler):
         elif p == '/api/agent-work-bindings':
             data = _load_agent_work_bindings()
             self.send_json({'ok': True, 'bindings': data.get('bindings', {})})
+        elif p == '/api/secretary/memory':
+            self.send_json({'ok': True, 'memory': _load_secretary_memory()})
+        elif p == '/api/secretary/tasks':
+            self.send_json(secretary_list_tasks())
         elif p.startswith('/api/agent-work-scopes/'):
             agent_id = p.replace('/api/agent-work-scopes/', '').strip()
             if not agent_id or not _SAFE_NAME_RE.match(agent_id):
@@ -7779,10 +9466,26 @@ class Handler(BaseHTTPRequestHandler):
                 'keywords': [], 'custom_feeds': [],
                 'notification': {'enabled': True, 'channel': 'feishu', 'webhook': ''},
             }))
+        elif p == '/api/morning-source-library':
+            self.send_json(read_json(DATA / 'news_source_library.json', {
+                'sources': [
+                    {'name': 'BBC中文', 'domain': 'bbc.com', 'categories': ['政治', '经济', 'AI大模型']},
+                    {'name': '新华社', 'domain': 'xinhuanet.com', 'categories': ['政治', '经济', 'AI大模型']},
+                    {'name': '央视网', 'domain': 'cctv.com', 'categories': ['政治', '经济', 'AI大模型']},
+                ]
+            }))
         elif p == '/api/learning-plan':
             self.send_json(list_learning_plans())
         elif p == '/api/pm/projects':
             self.send_json(pm_list_projects())
+        elif p.startswith('/api/pm/design-analysis-status/'):
+            project_id = p.replace('/api/pm/design-analysis-status/', '').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+            else:
+                self.send_json(pm_get_topic_analysis_status(project_id))
+        elif p == '/api/strategy/board':
+            self.send_json(strategy_get_board())
         elif p == '/api/automation/tasks':
             self.send_json(automation_list_tasks())
         elif p.startswith('/api/automation/task-docs/'):
@@ -7950,12 +9653,89 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({'ok': True, 'message': '订阅配置已保存'})
             return
 
+        if p == '/api/morning-source-library':
+            parsed_body = body
+            if isinstance(parsed_body, str):
+                try:
+                    parsed_body = json.loads(parsed_body)
+                except Exception:
+                    self.send_json({'ok': False, 'error': 'JSON格式无效'}, 400)
+                    return
+            if isinstance(parsed_body, list):
+                sources = parsed_body
+            elif isinstance(parsed_body, dict):
+                sources = parsed_body.get('sources', [])
+            else:
+                self.send_json({'ok': False, 'error': '请求体必须是 JSON 对象或 sources 数组'}, 400)
+                return
+            if not isinstance(sources, list):
+                self.send_json({'ok': False, 'error': 'sources 必须是数组'}, 400)
+                return
+            existing_lib = read_json(DATA / 'news_source_library.json', {})
+            existing_feed_map = {}
+            for ex in (existing_lib.get('sources') or []):
+                if not isinstance(ex, dict):
+                    continue
+                d = str(ex.get('domain') or '').strip().lower()
+                feeds = ex.get('feeds') or []
+                if d and isinstance(feeds, list):
+                    existing_feed_map[d] = [str(f).strip() for f in feeds if str(f).strip()]
+            normalized = []
+            for row in sources[:300]:
+                if not isinstance(row, dict):
+                    continue
+                name = str(row.get('name', '')).strip()[:80]
+                domain = str(row.get('domain', '')).strip().lower()[:160]
+                cats = row.get('categories', [])
+                if domain.startswith('http://') or domain.startswith('https://'):
+                    try:
+                        domain = (urlparse(domain).hostname or '').lower()
+                    except Exception:
+                        domain = ''
+                if not isinstance(cats, list):
+                    cats = []
+                cats = [str(c).strip()[:30] for c in cats if str(c).strip()][:12]
+                if not name or not domain or not cats:
+                    continue
+                if not re.match(r'^[a-z0-9.-]+\.[a-z]{2,}$', domain):
+                    continue
+                feeds = row.get('feeds') or existing_feed_map.get(domain, [])
+                if not isinstance(feeds, list):
+                    feeds = []
+                feeds = [str(f).strip()[:300] for f in feeds if str(f).strip()][:20]
+                normalized.append({'name': name, 'domain': domain, 'categories': cats, 'feeds': feeds})
+            payload = {
+                'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'sources': normalized,
+            }
+            (DATA / 'news_source_library.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+            self.send_json({'ok': True, 'message': '信息源网站库已保存', 'count': len(normalized)})
+            return
+
         if p == '/api/learning-plan/start':
             topic = body.get('topic', '').strip()
             if not topic:
                 self.send_json({'ok': False, 'error': 'topic required'}, 400)
                 return
             self.send_json(start_learning_plan(topic))
+            return
+
+        handled, payload, code = handle_meridian_post(p, body, {
+            'tongmai_decision': meridian_tongmai_decision,
+            'openxue_detail': meridian_openxue_detail,
+            'tongmai_run': meridian_tongmai_run,
+            'openxue_run': meridian_openxue_run,
+        })
+        if handled:
+            self.send_json(payload, code if code else 200)
+            return
+
+        handled, payload, code = handle_secretary_post(p, body, {
+            'memory_save': secretary_update_memory,
+            'task_rate': secretary_rate_task,
+        })
+        if handled:
+            self.send_json(payload, code if code else 200)
             return
 
         if p == '/api/agent-work-scopes/update':
@@ -7977,10 +9757,11 @@ class Handler(BaseHTTPRequestHandler):
         if p == '/api/pm/project-create':
             name = body.get('name', '').strip()
             description = body.get('description', '').strip()
+            owner = body.get('owner', 'rnd')
             if not name:
                 self.send_json({'ok': False, 'error': 'name required'}, 400)
                 return
-            self.send_json(pm_create_project(name, description))
+            self.send_json(pm_create_project(name, description, owner))
             return
 
         if p == '/api/jzg/project-create':
@@ -8311,15 +10092,61 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(jzg_toggle_reminder(project_id, reminder_id, bool(body.get('enabled', True))))
             return
 
+        if p == '/api/secretary/plan':
+            text = str(body.get('text') or '').strip()
+            if not text:
+                self.send_json({'ok': False, 'error': 'text required'}, 400)
+                return
+            self.send_json(secretary_plan(
+                text,
+                project_name=body.get('projectName', ''),
+                folder_name=body.get('folderName', ''),
+            ))
+            return
+
+        if p == '/api/secretary/execute':
+            plan = body.get('plan')
+            if not isinstance(plan, dict):
+                self.send_json({'ok': False, 'error': 'plan required'}, 400)
+                return
+            self.send_json(secretary_execute(plan))
+            return
+
         if p == '/api/pm/project-update':
             project_id = body.get('projectId', '').strip()
             if not project_id:
                 self.send_json({'ok': False, 'error': 'projectId required'}, 400)
                 return
+            raw_code_info = body.get('codeInfo')
+            if not isinstance(raw_code_info, dict):
+                raw_code_info = {}
+            if 'codeLocalPath' in body:
+                code_local_path = body.get('codeLocalPath', None)
+            elif 'code_local_path' in body:
+                code_local_path = body.get('code_local_path', None)
+            elif 'localPath' in body:
+                code_local_path = body.get('localPath', None)
+            elif 'local_path' in body:
+                code_local_path = body.get('local_path', None)
+            else:
+                code_local_path = raw_code_info.get('localPath', None)
+
+            if 'codeGithubPath' in body:
+                code_github_path = body.get('codeGithubPath', None)
+            elif 'code_github_path' in body:
+                code_github_path = body.get('code_github_path', None)
+            elif 'githubPath' in body:
+                code_github_path = body.get('githubPath', None)
+            elif 'github_path' in body:
+                code_github_path = body.get('github_path', None)
+            else:
+                code_github_path = raw_code_info.get('githubPath', None)
             self.send_json(pm_update_project(
                 project_id,
                 name=body.get('name', None),
                 description=body.get('description', None),
+                code_local_path=code_local_path,
+                code_github_path=code_github_path,
             ))
             return
 
@@ -8370,6 +10197,68 @@ class Handler(BaseHTTPRequestHandler):
                 review_suggested_description=body.get('reviewSuggestedDescription', None),
                 review_suggested_by=body.get('reviewSuggestedBy', None),
             ))
+            return
+
+        if p == '/api/strategy/item-create':
+            dir_id = body.get('dirId', STRATEGY_IDEA_DIR_ID)
+            title = body.get('title', '')
+            summary = body.get('summary', '')
+            if not str(title or '').strip():
+                self.send_json({'ok': False, 'error': 'title required'}, 400)
+                return
+            self.send_json(strategy_create_item(dir_id, title, summary))
+            return
+
+        if p == '/api/strategy/item-update':
+            item_id = str(body.get('itemId', '')).strip()
+            if not item_id:
+                self.send_json({'ok': False, 'error': 'itemId required'}, 400)
+                return
+            patch = {
+                'title': body.get('title', None),
+                'summary': body.get('summary', None),
+                'starred': body.get('starred', None),
+                'status': body.get('status', None),
+                'priority': body.get('priority', None),
+                'folderId': body.get('folderId', None),
+                'pendingQuestions': body.get('pendingQuestions', None),
+                'plan': body.get('plan', None),
+                'conclusion': body.get('conclusion', None),
+            }
+            clean_patch = {k: v for k, v in patch.items() if v is not None}
+            self.send_json(strategy_update_item(item_id, clean_patch))
+            return
+
+        if p == '/api/strategy/folder-create':
+            name = str(body.get('name', '')).strip()
+            if not name:
+                self.send_json({'ok': False, 'error': 'name required'}, 400)
+                return
+            self.send_json(strategy_create_folder(name))
+            return
+
+        if p == '/api/strategy/folder-delete':
+            folder_id = str(body.get('folderId', '')).strip()
+            if not folder_id:
+                self.send_json({'ok': False, 'error': 'folderId required'}, 400)
+                return
+            self.send_json(strategy_delete_folder(folder_id))
+            return
+
+        if p == '/api/strategy/folder-reorder':
+            folder_ids = body.get('folderIds')
+            if not isinstance(folder_ids, list):
+                self.send_json({'ok': False, 'error': 'folderIds required'}, 400)
+                return
+            self.send_json(strategy_reorder_folders(folder_ids))
+            return
+
+        if p == '/api/strategy/item-delete':
+            item_id = str(body.get('itemId', '')).strip()
+            if not item_id:
+                self.send_json({'ok': False, 'error': 'itemId required'}, 400)
+                return
+            self.send_json(strategy_delete_item(item_id))
             return
 
         if p == '/api/pm/folder-create':
@@ -8431,6 +10320,51 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'projectId and section required'}, 400)
                 return
             self.send_json(pm_generate_design(project_id, section))
+            return
+
+        if p == '/api/pm/design-analysis-start':
+            project_id = body.get('projectId', '').strip()
+            if not project_id:
+                self.send_json({'ok': False, 'error': 'projectId required'}, 400)
+                return
+            self.send_json(pm_start_topic_analysis(project_id))
+            return
+
+        if p == '/api/pm/design-analysis-chat':
+            project_id = body.get('projectId', '').strip()
+            message = str(body.get('message', '') or '').strip()
+            if not project_id or not message:
+                self.send_json({'ok': False, 'error': 'projectId and message required'}, 400)
+                return
+            self.send_json(pm_topic_analysis_chat(project_id, message))
+            return
+
+        if p == '/api/pm/design-analysis-idea-add':
+            project_id = body.get('projectId', '').strip()
+            text = str(body.get('text', '') or '').strip()
+            if not project_id or not text:
+                self.send_json({'ok': False, 'error': 'projectId and text required'}, 400)
+                return
+            self.send_json(pm_topic_analysis_add_idea(project_id, text))
+            return
+
+        if p == '/api/pm/design-analysis-idea-delete':
+            project_id = body.get('projectId', '').strip()
+            idea_id = str(body.get('ideaId', '') or '').strip()
+            if not project_id or not idea_id:
+                self.send_json({'ok': False, 'error': 'projectId and ideaId required'}, 400)
+                return
+            self.send_json(pm_topic_analysis_delete_idea(project_id, idea_id))
+            return
+
+        if p == '/api/pm/design-analysis-idea-update':
+            project_id = body.get('projectId', '').strip()
+            idea_id = str(body.get('ideaId', '') or '').strip()
+            text = str(body.get('text', '') or '').strip()
+            if not project_id or not idea_id or not text:
+                self.send_json({'ok': False, 'error': 'projectId, ideaId and text required'}, 400)
+                return
+            self.send_json(pm_topic_analysis_update_idea(project_id, idea_id, text))
             return
 
         if p == '/api/pm/version-generate':
@@ -8575,6 +10509,13 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/scheduler-scan':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json({
+                    'ok': True,
+                    'disabled': True,
+                    'message': 'legacy scheduler scan skipped',
+                })
+                return
             threshold_sec = body.get('thresholdSec', 180)
             try:
                 result = handle_scheduler_scan(threshold_sec)
@@ -8591,6 +10532,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/scheduler-retry':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             task_id = body.get('taskId', '').strip()
             reason = body.get('reason', '').strip()
             if not task_id:
@@ -8600,6 +10544,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/scheduler-escalate':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             task_id = body.get('taskId', '').strip()
             reason = body.get('reason', '').strip()
             if not task_id:
@@ -8609,6 +10556,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/scheduler-rollback':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             task_id = body.get('taskId', '').strip()
             reason = body.get('reason', '').strip()
             if not task_id:
@@ -8622,14 +10572,15 @@ class Handler(BaseHTTPRequestHandler):
             def do_refresh():
                 try:
                     cmd = ['python3', str(SCRIPTS / 'fetch_morning_news.py')]
+                    cmd.append('--agent-first')
                     if force:
                         cmd.append('--force')
-                    subprocess.run(cmd, timeout=120)
+                    subprocess.run(cmd, timeout=300)
                     push_to_feishu()
                 except Exception as e:
                     print(f'[refresh error] {e}', file=sys.stderr)
             threading.Thread(target=do_refresh, daemon=True).start()
-            self.send_json({'ok': True, 'message': '采集已触发，约30-60秒后刷新'})
+            self.send_json({'ok': True, 'message': '已交由情报官采集高热中文要闻（含来源链接，最多3轮纠错），约30-90秒后刷新'})
             return
 
         if p == '/api/add-skill':
@@ -8682,6 +10633,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/task-action':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             task_id = body.get('taskId', '').strip()
             action = body.get('action', '').strip()  # stop, cancel, resume
             reason = body.get('reason', '').strip() or f'皇上从看板{action}'
@@ -8725,9 +10679,12 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/create-task':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             title = body.get('title', '').strip()
-            org = body.get('org', '中书省').strip()
-            official = body.get('official', '中书令').strip()
+            org = body.get('org', '战略研究部').strip()
+            official = body.get('official', '战略负责人').strip()
             priority = body.get('priority', 'normal').strip()
             template_id = body.get('templateId', '')
             params = body.get('params', {})
@@ -8740,6 +10697,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/review-action':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             task_id = body.get('taskId', '').strip()
             action = body.get('action', '').strip()  # approve, reject
             comment = body.get('comment', '').strip()
@@ -8751,6 +10711,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if p == '/api/advance-state':
+            if not ENABLE_LEGACY_WORKFLOW:
+                self.send_json(_legacy_workflow_disabled_response(p), 409)
+                return
             task_id = body.get('taskId', '').strip()
             comment = body.get('comment', '').strip()
             if not task_id:
@@ -8900,12 +10863,18 @@ def main():
     # 多线程模式：避免单个长请求（如藏经阁深度问答）阻塞整个看板 API。
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     log.info(f'三省六部看板启动 → http://{args.host}:{args.port}')
+    log.info(
+        'legacy workflow: %s (env EDICT_ENABLE_LEGACY_WORKFLOW=%s)',
+        'enabled' if ENABLE_LEGACY_WORKFLOW else 'disabled',
+        '1' if ENABLE_LEGACY_WORKFLOW else '0',
+    )
     print(f'   按 Ctrl+C 停止')
 
     migrate_notification_config()
 
-    # 启动恢复：重新派发上次被 kill 中断的 queued 任务
-    threading.Timer(3.0, _startup_recover_queued_dispatches).start()
+    # 启动恢复：旧流程开启时，重新派发上次被 kill 中断的 queued 任务
+    if ENABLE_LEGACY_WORKFLOW:
+        threading.Timer(3.0, _startup_recover_queued_dispatches).start()
 
     try:
         server.serve_forever()

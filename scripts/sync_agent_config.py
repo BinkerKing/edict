@@ -5,7 +5,14 @@
 """
 import json, os, pathlib, datetime, logging
 from file_lock import atomic_json_write
-from openclaw_config import load_openclaw_cfg, normalize_model, project_workspace
+from openclaw_config import (
+    LEGACY_AGENTS_SKILLS_HOME,
+    OPENCLAW_AGENTS_HOME,
+    OPENCLAW_SKILLS_HOME,
+    load_openclaw_cfg,
+    normalize_model,
+    project_workspace,
+)
 
 log = logging.getLogger('sync_agent_config')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -14,23 +21,23 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 BASE = pathlib.Path(__file__).parent.parent
 DATA = BASE / 'data'
 GLOBAL_SKILLS_DIRS = [
-    pathlib.Path.home() / '.openclaw' / 'skills', # OpenClaw 全局技能目录（主来源）
-    pathlib.Path.home() / '.agents' / 'skills',   # 旧路径兼容
+    OPENCLAW_SKILLS_HOME,       # OpenClaw 技能目录（优先项目内 .openclaw）
+    LEGACY_AGENTS_SKILLS_HOME,  # 旧路径兼容
 ]
 
 ID_LABEL = {
-    'taizi':    {'label': '太子',   'role': '太子',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},
-    'main':     {'label': '太子',   'role': '太子',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},  # 兼容旧配置
-    'zhongshu': {'label': '中书省', 'role': '中书令',   'duty': '起草任务令与优先级',  'emoji': '📜'},
-    'menxia':   {'label': '门下省', 'role': '侍中',     'duty': '审议与退回机制',      'emoji': '🔍'},
+    'taizi':    {'label': '董事会',   'role': '秘书',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},
+    'main':     {'label': '董事会',   'role': '秘书',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},  # 兼容旧配置
+    'zhongshu': {'label': '战略研究部', 'role': '战略负责人',   'duty': '起草任务令与优先级',  'emoji': '📜'},
+    'menxia':   {'label': '风险部', 'role': '合规',     'duty': '审议与退回机制',      'emoji': '🔍'},
     'shangshu': {'label': '尚书省', 'role': '尚书令',   'duty': '派单与升级裁决',      'emoji': '📮'},
     'libu':     {'label': '藏经阁', 'role': '扫地僧', 'duty': '学习路径与知识沉淀',      'emoji': '📝'},
-    'hubu':     {'label': '户部',   'role': '户部尚书', 'duty': '资源/预算/成本',      'emoji': '💰'},
+    'hubu':     {'label': '金融部',   'role': '金融分析师', 'duty': '资源/预算/成本',      'emoji': '💰'},
     'bingbu':   {'label': 'PM小组',   'role': '项目经理', 'duty': '工程实现与架构设计',  'emoji': '⚔️'},
-    'xingbu':   {'label': '刑部',   'role': '刑部尚书', 'duty': '合规/审计/红线',      'emoji': '⚖️'},
+    'xingbu':   {'label': '测试部',   'role': '测试员', 'duty': '合规/审计/红线',      'emoji': '⚖️'},
     'rnd':   {'label': '研发部', 'role': '研发总监', 'duty': '工程实现与架构设计',  'emoji': '💻'},
     'libu_hr':  {'label': '人事部',   'role': '人事经理', 'duty': '人事/培训/Agent管理',  'emoji': '👔'},
-    'zaochao':  {'label': '钦天监', 'role': '朝报官',   'duty': '每日新闻采集与简报',  'emoji': '📰'},
+    'zaochao':  {'label': '情报处', 'role': '情报官',   'duty': '每日新闻采集与简报',  'emoji': '📰'},
 }
 
 KNOWN_MODELS = [
@@ -345,27 +352,57 @@ def sync_scripts_to_workspaces():
 
 
 def deploy_soul_files():
-    """将项目 agents/xxx/SOUL.md 部署到 ~/.openclaw/workspace-xxx/soul.md"""
+    """将项目 agents/xxx/SOUL.md 部署到 <openclaw_home>/workspace-xxx/soul.md。
+
+    优先使用符号链接，确保项目内 SOUL 是唯一真源；若系统不支持符号链接则降级为文本复制。
+    """
     agents_dir = BASE / 'agents'
     deployed = 0
+    linked = 0
     for proj_name, runtime_id in _SOUL_DEPLOY_MAP.items():
         src = agents_dir / proj_name / 'SOUL.md'
         if not src.exists():
             continue
+        src_text = src.read_text(encoding='utf-8', errors='ignore')
         ws_dst = project_workspace(runtime_id) / 'soul.md'
         ws_dst.parent.mkdir(parents=True, exist_ok=True)
-        # 只在内容不同时更新（避免不必要的写入）
-        src_text = src.read_text(encoding='utf-8', errors='ignore')
+        src_resolved = src.resolve()
+        linked_ok = False
+        # 优先创建/修复 symlink：workspace/soul.md -> project/agents/*/SOUL.md
         try:
-            dst_text = ws_dst.read_text(encoding='utf-8', errors='ignore')
-        except FileNotFoundError:
-            dst_text = ''
-        if src_text != dst_text:
-            ws_dst.write_text(src_text, encoding='utf-8')
-            deployed += 1
+            if ws_dst.is_symlink():
+                try:
+                    cur = ws_dst.resolve()
+                except Exception:
+                    cur = None
+                if cur != src_resolved:
+                    ws_dst.unlink()
+                    os.symlink(src_resolved, ws_dst)
+                    linked += 1
+            elif ws_dst.exists():
+                # 已有普通文件：替换为 symlink
+                ws_dst.unlink()
+                os.symlink(src_resolved, ws_dst)
+                linked += 1
+            else:
+                os.symlink(src_resolved, ws_dst)
+                linked += 1
+            linked_ok = True
+        except Exception:
+            linked_ok = False
+
+        # 回退：若 symlink 不可用，保持旧行为（文本复制）
+        if not linked_ok:
+            try:
+                dst_text = ws_dst.read_text(encoding='utf-8', errors='ignore')
+            except FileNotFoundError:
+                dst_text = ''
+            if src_text != dst_text:
+                ws_dst.write_text(src_text, encoding='utf-8')
+                deployed += 1
         # 太子兼容：同步一份到 legacy main agent 目录
         if runtime_id == 'taizi':
-            ag_dst = pathlib.Path.home() / '.openclaw/agents/main/SOUL.md'
+            ag_dst = OPENCLAW_AGENTS_HOME / 'main' / 'SOUL.md'
             ag_dst.parent.mkdir(parents=True, exist_ok=True)
             try:
                 ag_text = ag_dst.read_text(encoding='utf-8', errors='ignore')
@@ -374,8 +411,10 @@ def deploy_soul_files():
             if src_text != ag_text:
                 ag_dst.write_text(src_text, encoding='utf-8')
         # 确保 sessions 目录存在
-        sess_dir = pathlib.Path.home() / f'.openclaw/agents/{runtime_id}/sessions'
+        sess_dir = OPENCLAW_AGENTS_HOME / runtime_id / 'sessions'
         sess_dir.mkdir(parents=True, exist_ok=True)
+    if linked:
+        log.info(f'{linked} SOUL symlinks deployed')
     if deployed:
         log.info(f'{deployed} SOUL.md files deployed')
 

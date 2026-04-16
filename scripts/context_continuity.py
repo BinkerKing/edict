@@ -17,6 +17,8 @@ import pathlib
 import re
 from typing import Any
 
+from openclaw_config import OPENCLAW_AGENTS_HOME, OPENCLAW_HOME
+
 
 ROLE_USER = "user"
 ROLE_ASSISTANT = "assistant"
@@ -62,13 +64,13 @@ def load_sessions_index(sessions_json_path: pathlib.Path) -> dict[str, dict[str,
 
 
 def load_agent_index(sessions_root: pathlib.Path, agent_id: str) -> dict[str, dict[str, Any]]:
-    # 新结构：~/.openclaw/agents/<agent>/sessions/sessions.json
+    # 新结构：<openclaw_home>/agents/<agent>/sessions/sessions.json
     per_agent = sessions_root / agent_id / "sessions" / "sessions.json"
     index = load_sessions_index(per_agent)
     if index:
         return index
 
-    # 兼容旧结构：~/.openclaw/agents/sessions.json（全局扁平索引）
+    # 兼容旧结构：<openclaw_home>/agents/sessions.json（全局扁平索引）
     global_index = load_sessions_index(sessions_root / "sessions.json")
     if not global_index:
         return {}
@@ -86,10 +88,12 @@ def normalize_session_file(path_raw: str) -> pathlib.Path:
     p = pathlib.Path(path_raw)
     if p.exists():
         return p
-    # 兼容老机器快照路径
+    # 兼容老机器快照路径（将历史 ~/.openclaw 前缀映射到当前 OPENCLAW_HOME）
     text = str(path_raw)
-    if text.startswith("/Users/binkerking/.openclaw"):
-        alt = pathlib.Path(text.replace("/Users/binkerking/.openclaw", f"{pathlib.Path.home()}/.openclaw"))
+    for legacy_prefix in ("/Users/binkerking/.openclaw", f"{pathlib.Path.home()}/.openclaw"):
+        if not text.startswith(legacy_prefix):
+            continue
+        alt = pathlib.Path(str(OPENCLAW_HOME) + text[len(legacy_prefix):])
         if alt.exists():
             return alt
     return p
@@ -495,8 +499,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--sessions-root",
-        default=str(pathlib.Path.home() / ".openclaw" / "agents"),
-        help="OpenClaw sessions root directory. Default: ~/.openclaw/agents",
+        default=str(OPENCLAW_AGENTS_HOME),
+        help="OpenClaw sessions root directory. Default: resolved OPENCLAW_HOME/agents",
     )
 
     sub = p.add_subparsers(dest="command", required=True)

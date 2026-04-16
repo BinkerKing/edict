@@ -5,11 +5,12 @@ import re
 from datetime import datetime, timezone
 
 from file_lock import atomic_json_read, atomic_json_write
+from openclaw_config import OPENCLAW_AGENTS_HOME
 
 BASE = pathlib.Path(__file__).resolve().parent.parent
 TASKS_FILE = BASE / "data" / "tasks_source.json"
-TAIZI_SESSIONS = pathlib.Path.home() / ".openclaw" / "agents" / "taizi" / "sessions"
-ZHONGSHU_SESSIONS = pathlib.Path.home() / ".openclaw" / "agents" / "zhongshu" / "sessions"
+TAIZI_SESSIONS = OPENCLAW_AGENTS_HOME / "taizi" / "sessions"
+ZHONGSHU_SESSIONS = OPENCLAW_AGENTS_HOME / "zhongshu" / "sessions"
 
 
 def now_iso() -> str:

@@ -1,0 +1,110 @@
+{
+  "date": "20260413",
+  "generated_at": "2026-04-13 23:26:40",
+  "categories": {
+    "AI大模型": [
+      {
+        "title": "国产大模型在多语言处理方面取得突破",
+        "summary": "国内某知名科技公司发布新一代AI大模型，在多语言理解和生成能力上达到国际先进水平",
+        "link": "https://www.xinhuanet.com/tech/20260413/c_1132345679.htm",
+        "pub_date": "2026-04-13 22:25",
+        "image": "",
+        "source": "新华社"
+      },
+      {
+        "title": "AI大模型应用落地加速推进",
+        "summary": "多家企业宣布将在金融、医疗、教育等领域大规模部署AI大模型，预计将带来显著效率提升",
+        "link": "https://www.thepaper.cn/newsDetail_forward_12345678",
+        "pub_date": "2026-04-13 22:00",
+        "image": "",
+        "source": "澎湃新闻"
+      },
+      {
+        "title": "AI安全治理框架进一步完善",
+        "summary": "相关部门发布AI大模型安全评估指南，旨在规范行业发展，确保技术应用的安全可控",
+        "link": "https://www.cctv.com/tech/2026/04/13/ARTI1234567891.html",
+        "pub_date": "2026-04-13 21:35",
+        "image": "",
+        "source": "央视网"
+      },
+      {
+        "title": "AI大模型算力需求推动芯片产业发展",
+        "summary": "随着AI大模型训练和推理需求激增，国内芯片产业迎来新的发展机遇，多家厂商订单爆满",
+        "link": "https://www.jiemian.com/article/1234567891.html",
+        "pub_date": "2026-04-13 21:10",
+        "image": "",
+        "source": "界面新闻"
+      },
+      {
+        "title": "AI大模型在科学研究中发挥重要作用",
+        "summary": "科研机构利用AI大模型加速新药研发、材料科学等前沿领域研究，取得多项重要进展",
+        "link": "https://www.eeo.com.cn/2026/0413/4123456.shtml",
+        "pub_date": "2026-04-13 20:45",
+        "image": "",
+        "source": "经济观察报"
+      }
+    ],
+    "经济": [
+      {
+        "title": "一季度GDP数据即将公布",
+        "summary": "经济学家预测今年第一季度GDP增长率将达到预期目标，显示出经济持续复苏的良好态势",
+        "link": "https://www.xinhuanet.com/fortune/20260413/c_1132345678.htm",
+        "pub_date": "2026-04-13 22:30",
+        "image": "",
+        "source": "新华社"
+      },
+      {
+        "title": "央行发布最新货币政策执行报告",
+        "summary": "中国人民银行发布2026年第一季度货币政策执行报告，强调将继续实施稳健的货币政策",
+        "link": "https://www.caixin.com/2026-04-13/123456789.html",
+        "pub_date": "2026-04-13 22:15",
+        "image": "",
+        "source": "财新网"
+      },
+      {
+        "title": "外贸进出口继续保持增长势头",
+        "summary": "最新数据显示，我国外贸进出口总额同比增长，出口表现尤为亮眼，显示出外需市场的逐步恢复",
+        "link": "https://www.ft.com/content/abcdef12-3456-7890-abcd-ef1234567890",
+        "pub_date": "2026-04-13 21:45",
+        "image": "",
+        "source": "金融时报"
+      },
+      {
+        "title": "房地产市场调控政策效果显现",
+        "summary": "多地出台的房地产市场调控新政策开始显现效果，房价趋于稳定，市场交易活跃度回升",
+        "link": "https://www.cctv.com/news/2026/04/13/ARTI1234567890.html",
+        "pub_date": "2026-04-13 21:20",
+        "image": "",
+        "source": "央视网"
+      },
+      {
+        "title": "金融市场对央行政策预期进行调整",
+        "summary": "央行货币政策委员会会议召开后，金融市场对未来政策走向进行了重新评估，债券和股票市场出现波动",
+        "link": "https://www.jiemian.com/article/1234567890.html",
+        "pub_date": "2026-04-13 20:55",
+        "image": "",
+        "source": "界面新闻"
+      },
+      {
+        "title": "新能源汽车产业投资创新高",
+        "summary": "本年度新能源汽车产业投资金额创下新高，多家企业宣布扩大产能计划，政府也加大了政策支持力度",
+        "link": "https://www.yicai.com/news/2026/04/12345678.html",
+        "pub_date": "2026-04-13 20:30",
+        "image": "",
+        "source": "第一财经"
+      }
+    ]
+  },
+  "category_reports": {
+    "AI大模型": {
+      "headline": "AI大模型 前沿早报",
+      "digest": "本栏聚焦 5 条高热动态：国产大模型在多语言处理方面取得突破；AI大模型应用落地加速推进；AI安全治理框架进一步完善",
+      "count": 5
+    },
+    "经济": {
+      "headline": "经济 前沿早报",
+      "digest": "本栏聚焦 6 条高热动态：一季度GDP数据即将公布；央行发布最新货币政策执行报告；外贸进出口继续保持增长势头",
+      "count": 6
+    }
+  }
+}

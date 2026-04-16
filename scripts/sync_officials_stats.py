@@ -2,14 +2,14 @@
 """同步各官员统计数据 → data/officials_stats.json"""
 import json, pathlib, datetime, logging
 from file_lock import atomic_json_write
-from openclaw_config import load_openclaw_cfg, normalize_model
+from openclaw_config import OPENCLAW_AGENTS_HOME, load_openclaw_cfg, normalize_model
 
 log = logging.getLogger('officials')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
 
 BASE = pathlib.Path(__file__).resolve().parent.parent
 DATA = BASE / 'data'
-AGENTS_ROOT = pathlib.Path.home() / '.openclaw' / 'agents'
+AGENTS_ROOT = OPENCLAW_AGENTS_HOME
 
 # Anthropic 定价（每1M token，美元）
 MODEL_PRICING = {
@@ -23,17 +23,17 @@ MODEL_PRICING = {
 }
 
 OFFICIALS = [
-    {'id':'taizi',   'label':'太子',  'role':'太子',    'emoji':'🤴','rank':'储君'},
-    {'id':'zhongshu','label':'中书省','role':'中书令',  'emoji':'📜','rank':'正一品'},
-    {'id':'menxia',  'label':'门下省','role':'侍中',    'emoji':'🔍','rank':'正一品'},
+    {'id':'taizi',   'label':'董事会',  'role':'秘书',    'emoji':'🤴','rank':'储君'},
+    {'id':'zhongshu','label':'战略研究部','role':'战略负责人',  'emoji':'📜','rank':'正一品'},
+    {'id':'menxia',  'label':'风险部','role':'合规',    'emoji':'🔍','rank':'正一品'},
     {'id':'shangshu','label':'能效部','role':'能效部长',  'emoji':'📮','rank':'正一品'},
     {'id':'libu',    'label':'藏经阁',  'role':'扫地僧','emoji':'📝','rank':'正二品'},
-    {'id':'hubu',    'label':'户部',  'role':'户部尚书','emoji':'💰','rank':'正二品'},
+    {'id':'hubu',    'label':'金融部',  'role':'金融分析师','emoji':'💰','rank':'正二品'},
     {'id':'bingbu',  'label':'兵部',  'role':'兵部尚书','emoji':'⚔️','rank':'正二品'},
-    {'id':'xingbu',  'label':'刑部',  'role':'刑部尚书','emoji':'⚖️','rank':'正二品'},
+    {'id':'xingbu',  'label':'测试部',  'role':'测试员','emoji':'⚖️','rank':'正二品'},
     {'id':'rnd',  'label':'研发部',  'role':'研发总监','emoji':'💻','rank':'正二品'},
     {'id':'libu_hr', 'label':'吏部',  'role':'吏部尚书','emoji':'👔','rank':'正二品'},
-    {'id':'zaochao', 'label':'钦天监','role':'朝报官',  'emoji':'📰','rank':'正三品'},
+    {'id':'zaochao', 'label':'情报处','role':'情报官',  'emoji':'📰','rank':'正三品'},
 ]
 
 def rj(p, d):

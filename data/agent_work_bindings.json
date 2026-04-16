@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-12 00:00:00",
+  "updatedAt": "2026-04-13 16:55:00",
   "bindings": {
     "rnd_design_generate": {
       "agentId": "rnd",
@@ -17,9 +17,53 @@
       "agentId": "rnd",
       "source": "dashboard.html::pmRndReview(execute) -> POST /api/pm/rnd-review"
     },
+    "rnd_quick_optimize": {
+      "agentId": "rnd",
+      "source": "dashboard.html::quickTaskAiOptimize -> POST /api/pm/rnd-review"
+    },
+    "bingbu_report_template_generate": {
+      "agentId": "bingbu",
+      "source": "dashboard.html::jzgGenerateReportTemplate -> POST /api/jzg/report-template-generate"
+    },
+    "bingbu_followup_report_generate": {
+      "agentId": "bingbu",
+      "source": "dashboard.html::jzgGenerateFollowupReport -> POST /api/jzg/followup-report-generate"
+    },
+    "bingbu_doc_analyze": {
+      "agentId": "bingbu",
+      "source": "dashboard.html::jzgAnalyzeDoc -> POST /api/jzg/doc-analyze"
+    },
+    "libu_plan_start": {
+      "agentId": "libu",
+      "source": "dashboard.html::startLearningPlan -> POST /api/learning-plan/start"
+    },
+    "libu_plan_answer": {
+      "agentId": "libu",
+      "source": "dashboard.html::answerLearningPlan -> POST /api/learning-plan/answer"
+    },
+    "libu_topic_chat": {
+      "agentId": "libu",
+      "source": "dashboard.html::chatLearningTopic -> POST /api/learning-plan/topic-chat"
+    },
+    "libu_topic_summarize": {
+      "agentId": "libu",
+      "source": "dashboard.html::summarizeLearningTopic -> POST /api/learning-plan/topic-summarize"
+    },
     "hr_soul_reorganize": {
       "agentId": "libu_hr",
       "source": "dashboard.html::reorganizeSoul -> POST /api/agent-soul/reorganize"
+    },
+    "shangshu_automation_parse": {
+      "agentId": "shangshu",
+      "source": "dashboard.html::automationParseRequest -> POST /api/automation/parse-request"
+    },
+    "shangshu_automation_execute": {
+      "agentId": "shangshu",
+      "source": "server.py::_automation_execute_agent_task(targetAgent=shangshu)"
+    },
+    "taizi_secretary_plan": {
+      "agentId": "taizi",
+      "source": "dashboard.html::secretaryAnalyze/secretaryExecute -> POST /api/secretary/*"
     }
   }
 }

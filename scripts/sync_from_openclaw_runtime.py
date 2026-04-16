@@ -6,6 +6,7 @@ import datetime
 import traceback
 import logging
 from file_lock import atomic_json_write, atomic_json_read
+from openclaw_config import OPENCLAW_AGENTS_HOME
 
 log = logging.getLogger('sync_runtime')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -14,7 +15,7 @@ BASE = pathlib.Path(__file__).resolve().parent.parent
 DATA = BASE / 'data'
 DATA.mkdir(exist_ok=True)
 SYNC_STATUS = DATA / 'sync_status.json'
-SESSIONS_ROOT = pathlib.Path.home() / '.openclaw' / 'agents'
+SESSIONS_ROOT = OPENCLAW_AGENTS_HOME
 
 
 def write_status(**kwargs):
@@ -43,18 +44,18 @@ def state_from_session(age_ms, aborted):
 def detect_official(agent_id):
     base_id = str(agent_id or '').split('__', 1)[0]
     mapping = {
-        'main':    ('储君', '太子'),        # legacy id for taizi
-        'taizi':   ('储君', '太子'),
-        'zhongshu': ('中书令', '中书省'),
-        'menxia':  ('侍中', '门下省'),
+        'main':    ('储君', '董事会'),        # legacy id for taizi
+        'taizi':   ('储君', '董事会'),
+        'zhongshu': ('战略负责人', '战略研究部'),
+        'menxia':  ('合规', '风险部'),
         'shangshu': ('能效部长', '能效部'),
-        'hubu':    ('户部尚书', '户部'),
+        'hubu':    ('金融分析师', '金融部'),
         'libu':    ('扫地僧', '藏经阁'),
         'bingbu':  ('项目经理', 'PM小组'),
-        'xingbu':  ('刑部尚书', '刑部'),
+        'xingbu':  ('测试员', '测试部'),
         'rnd':  ('研发总监', '研发部'),
         'libu_hr': ('人事经理', '人事部'),
-        'zaochao': ('钦天监', '钦天监'),
+        'zaochao': ('情报官', '情报处'),
     }
     return mapping.get(base_id, ('能效部长', '能效部'))
 

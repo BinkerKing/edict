@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-12 00:00:00",
+  "updatedAt": "2026-04-13 16:55:00",
   "scopes": {
     "rnd": [
       {
@@ -27,7 +27,7 @@
       },
       {
         "entry": "问题详情 · 研发部复审",
-        "service": "对问题给出实现拆分建议、技术路径与落地步骤。",
+        "service": "基于标题、描述、留言生成优化建议、待澄清问题与执行计划。",
         "invoke": "agent",
         "bindingId": "rnd_review",
         "match": [
@@ -39,7 +39,7 @@
       },
       {
         "entry": "问题详情 · 研发部催办",
-        "service": "针对长时间未推进问题发起催办并推动状态流转。",
+        "service": "对长期未推进问题生成推进建议，不直接改代码。",
         "invoke": "agent",
         "bindingId": "rnd_execute",
         "match": [
@@ -48,57 +48,123 @@
           "execute",
           "催办"
         ]
+      },
+      {
+        "entry": "快捷操作 · AI优化",
+        "service": "在快捷操作里对新建/历史任务做标题与描述优化建议。",
+        "invoke": "agent",
+        "bindingId": "rnd_quick_optimize",
+        "match": [
+          "快捷操作-ai优化",
+          "ai优化",
+          "quick-optimize"
+        ]
       }
     ],
     "bingbu": [
       {
-        "entry": "PM小组 · 专家小组策议",
-        "service": "协助拆解需求优先级、方案路径与阶段目标。",
-        "invoke": "agent"
+        "entry": "PM小组 · 洗脑模版生成",
+        "service": "按要求生成日报/周报模版文本。",
+        "invoke": "agent",
+        "bindingId": "bingbu_report_template_generate",
+        "match": [
+          "jzg/report-template-generate",
+          "洗脑模版生成",
+          "日报模版",
+          "周报模版"
+        ]
       },
       {
-        "entry": "PM小组 · 项目跟进",
-        "service": "输出当日待办推进建议与项目节奏提醒。",
-        "invoke": "agent"
+        "entry": "PM小组 · 洗脑报告生成",
+        "service": "根据已完成/未完成任务生成日报或周报正文。",
+        "invoke": "agent",
+        "bindingId": "bingbu_followup_report_generate",
+        "match": [
+          "jzg/followup-report-generate",
+          "洗脑报告生成",
+          "日报生成",
+          "周报生成"
+        ]
       },
       {
-        "entry": "PM小组 · 版本协同",
-        "service": "支持版本计划梳理与发布前协同检查。",
-        "invoke": "agent"
+        "entry": "PM小组 · 洗脑文档分析",
+        "service": "对上传文档输出摘要与标签。",
+        "invoke": "agent",
+        "bindingId": "bingbu_doc_analyze",
+        "match": [
+          "jzg/doc-analyze",
+          "文档分析",
+          "洗脑文档分析"
+        ]
       }
     ],
     "libu": [
       {
-        "entry": "藏经阁 · 细化目录",
-        "service": "将学习主题拆为可执行目录与阶段化学习路线。",
-        "invoke": "agent"
+        "entry": "藏经阁 · 学习主题10问",
+        "service": "围绕学习主题产出 10 个澄清问题。",
+        "invoke": "agent",
+        "bindingId": "libu_plan_start",
+        "match": [
+          "learning-plan/start",
+          "10问",
+          "学习主题启动"
+        ]
       },
       {
-        "entry": "藏经阁 · 扫地僧问答",
-        "service": "围绕主题提供问答、总结与知识回写建议。",
-        "invoke": "agent"
+        "entry": "藏经阁 · 学习路径生成",
+        "service": "根据 10 问回答生成课程目录与学习路径。",
+        "invoke": "agent",
+        "bindingId": "libu_plan_answer",
+        "match": [
+          "learning-plan/answer",
+          "学习路径生成",
+          "目录生成"
+        ]
       },
       {
-        "entry": "藏经阁 · 主题笔记",
-        "service": "沉淀学习笔记结构，形成长期可复用知识资产。",
-        "invoke": "ui"
+        "entry": "藏经阁 · 主题问答",
+        "service": "针对当前主题进行问答辅导。",
+        "invoke": "agent",
+        "bindingId": "libu_topic_chat",
+        "match": [
+          "learning-plan/topic-chat",
+          "主题问答",
+          "扫地僧问答"
+        ]
+      },
+      {
+        "entry": "藏经阁 · 主题总结",
+        "service": "对主题问答进行总结回写。",
+        "invoke": "agent",
+        "bindingId": "libu_topic_summarize",
+        "match": [
+          "learning-plan/topic-summarize",
+          "主题总结",
+          "总结回写"
+        ]
       }
     ],
     "libu_hr": [
       {
-        "entry": "人事部 · 部门详情",
+        "entry": "人事部 · 部门详情维护",
         "service": "维护各 Agent 的模型、SOUL、技能与职责配置。",
-        "invoke": "ui"
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       },
       {
-        "entry": "人事部 · 会话治理",
-        "service": "查看会话概览并支持按会话进入对话面板。",
-        "invoke": "ui"
+        "entry": "人事部 · 会话面板治理",
+        "service": "查看会话概览并进入单会话对话面板。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       },
       {
         "entry": "人事部 · 组织编排",
-        "service": "维护部门列表排序与人员治理结构。",
-        "invoke": "ui"
+        "service": "维护部门列表排序与分隔布局。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       },
       {
         "entry": "人事部 · SOUL重新整理",
@@ -112,58 +178,86 @@
         ]
       }
     ],
-    "taizi": [
+    "shangshu": [
       {
-        "entry": "任务统筹 · 新建旨意",
-        "service": "接收需求并发起任务流转，推进跨部门协作。",
-        "invoke": "agent"
+        "entry": "能效部 · 任务描述解析",
+        "service": "点击“解析”后，将任务描述转换为触发条件/打工人/提示词。",
+        "invoke": "agent",
+        "bindingId": "shangshu_automation_parse",
+        "match": [
+          "automation/parse-request",
+          "能效部解析",
+          "任务描述解析"
+        ]
       },
       {
-        "entry": "任务统筹 · 状态流转",
-        "service": "根据任务状态触发部门承接与后续处理流程。",
-        "invoke": "agent"
+        "entry": "能效部 · 任务执行(打工人为shangshu)",
+        "service": "当打工人选择 shangshu 时，按配置提示词执行自动任务。",
+        "invoke": "agent",
+        "bindingId": "shangshu_automation_execute",
+        "match": [
+          "automation/task-run",
+          "automation/tick",
+          "shangshu执行"
+        ]
+      }
+    ],
+    "taizi": [
+      {
+        "entry": "秘书 · 需求理解与建单",
+        "service": "将自然语言需求拆解为动作，并在研发部创建对应任务单。",
+        "invoke": "agent",
+        "bindingId": "taizi_secretary_plan",
+        "match": [
+          "secretary/plan",
+          "secretary/execute",
+          "秘书建单"
+        ]
       }
     ],
     "zhongshu": [
       {
-        "entry": "文书治理 · 模板输出",
-        "service": "规范文书结构与记录格式，保证信息可追溯。",
-        "invoke": "agent"
+        "entry": "战略研究部 · 当前菜单能力",
+        "service": "当前菜单未接入该 Agent 的会话触发能力。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       }
     ],
     "menxia": [
       {
-        "entry": "审校治理 · 质检复核",
-        "service": "审查交付完整性，提出修正意见与风险提示。",
-        "invoke": "agent"
-      }
-    ],
-    "shangshu": [
-      {
-        "entry": "中枢调度 · 统筹协同",
-        "service": "协调多部门执行节奏，保障关键事项闭环。",
-        "invoke": "agent"
+        "entry": "风险部 · 当前菜单能力",
+        "service": "当前菜单未接入该 Agent 的会话触发能力。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       }
     ],
     "hubu": [
       {
-        "entry": "资源治理 · 成本视图",
-        "service": "汇总资源投入与关键消耗数据，提供决策参考。",
-        "invoke": "agent"
+        "entry": "金融部 · 当前菜单能力",
+        "service": "当前菜单未接入该 Agent 的会话触发能力。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       }
     ],
     "xingbu": [
       {
-        "entry": "规则治理 · 风险约束",
-        "service": "维护流程边界与规则检查，提示异常风险。",
-        "invoke": "agent"
+        "entry": "测试部 · 当前菜单能力",
+        "service": "当前菜单未接入该 Agent 的会话触发能力。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       }
     ],
     "zaochao": [
       {
-        "entry": "朝报治理 · 摘要播报",
-        "service": "汇总当日关键信息并形成可读简报。",
-        "invoke": "agent"
+        "entry": "情报处 · 天下要闻展示",
+        "service": "当前菜单以内置聚合接口展示为主，暂未直接拉起情报处会话。",
+        "invoke": "ui",
+        "bindingId": "",
+        "match": []
       }
     ]
   }

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 三省六部 · 数据刷新循环
+# 看板数据刷新循环（默认关闭旧三省六部自动派发）
 # 用法: ./run_loop.sh [间隔秒数 [巡检间隔秒数]]
 #   间隔秒数：数据刷新频率，默认 60 秒
 #   巡检间隔秒数：自动重试卡住任务的频率，默认 300 秒
@@ -51,6 +51,8 @@ SCAN_INTERVAL="${2:-300}"  # 巡检间隔(秒), 默认 300
 SCAN_COUNTER=0
 SCRIPT_TIMEOUT=30  # 默认脚本最大执行时间(秒)
 DASHBOARD_PORT="${EDICT_DASHBOARD_PORT:-7891}"  # 看板端口，可通过环境变量覆盖
+ENABLE_LEGACY_WORKFLOW="${EDICT_ENABLE_LEGACY_WORKFLOW:-0}"
+LEGACY_WORKFLOW_FLAG="$(printf '%s' "$ENABLE_LEGACY_WORKFLOW" | tr '[:upper:]' '[:lower:]')"
 
 echo "🏛️  三省六部数据刷新循环启动 (PID=$$)"
 echo "   脚本目录: $SCRIPT_DIR"
@@ -60,6 +62,7 @@ echo "   脚本超时: ${SCRIPT_TIMEOUT}s"
 echo "   日志: $LOG"
 echo "   PID文件: $PIDFILE"
 echo "   Python: $PYTHON_BIN"
+echo "   旧工作流: ${ENABLE_LEGACY_WORKFLOW} (EDICT_ENABLE_LEGACY_WORKFLOW)"
 echo "   按 Ctrl+C 停止"
 
 # ── 安全执行（带超时保护）──
@@ -86,21 +89,26 @@ while true; do
   safe_run "$SCRIPT_DIR/sync_from_openclaw_runtime.py"
   safe_run "$SCRIPT_DIR/sync_agent_config.py"
   safe_run "$SCRIPT_DIR/apply_model_changes.py"
-  safe_run "$SCRIPT_DIR/dispatch_pending_agents.py" 280
-  safe_run "$SCRIPT_DIR/verify_taizi_transfer.py"
   safe_run "$SCRIPT_DIR/sync_officials_stats.py"
   safe_run "$SCRIPT_DIR/refresh_live_data.py"
+
+  if [[ "$LEGACY_WORKFLOW_FLAG" == "1" || "$LEGACY_WORKFLOW_FLAG" == "true" ]]; then
+    safe_run "$SCRIPT_DIR/dispatch_pending_agents.py" 280
+    safe_run "$SCRIPT_DIR/verify_taizi_transfer.py"
+  fi
 
   # 定时任务触发：按规则扫描并执行到点任务（含 codex 打工人）
   curl -s -X POST "http://127.0.0.1:${DASHBOARD_PORT}/api/automation/tick" \
     -H 'Content-Type: application/json' -d '{}' >> "$LOG" 2>&1 || true
 
-  # 定期巡检：检测卡住的任务并自动重试
-  SCAN_COUNTER=$((SCAN_COUNTER + INTERVAL))
-  if (( SCAN_COUNTER >= SCAN_INTERVAL )); then
-    SCAN_COUNTER=0
-    curl -s -X POST "http://127.0.0.1:${DASHBOARD_PORT}/api/scheduler-scan" \
-      -H 'Content-Type: application/json' -d '{"thresholdSec":600}' >> "$LOG" 2>&1 || true
+  # 定期巡检：旧工作流开启时，检测卡住任务并自动重试
+  if [[ "$LEGACY_WORKFLOW_FLAG" == "1" || "$LEGACY_WORKFLOW_FLAG" == "true" ]]; then
+    SCAN_COUNTER=$((SCAN_COUNTER + INTERVAL))
+    if (( SCAN_COUNTER >= SCAN_INTERVAL )); then
+      SCAN_COUNTER=0
+      curl -s -X POST "http://127.0.0.1:${DASHBOARD_PORT}/api/scheduler-scan" \
+        -H 'Content-Type: application/json' -d '{"thresholdSec":600}' >> "$LOG" 2>&1 || true
+    fi
   fi
 
   sleep "$INTERVAL"

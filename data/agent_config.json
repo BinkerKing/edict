@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13 12:16:21",
+  "generatedAt": "2026-04-15 23:43:57",
   "defaultModel": "bailian-cn/qwen3-coder-plus",
   "knownModels": [
     {
@@ -92,8 +92,8 @@
   "agents": [
     {
       "id": "taizi",
-      "label": "太子",
-      "role": "太子",
+      "label": "董事会",
+      "role": "秘书",
       "duty": "飞书消息分拣与回奏",
       "emoji": "🤴",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -196,6 +196,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {
@@ -443,8 +450,8 @@
     },
     {
       "id": "zhongshu",
-      "label": "中书省",
-      "role": "中书令",
+      "label": "战略研究部",
+      "role": "战略负责人",
       "duty": "起草任务令与优先级",
       "emoji": "📜",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -547,6 +554,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {
@@ -795,8 +809,8 @@
     },
     {
       "id": "menxia",
-      "label": "门下省",
-      "role": "侍中",
+      "label": "风险部",
+      "role": "合规",
       "duty": "审议与退回机制",
       "emoji": "🔍",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -899,6 +913,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {
@@ -1254,6 +1275,13 @@
           "scope": "global"
         },
         {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
+          "scope": "global"
+        },
+        {
           "name": "frontend-skill",
           "path": "/Users/binlian/.openclaw/skills/frontend-skill/SKILL.md",
           "exists": true,
@@ -1505,8 +1533,8 @@
     },
     {
       "id": "hubu",
-      "label": "户部",
-      "role": "户部尚书",
+      "label": "金融部",
+      "role": "金融分析师",
       "duty": "资源/预算/成本",
       "emoji": "💰",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -1609,6 +1637,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {
@@ -1963,6 +1998,13 @@
           "scope": "global"
         },
         {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
+          "scope": "global"
+        },
+        {
           "name": "frontend-skill",
           "path": "/Users/binlian/.openclaw/skills/frontend-skill/SKILL.md",
           "exists": true,
@@ -2314,6 +2356,13 @@
           "scope": "global"
         },
         {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
+          "scope": "global"
+        },
+        {
           "name": "frontend-skill",
           "path": "/Users/binlian/.openclaw/skills/frontend-skill/SKILL.md",
           "exists": true,
@@ -2558,8 +2607,8 @@
     },
     {
       "id": "xingbu",
-      "label": "刑部",
-      "role": "刑部尚书",
+      "label": "测试部",
+      "role": "测试员",
       "duty": "合规/审计/红线",
       "emoji": "⚖️",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -2662,6 +2711,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {
@@ -3016,6 +3072,13 @@
           "scope": "global"
         },
         {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
+          "scope": "global"
+        },
+        {
           "name": "frontend-skill",
           "path": "/Users/binlian/.openclaw/skills/frontend-skill/SKILL.md",
           "exists": true,
@@ -3367,6 +3430,13 @@
           "scope": "global"
         },
         {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
+          "scope": "global"
+        },
+        {
           "name": "frontend-skill",
           "path": "/Users/binlian/.openclaw/skills/frontend-skill/SKILL.md",
           "exists": true,
@@ -3611,14 +3681,56 @@
     },
     {
       "id": "zaochao",
-      "label": "钦天监",
-      "role": "朝报官",
+      "label": "情报处",
+      "role": "情报官",
       "duty": "每日新闻采集与简报",
       "emoji": "📰",
       "model": "bailian-cn/qwen3-coder-plus",
       "defaultModel": "bailian-cn/qwen3-coder-plus",
       "workspace": "/Users/binlian/.openclaw/workspace-zaochao",
       "skills": [
+        {
+          "name": "cctv-news-fetcher",
+          "path": "/Users/binlian/.openclaw/workspace-zaochao/skills/cctv-news-fetcher/SKILL.md",
+          "exists": true,
+          "description": "name: cctv-news-fetcher",
+          "scope": "workspace"
+        },
+        {
+          "name": "daily-news",
+          "path": "/Users/binlian/.openclaw/workspace-zaochao/skills/daily-news/SKILL.md",
+          "exists": true,
+          "description": "name: daily-news",
+          "scope": "workspace"
+        },
+        {
+          "name": "hot-news-aggregator",
+          "path": "/Users/binlian/.openclaw/workspace-zaochao/skills/hot-news-aggregator/SKILL.md",
+          "exists": true,
+          "description": "name: hot-news-aggregator",
+          "scope": "workspace"
+        },
+        {
+          "name": "news-aggregator",
+          "path": "/Users/binlian/.openclaw/workspace-zaochao/skills/news-aggregator/SKILL.md",
+          "exists": true,
+          "description": "name: news-aggregator",
+          "scope": "workspace"
+        },
+        {
+          "name": "news-crawler",
+          "path": "/Users/binlian/.openclaw/workspace-zaochao/skills/news-crawler/SKILL.md",
+          "exists": true,
+          "description": "name: news-crawler",
+          "scope": "workspace"
+        },
+        {
+          "name": "news_intel_research",
+          "path": "/Users/binlian/.openclaw/workspace-zaochao/skills/news_intel_research/SKILL.md",
+          "exists": true,
+          "description": "name: news_intel_research",
+          "scope": "workspace"
+        },
         {
           "name": "aspnet-core",
           "path": "/Users/binlian/.openclaw/skills/aspnet-core/SKILL.md",
@@ -3715,6 +3827,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {
@@ -3960,8 +4079,8 @@
     },
     {
       "id": "main",
-      "label": "太子",
-      "role": "太子",
+      "label": "董事会",
+      "role": "秘书",
       "duty": "飞书消息分拣与回奏",
       "emoji": "🤴",
       "model": "bailian-cn/qwen3-coder-plus",
@@ -4064,6 +4183,13 @@
           "path": "/Users/binlian/.openclaw/skills/figma-use/SKILL.md",
           "exists": true,
           "description": "name: figma-use",
+          "scope": "global"
+        },
+        {
+          "name": "find",
+          "path": "/Users/binlian/.openclaw/skills/find/SKILL.md",
+          "exists": true,
+          "description": "name: Find",
           "scope": "global"
         },
         {

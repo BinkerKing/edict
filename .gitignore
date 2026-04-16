@@ -18,6 +18,7 @@ data/live_status.backup-*
 
 # Environment
 .env
+.openclaw/
 
 # Python
 __pycache__/

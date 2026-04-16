@@ -28,6 +28,7 @@
 """
 import datetime
 import json, pathlib, sys, subprocess, logging, os, re
+from openclaw_config import OPENCLAW_AGENTS_HOME
 
 _BASE = pathlib.Path(os.environ['EDICT_HOME']) if 'EDICT_HOME' in os.environ else pathlib.Path(__file__).resolve().parent.parent
 TASKS_FILE = _BASE / 'data' / 'tasks_source.json'
@@ -73,7 +74,7 @@ _TERMINAL_STATES = {'Done', 'Cancelled'}
 
 
 def _agent_session_contains_task(agent_id: str, task_id: str) -> bool:
-    root = pathlib.Path.home() / '.openclaw' / 'agents' / agent_id / 'sessions'
+    root = OPENCLAW_AGENTS_HOME / agent_id / 'sessions'
     if not root.exists():
         return False
     for p in root.glob('*.jsonl'):

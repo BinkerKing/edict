@@ -16,10 +16,20 @@ from __future__ import annotations
 import json
 import logging
 import os
+import pathlib
+import sys
 import time
 import uuid
 
 logger = logging.getLogger('court_discuss')
+
+_SCRIPTS_DIR = pathlib.Path(__file__).resolve().parent.parent / 'scripts'
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+try:
+    from openclaw_config import OPENCLAW_HOME
+except Exception:
+    OPENCLAW_HOME = pathlib.Path.home() / '.openclaw'
 
 # ── 官员角色设定 ──
 
@@ -300,23 +310,27 @@ def _pick_chat_model(models: list[dict]) -> str | None:
 
 def _read_copilot_token() -> str | None:
     """读取 openclaw 管理的 GitHub Copilot token。"""
-    token_path = os.path.expanduser('~/.openclaw/credentials/github-copilot.token.json')
-    if not os.path.exists(token_path):
-        return None
-    try:
-        with open(token_path) as f:
-            cred = json.load(f)
-        token = cred.get('token', '')
-        expires = cred.get('expiresAt', 0)
-        # 检查 token 是否过期（毫秒时间戳）
-        import time
-        if expires and time.time() * 1000 > expires:
-            logger.warning('Copilot token expired')
-            return None
-        return token if token else None
-    except Exception as e:
-        logger.warning('Failed to read copilot token: %s', e)
-        return None
+    token_candidates = [
+        OPENCLAW_HOME / 'credentials' / 'github-copilot.token.json',
+        pathlib.Path.home() / '.openclaw' / 'credentials' / 'github-copilot.token.json',
+    ]
+    for token_path in token_candidates:
+        if not token_path.exists():
+            continue
+        try:
+            cred = json.loads(token_path.read_text(encoding='utf-8'))
+            token = cred.get('token', '')
+            expires = cred.get('expiresAt', 0)
+            # 检查 token 是否过期（毫秒时间戳）
+            import time
+            if expires and time.time() * 1000 > expires:
+                logger.warning('Copilot token expired: %s', token_path)
+                continue
+            if token:
+                return token
+        except Exception as e:
+            logger.warning('Failed to read copilot token %s: %s', token_path, e)
+    return None
 
 
 def _get_llm_config() -> dict | None:
@@ -347,14 +361,13 @@ def _get_llm_config() -> dict | None:
             'api_type': 'github-copilot',
         }
 
-    # 3. 从 ~/.openclaw/openclaw.json 读取其他 provider 配置
-    openclaw_cfg = os.path.expanduser('~/.openclaw/openclaw.json')
-    if not os.path.exists(openclaw_cfg):
+    # 3. 从 openclaw.json 读取其他 provider 配置（优先项目内 .openclaw）
+    openclaw_cfg = OPENCLAW_HOME / 'openclaw.json'
+    if not openclaw_cfg.exists():
         return None
 
     try:
-        with open(openclaw_cfg) as f:
-            cfg = json.load(f)
+        cfg = json.loads(openclaw_cfg.read_text(encoding='utf-8'))
 
         providers = cfg.get('models', {}).get('providers', {})
 

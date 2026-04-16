@@ -47,6 +47,28 @@
 3. 按照既定流程执行
 4. 定期查看看板了解进度
 
+## SQLite 本地数据库（已配置）
+- 数据库文件：`data/edict.db`
+- 初始化脚本：`scripts/setup_sqlite.py`
+- Schema 文件：`db/schema.sql`
+- 快捷操作脚本：`scripts/sqlite.sh`
+
+常用命令：
+
+```bash
+# 1) 初始化 / 升级 schema
+python3 scripts/setup_sqlite.py
+
+# 2) 查看表
+bash scripts/sqlite.sh tables
+
+# 3) 执行查询
+bash scripts/sqlite.sh q "SELECT key,value FROM meta_kv;"
+
+# 4) 进入交互式 sqlite shell
+bash scripts/sqlite.sh
+```
+
 ## 流程图说明
 以下是三省六部工作流程的可视化表示：
 

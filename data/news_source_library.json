@@ -1,0 +1,100 @@
+{
+  "updated_at": "2026-04-13 23:52:51",
+  "sources": [
+    {
+      "name": "BBC中文",
+      "domain": "www.bbc.com",
+      "categories": [
+        "政治",
+        "经济",
+        "AI大模型"
+      ],
+      "feeds": [
+        "https://feeds.bbci.co.uk/zhongwen/simp/rss.xml",
+        "https://feeds.bbci.co.uk/zhongwen/trad/rss.xml"
+      ]
+    },
+    {
+      "name": "新华社",
+      "domain": "www.xinhuanet.com",
+      "categories": [
+        "政治",
+        "经济",
+        "AI大模型"
+      ]
+    },
+    {
+      "name": "央视网",
+      "domain": "www.cctv.com",
+      "categories": [
+        "政治",
+        "经济",
+        "AI大模型"
+      ]
+    },
+    {
+      "name": "中国新闻网",
+      "domain": "www.chinanews.com.cn",
+      "categories": [
+        "政治",
+        "经济",
+        "AI大模型"
+      ],
+      "feeds": [
+        "https://www.chinanews.com.cn/rss/scroll-news.xml",
+        "https://www.chinanews.com.cn/rss/world.xml"
+      ]
+    },
+    {
+      "name": "人民网",
+      "domain": "www.people.com.cn",
+      "categories": [
+        "政治",
+        "经济"
+      ]
+    },
+    {
+      "name": "财新网",
+      "domain": "www.caixin.com",
+      "categories": [
+        "经济",
+        "AI大模型"
+      ]
+    },
+    {
+      "name": "第一财经",
+      "domain": "www.yicai.com",
+      "categories": [
+        "经济"
+      ]
+    },
+    {
+      "name": "澎湃新闻",
+      "domain": "www.thepaper.cn",
+      "categories": [
+        "政治",
+        "经济",
+        "AI大模型"
+      ]
+    },
+    {
+      "name": "36氪",
+      "domain": "www.36kr.com",
+      "categories": [
+        "经济",
+        "AI大模型"
+      ],
+      "feeds": [
+        "https://36kr.com/feed"
+      ]
+    },
+    {
+      "name": "华尔街见闻",
+      "domain": "www.wallstreetcn.com",
+      "categories": [
+        "经济",
+        "AI大模型"
+      ]
+    }
+  ]
+}

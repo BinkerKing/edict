@@ -6,6 +6,7 @@ import subprocess
 import datetime
 
 from file_lock import atomic_json_read, atomic_json_update
+from openclaw_config import OPENCLAW_AGENTS_HOME
 
 log = logging.getLogger("dispatch")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message)s', datefmt='%H:%M:%S')
@@ -14,7 +15,7 @@ BASE = pathlib.Path(__file__).resolve().parent.parent
 DATA = BASE / "data"
 TASKS_PATH = DATA / "tasks_source.json"
 NUDGE_STATE_PATH = DATA / "dispatch_nudge_state.json"
-SESSIONS_ROOT = pathlib.Path.home() / ".openclaw" / "agents"
+SESSIONS_ROOT = OPENCLAW_AGENTS_HOME
 
 ORG_AGENT_MAP = {
     "尚书省": "shangshu",
